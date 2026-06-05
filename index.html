@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>AI Car Diagnostics</title>
+  <title>AI Car Diagnostics - الإصدار النهائي</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -23,7 +23,7 @@
     .lang-select{background:#1e2a3a;border:1px solid #f5a623;border-radius:40px;padding:4px 8px;color:#fff;font-size:0.7rem}
     .device-id{background:#1e2a3a;border-radius:40px;padding:4px 10px;font-family:monospace;font-size:0.7rem}
     .free-badge{text-align:center;background:#f5a62320;margin:8px 12px;padding:6px;border-radius:40px;font-weight:bold;color:#f5a623}
-    .credit-card{background:#0f172a;border-radius:1.5rem;margin:12px;padding:10px;border:1px solid #3b82f6;text-align:center}
+    .credit-card{background:#0f172a;border-radius:1.5rem;margin:12px;padding:10px;text-align:center;border:1px solid #3b82f6}
     .credit-amount{font-size:1.8rem;font-weight:800;color:#f5a623}
     .pay-buttons{display:flex;gap:8px;justify-content:center;margin:6px 0;flex-wrap:wrap}
     .pay-btn{background:#10b981;border:none;border-radius:60px;padding:5px 12px;font-weight:bold;cursor:pointer;color:#fff}
@@ -39,7 +39,7 @@
     .btn-group{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}
     button{background:#f97316;border:none;border-radius:40px;padding:6px 12px;font-weight:bold;cursor:pointer;color:#fff}
     button:disabled{opacity:0.5;cursor:not-allowed}
-    .result-area{background:#0a1020;border-radius:1.5rem;margin:12px;padding:16px;border:2px solid #f5a623;color:#fff;line-height:1.6}
+    .result-area{background:#0a1020;border-radius:1.5rem;margin:12px;padding:16px;border:2px solid #f5a623}
     .action-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
     .action-btn{flex:1;background:#2d3a4e;padding:8px;border-radius:40px;text-align:center;cursor:pointer;font-size:0.7rem}
     .danger-low{background:#10b981;color:#000;display:inline-block;padding:2px 12px;border-radius:30px}
@@ -83,9 +83,9 @@
   <div class="credit-card">
     <div><i class="fas fa-coins"></i> <span id="creditLabel">الرصيد المتبقي:</span> <span class="credit-amount" id="creditValue">0</span></div>
     <div class="pay-buttons">
-      <button class="pay-btn" id="singlePayBtn" data-plan="1">💵 1 تشخيص ($2)</button>
-      <button class="pay-btn" id="pack5PayBtn" data-plan="5">💵 5 تشخيصات ($8)</button>
-      <button class="pay-btn" id="pack15PayBtn" data-plan="15">💵 15 تشخيصاً ($20)</button>
+      <button class="pay-btn" id="singlePayBtn">💵 1 تشخيص ($2)</button>
+      <button class="pay-btn" id="pack5PayBtn">💵 5 تشخيصات ($8)</button>
+      <button class="pay-btn" id="pack15PayBtn">💵 15 تشخيصاً ($20)</button>
     </div>
     <div class="license-box">
       <input type="text" id="licenseCode" placeholder="🔑 رمز التفعيل">
@@ -101,51 +101,51 @@
 
   <div id="diagPanel" style="display:none;">
     <div class="sensor-card">
-      <div class="sensor-header"><i class="fas fa-camera sensor-icon"></i><span id="camName">كاميرا</span></div>
-      <div class="sensor-instr" id="camInstr">صوّر فتحة العادم (المؤخرة) بوضوح</div>
+      <div class="sensor-header"><i class="fas fa-camera sensor-icon"></i><span id="camName"></span></div>
+      <div class="sensor-instr" id="camInstr"></div>
       <div id="camPreview"></div>
       <div id="camResult" class="sensor-result"></div>
       <div class="btn-group">
-        <button id="camStartBtn">▶ بدء التصوير</button>
-        <button id="camConfirmBtn" disabled>✅ تأكيد</button>
-        <button id="camRetakeBtn" disabled>🔄 إعادة</button>
+        <button id="camStartBtn">▶ <span id="camStartText"></span> (8s)</button>
+        <button id="camConfirmBtn" disabled>✅ <span id="camConfirmText"></span></button>
+        <button id="camRetakeBtn" disabled>🔄 <span id="camRetakeText"></span></button>
       </div>
     </div>
 
     <div class="sensor-card">
-      <div class="sensor-header"><i class="fas fa-microphone sensor-icon"></i><span id="micName">ميكروفون</span></div>
-      <div class="sensor-instr" id="micInstr">سجّل صوت المحرك من مسافة 30 سم (8 ثوانٍ)</div>
+      <div class="sensor-header"><i class="fas fa-microphone sensor-icon"></i><span id="micName"></span></div>
+      <div class="sensor-instr" id="micInstr"></div>
       <div id="micResult" class="sensor-result"></div>
       <div class="btn-group">
-        <button id="micStartBtn">▶ بدء التسجيل</button>
-        <button id="micConfirmBtn" disabled>✅ تأكيد</button>
-        <button id="micRetakeBtn" disabled>🔄 إعادة</button>
+        <button id="micStartBtn">▶ <span id="micStartText"></span> (8s)</button>
+        <button id="micConfirmBtn" disabled>✅ <span id="micConfirmText"></span></button>
+        <button id="micRetakeBtn" disabled>🔄 <span id="micRetakeText"></span></button>
       </div>
     </div>
 
     <div class="sensor-card">
-      <div class="sensor-header"><i class="fas fa-vibrate sensor-icon"></i><span id="vibName">اهتزاز</span></div>
-      <div class="sensor-instr" id="vibInstr">ضع الهاتف فوق غطاء المحرك (5 ثوانٍ)</div>
+      <div class="sensor-header"><i class="fas fa-vibrate sensor-icon"></i><span id="vibName"></span></div>
+      <div class="sensor-instr" id="vibInstr"></div>
       <div id="vibResult" class="sensor-result"></div>
       <div class="btn-group">
-        <button id="vibStartBtn">▶ بدء القياس</button>
-        <button id="vibConfirmBtn" disabled>✅ تأكيد</button>
-        <button id="vibRetakeBtn" disabled>🔄 إعادة</button>
+        <button id="vibStartBtn">▶ <span id="vibStartText"></span> (6s)</button>
+        <button id="vibConfirmBtn" disabled>✅ <span id="vibConfirmText"></span></button>
+        <button id="vibRetakeBtn" disabled>🔄 <span id="vibRetakeText"></span></button>
       </div>
     </div>
 
     <div class="sensor-card">
-      <div class="sensor-header"><i class="fas fa-user-edit sensor-icon"></i><span id="userName">وصف إضافي</span></div>
-      <div class="sensor-instr" id="userInstr">سجّل ملاحظاتك (اختياري - يزيد الدقة)</div>
+      <div class="sensor-header"><i class="fas fa-user-edit sensor-icon"></i><span id="userName"></span></div>
+      <div class="sensor-instr" id="userInstr"></div>
       <div id="userResult" class="sensor-result"></div>
       <div class="btn-group">
-        <button id="userSpeakBtn">🎤 تحدث لوصف المشكلة</button>
-        <button id="userClearBtn">🗑 مسح</button>
+        <button id="userSpeakBtn">🎤 <span id="userSpeakText"></span></button>
+        <button id="userClearBtn">🗑 <span id="userClearText"></span></button>
       </div>
     </div>
 
-    <button id="analyzeBtn" class="btn-primary" disabled>📊 تحليل البيانات والتشخيص النهائي</button>
-    <button id="backBtn" class="btn-primary" style="background:#555;">↩️ رجوع</button>
+    <button id="analyzeBtn" class="btn-primary" disabled>📊 <span id="analyzeText"></span></button>
+    <button id="backBtn" class="btn-primary" style="background:#555;">↩️ <span id="backText"></span></button>
   </div>
 
   <div id="resultPanel" style="display:none;" class="result-area"></div>
@@ -157,89 +157,92 @@
 <div id="toast" class="toast"></div>
 
 <script>
-// ==================== 1. الترجمة الكاملة ====================
+// ==================== 1. قائمة اللغات (54) وخريطة BCP-47 للنطق ====================
 const langList = ["ar","en","fr","es","de","it","pt","ru","zh","ja","ko","hi","tr","fa","ur","sw","vi","el","cs","he","th","uk","ro","hu","sv","da","fi","no","pl","nl","id","ms","bn","pa","ta","te","mr","ha","tl","gu","am","yo","uz","my","az","ig","so","sk","bg","hr","lt","lv","et","sl"];
 const langNames = {
   ar:"🇸🇦 العربية", en:"🇬🇧 English", fr:"🇫🇷 Français", es:"🇪🇸 Español", de:"🇩🇪 Deutsch", it:"🇮🇹 Italiano", pt:"🇵🇹 Português", ru:"🇷🇺 Русский", zh:"🇨🇳 中文", ja:"🇯🇵 日本語", ko:"🇰🇷 한국어", hi:"🇮🇳 हिन्दी", tr:"🇹🇷 Türkçe", fa:"🇮🇷 فارسی", ur:"🇵🇰 اردو", sw:"🇰🇪 Kiswahili", vi:"🇻🇳 Tiếng Việt", el:"🇬🇷 Ελληνικά", cs:"🇨🇿 Čeština", he:"🇮🇱 עברית", th:"🇹🇭 ไทย", uk:"🇺🇦 Українська", ro:"🇷🇴 Română", hu:"🇭🇺 Magyar", sv:"🇸🇪 Svenska", da:"🇩🇰 Dansk", fi:"🇫🇮 Suomi", no:"🇳🇴 Norsk", pl:"🇵🇱 Polski", nl:"🇳🇱 Nederlands", id:"🇮🇩 Indonesia", ms:"🇲🇾 Melayu", bn:"🇧🇩 বাংলা", pa:"🇮🇳 ਪੰਜਾਬੀ", ta:"🇮🇳 தமிழ்", te:"🇮🇳 తెలుగు", mr:"🇮🇳 मराठी", ha:"🇳🇬 Hausa", tl:"🇵🇭 Filipino", gu:"🇮🇳 ગુજરાતી", am:"🇪🇹 አማርኛ", yo:"🇳🇬 Yorùbá", uz:"🇺🇿 O‘zbek", my:"🇲🇲 မြန်မာ", az:"🇦🇿 Azərbaycan", ig:"🇳🇬 Igbo", so:"🇸🇴 Soomaali", sk:"🇸🇰 Slovenčina", bg:"🇧🇬 Български", hr:"🇭🇷 Hrvatski", lt:"🇱🇹 Lietuvių", lv:"🇱🇻 Latviešu", et:"🇪🇪 Eesti", sl:"🇸🇮 Slovenščina"
 };
-const defaultTranslations = {
-  ar: {
-    subtitle:"التشخيص الذكي للمحرك", free_badge:"🔓 3 تشخيصات مجانية متبقية", credit_label:"الرصيد المتبقي:", activate:"تفعيل", start_btn:"ابدأ التشخيص الذكي", analyze_btn:"تحليل البيانات والتشخيص النهائي", userSpeak:"تحدث لوصف المشكلة", userClear:"مسح", back_btn:"رجوع",
-    btn_single:"💵 1 تشخيص ($2)", btn_pack5:"💵 5 تشخيصات ($8)", btn_pack15:"💵 15 تشخيصاً ($20)",
-    camName:"كاميرا", camInstr:"صوّر فتحة العادم (المؤخرة) بوضوح", camStart:"بدء التصوير", camConfirm:"تأكيد", camRetake:"إعادة",
-    micName:"ميكروفون", micInstr:"سجّل صوت المحرك من مسافة 30 سم (8 ثوانٍ)", micStart:"بدء التسجيل", micConfirm:"تأكيد", micRetake:"إعادة",
-    vibName:"اهتزاز", vibInstr:"ضع الهاتف فوق غطاء المحرك (5 ثوانٍ)", vibStart:"بدء القياس", vibConfirm:"تأكيد", vibRetake:"إعادة",
-    userName:"وصف إضافي", userInstr:"سجّل ملاحظاتك (اختياري - يزيد الدقة)", userSpeakBtn:"تحدث لوصف المشكلة", userClearBtn:"مسح",
-    smoke_white:"أبيض", smoke_black:"أسود", smoke_blue:"أزرق", smoke_gray:"رمادي", smoke_none:"لا دخان",
-    sound_smooth:"طبيعي", sound_knocking:"طقطقة", sound_rough:"خشن", sound_whistle:"صفير", sound_ticking:"تكتكة", sound_squeal:"صُرير", sound_rumble:"أزيز", sound_hiss:"هسهسة",
-    low:"منخفض", medium:"متوسط", high:"مرتفع", very_high:"مرتفع جداً",
-    diag_title:"التشخيص النهائي", solution:"الحل", severity:"الخطورة", severity_low:"منخفضة", severity_medium:"متوسطة", severity_high:"مرتفعة", severity_critical:"حرجة",
-    listen:"استمع للنتيجة", pdf:"حفظ PDF", copy:"نسخ التقرير", email:"إرسال", save:"حفظ التشخيص", copied:"تم النسخ", no_credits:"❌ لا رصيد كافٍ", diag_ok:"✅ تم خصم تشخيص",
-    fault_white_knocking:"حشية رأس محرك تالفة + طقطقة", solution_white_knocking:"استبدل حشية الرأس وافحص التبريد",
-    fault_white_smooth:"تسرب ماء تبريد (حشية رأس)", solution_white_smooth:"افحص حشية الرأس",
-    fault_black_rough:"خليط وقود غني (بخاخات)", solution_black_rough:"نظف البخاخات وحساس الأكسجين",
-    fault_black_knocking:"وقود رديء أو بوجيهات تالفة", solution_black_knocking:"استخدم وقود 95 واستبدل البوجيهات",
-    fault_blue_smooth:"حرق زيت (حلقات مكبس)", solution_blue_smooth:"عمرة محرك",
-    fault_blue_knocking:"حلقات مكبس تالفة مع طقطقة", solution_blue_knocking:"فحص وعمرة كاملة",
-    fault_gray_whistle:"صمام EGR متسخ", solution_gray_whistle:"نظف صمام EGR",
-    fault_gray_smooth:"فلتر هواء مسدود", solution_gray_smooth:"استبدل فلتر الهواء",
-    fault_none_ticking:"صمامات تالفة أو نقص زيت", solution_none_ticking:"اضبط الصمامات وافحص الزيت",
-    fault_none_squeal:"سير مكينة مرتخي", solution_none_squeal:"شد السير أو استبدله",
-    fault_normal_normal:"لا يوجد عطل واضح", solution_normal_normal:"صيانة دورية"
+const BCP_MAP = {
+  ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN", el:"el-GR", cs:"cs-CZ", he:"he-IL", th:"th-TH", uk:"uk-UA", ro:"ro-RO", hu:"hu-HU", sv:"sv-SE", da:"da-DK", fi:"fi-FI", no:"nb-NO", pl:"pl-PL", nl:"nl-NL", id:"id-ID", ms:"ms-MY", bn:"bn-BD", pa:"pa-IN", ta:"ta-IN", te:"te-IN", mr:"mr-IN", ha:"ha-NG", tl:"fil-PH", gu:"gu-IN", am:"am-ET", yo:"yo-NG", uz:"uz-UZ", my:"my-MM", az:"az-AZ", ig:"ig-NG", so:"so-SO", sk:"sk-SK", bg:"bg-BG", hr:"hr-HR", lt:"lt-LT", lv:"lv-LV", et:"et-EE", sl:"sl-SI"
+};
+// الترجمات الأساسية (العربية، الإنجليزية، الفرنسية كاملة). باقي اللغات ترث الإنجليزية.
+const translations = {
+  ar: { subtitle:"التشخيص الذكي للمحرك", free_badge:"🔓 3 تشخيصات مجانية متبقية", credit_label:"الرصيد المتبقي:", activate:"تفعيل", start_btn:"ابدأ التشخيص الذكي", analyze_btn:"تحليل البيانات والتشخيص النهائي", back_btn:"رجوع",
+        camName:"كاميرا", camInstr:"صوّر فتحة العادم (المؤخرة) بوضوح", camStartText:"بدء التصوير", camConfirmText:"تأكيد", camRetakeText:"إعادة",
+        micName:"ميكروفون", micInstr:"سجّل صوت المحرك من مسافة 30 سم (8 ثوانٍ)", micStartText:"بدء التسجيل", micConfirmText:"تأكيد", micRetakeText:"إعادة",
+        vibName:"اهتزاز", vibInstr:"ضع الهاتف فوق غطاء المحرك (6 ثوانٍ)", vibStartText:"بدء القياس", vibConfirmText:"تأكيد", vibRetakeText:"إعادة",
+        userName:"وصف إضافي", userInstr:"سجّل ملاحظاتك (اختياري - يزيد الدقة)", userSpeakText:"تحدث لوصف المشكلة", userClearText:"مسح",
+        analyzeText:"تحليل البيانات والتشخيص النهائي",
+        smoke_white:"أبيض", smoke_black:"أسود", smoke_blue:"أزرق", smoke_gray:"رمادي", smoke_none:"لا دخان",
+        sound_smooth:"طبيعي", sound_knocking:"طقطقة", sound_rough:"خشن", sound_whistle:"صفير", sound_ticking:"تكتكة", sound_squeal:"صُرير", sound_rumble:"أزيز", sound_hiss:"هسهسة",
+        low:"منخفض", medium:"متوسط", high:"مرتفع", very_high:"مرتفع جداً",
+        diag_title:"التشخيص النهائي", solution:"الحل", severity:"الخطورة", severity_low:"منخفضة", severity_medium:"متوسطة", severity_high:"مرتفعة", severity_critical:"حرجة",
+        listen:"استمع للنتيجة", pdf:"حفظ PDF", copy:"نسخ التقرير", email:"إرسال", save:"حفظ التشخيص", copied:"تم النسخ", no_credits:"❌ لا رصيد كافٍ", diag_ok:"✅ تم خصم تشخيص",
+        single_btn:"💵 1 تشخيص ($2)", pack5_btn:"💵 5 تشخيصات ($8)", pack15_btn:"💵 15 تشخيصاً ($20)",
+        fault_white_knocking:"حشية رأس محرك تالفة + طقطقة", solution_white_knocking:"استبدل حشية الرأس وافحص التبريد",
+        fault_white_smooth:"تسرب ماء تبريد (حشية رأس)", solution_white_smooth:"افحص حشية الرأس",
+        fault_black_rough:"خليط وقود غني (بخاخات)", solution_black_rough:"نظف البخاخات وحساس الأكسجين",
+        fault_black_knocking:"وقود رديء أو بوجيهات تالفة", solution_black_knocking:"استخدم وقود 95 واستبدل البوجيهات",
+        fault_blue_smooth:"حرق زيت (حلقات مكبس)", solution_blue_smooth:"عمرة محرك",
+        fault_blue_knocking:"حلقات مكبس تالفة مع طقطقة", solution_blue_knocking:"فحص وعمرة كاملة",
+        fault_gray_whistle:"صمام EGR متسخ", solution_gray_whistle:"نظف صمام EGR",
+        fault_gray_smooth:"فلتر هواء مسدود", solution_gray_smooth:"استبدل فلتر الهواء",
+        fault_none_ticking:"صمامات تالفة أو نقص زيت", solution_none_ticking:"اضبط الصمامات وافحص الزيت",
+        fault_none_squeal:"سير مكينة مرتخي", solution_none_squeal:"شد السير أو استبدله",
+        fault_normal_normal:"لا يوجد عطل واضح", solution_normal_normal:"صيانة دورية"
   },
-  en: {
-    subtitle:"Smart Engine Diagnosis", free_badge:"🔓 3 free diagnoses left", credit_label:"Remaining credits:", activate:"Activate", start_btn:"Start Smart Diagnosis", analyze_btn:"Analyze & Final Diagnosis", userSpeak:"Describe problem", userClear:"Clear", back_btn:"Back",
-    btn_single:"💵 1 Diagnosis ($2)", btn_pack5:"💵 5 Diagnoses ($8)", btn_pack15:"💵 15 Diagnoses ($20)",
-    camName:"Camera", camInstr:"Capture exhaust pipe clearly", camStart:"Start Capture", camConfirm:"Confirm", camRetake:"Retake",
-    micName:"Microphone", micInstr:"Record engine sound from 30cm (8 sec)", micStart:"Start Recording", micConfirm:"Confirm", micRetake:"Retake",
-    vibName:"Vibration", vibInstr:"Place phone on engine cover (5 sec)", vibStart:"Start Measurement", vibConfirm:"Confirm", vibRetake:"Retake",
-    userName:"Additional notes", userInstr:"Record your notes (optional - increases accuracy)", userSpeakBtn:"Describe problem", userClearBtn:"Clear",
-    smoke_white:"White", smoke_black:"Black", smoke_blue:"Blue", smoke_gray:"Gray", smoke_none:"No smoke",
-    sound_smooth:"Smooth", sound_knocking:"Knocking", sound_rough:"Rough", sound_whistle:"Whistle", sound_ticking:"Ticking", sound_squeal:"Squeal", sound_rumble:"Rumble", sound_hiss:"Hiss",
-    low:"Low", medium:"Medium", high:"High", very_high:"Very High",
-    diag_title:"Final Diagnosis", solution:"Solution", severity:"Severity", severity_low:"Low", severity_medium:"Medium", severity_high:"High", severity_critical:"Critical",
-    listen:"Listen to result", pdf:"Save PDF", copy:"Copy Report", email:"Email", save:"Save Diagnosis", copied:"Copied", no_credits:"❌ Insufficient credits", diag_ok:"✅ Diagnosis consumed",
-    fault_white_knocking:"Blown head gasket with knocking", solution_white_knocking:"Replace head gasket",
-    fault_white_smooth:"Coolant leak (head gasket)", solution_white_smooth:"Check head gasket",
-    fault_black_rough:"Rich fuel mixture (injectors)", solution_black_rough:"Clean injectors and O2 sensor",
-    fault_black_knocking:"Poor fuel or spark plugs", solution_black_knocking:"Use 95 octane fuel, replace plugs",
-    fault_blue_smooth:"Oil burning (piston rings)", solution_blue_smooth:"Engine overhaul",
-    fault_blue_knocking:"Worn piston rings with knocking", solution_blue_knocking:"Full engine overhaul",
-    fault_gray_whistle:"Dirty EGR valve", solution_gray_whistle:"Clean EGR valve",
-    fault_gray_smooth:"Clogged air filter", solution_gray_smooth:"Replace air filter",
-    fault_none_ticking:"Valve or low oil", solution_none_ticking:"Adjust valves, check oil",
-    fault_none_squeal:"Loose belt", solution_none_squeal:"Tighten or replace belt",
-    fault_normal_normal:"No clear fault", solution_normal_normal:"Routine maintenance"
+  en: { subtitle:"Smart Engine Diagnosis", free_badge:"🔓 3 free diagnoses left", credit_label:"Remaining credits:", activate:"Activate", start_btn:"Start Smart Diagnosis", analyze_btn:"Analyze & Final Diagnosis", back_btn:"Back",
+        camName:"Camera", camInstr:"Capture exhaust pipe clearly", camStartText:"Start Capture", camConfirmText:"Confirm", camRetakeText:"Retake",
+        micName:"Microphone", micInstr:"Record engine sound from 30cm (8 sec)", micStartText:"Start Recording", micConfirmText:"Confirm", micRetakeText:"Re-record",
+        vibName:"Vibration", vibInstr:"Place phone on engine cover (6 sec)", vibStartText:"Start Measurement", vibConfirmText:"Confirm", vibRetakeText:"Remeasure",
+        userName:"Additional notes", userInstr:"Record your notes (optional)", userSpeakText:"Describe problem", userClearText:"Clear",
+        analyzeText:"Analyze Data & Final Diagnosis",
+        smoke_white:"White", smoke_black:"Black", smoke_blue:"Blue", smoke_gray:"Gray", smoke_none:"No smoke",
+        sound_smooth:"Smooth", sound_knocking:"Knocking", sound_rough:"Rough", sound_whistle:"Whistle", sound_ticking:"Ticking", sound_squeal:"Squeal", sound_rumble:"Rumble", sound_hiss:"Hiss",
+        low:"Low", medium:"Medium", high:"High", very_high:"Very High",
+        diag_title:"Final Diagnosis", solution:"Solution", severity:"Severity", severity_low:"Low", severity_medium:"Medium", severity_high:"High", severity_critical:"Critical",
+        listen:"Listen to result", pdf:"Save PDF", copy:"Copy Report", email:"Email", save:"Save Diagnosis", copied:"Copied", no_credits:"❌ Insufficient credits", diag_ok:"✅ Diagnosis consumed",
+        single_btn:"💵 1 Diagnosis ($2)", pack5_btn:"💵 5 Diagnoses ($8)", pack15_btn:"💵 15 Diagnoses ($20)",
+        fault_white_knocking:"Blown head gasket with knocking", solution_white_knocking:"Replace head gasket",
+        fault_white_smooth:"Coolant leak (head gasket)", solution_white_smooth:"Check head gasket",
+        fault_black_rough:"Rich fuel mixture (injectors)", solution_black_rough:"Clean injectors and O2 sensor",
+        fault_black_knocking:"Poor fuel or spark plugs", solution_black_knocking:"Use 95 octane fuel, replace plugs",
+        fault_blue_smooth:"Oil burning (piston rings)", solution_blue_smooth:"Engine overhaul",
+        fault_blue_knocking:"Worn piston rings with knocking", solution_blue_knocking:"Full engine overhaul",
+        fault_gray_whistle:"Dirty EGR valve", solution_gray_whistle:"Clean EGR valve",
+        fault_gray_smooth:"Clogged air filter", solution_gray_smooth:"Replace air filter",
+        fault_none_ticking:"Valve or low oil", solution_none_ticking:"Adjust valves, check oil",
+        fault_none_squeal:"Loose belt", solution_none_squeal:"Tighten or replace belt",
+        fault_normal_normal:"No clear fault", solution_normal_normal:"Routine maintenance"
   },
-  fr: {
-    subtitle:"Diagnostic intelligent moteur", free_badge:"🔓 3 diagnostics gratuits restants", credit_label:"Crédits restants:", activate:"Activer", start_btn:"Démarrer diagnostic", analyze_btn:"Analyser & Diagnostic final", userSpeak:"Décrire", userClear:"Effacer", back_btn:"Retour",
-    btn_single:"💵 1 Diagnostic ($2)", btn_pack5:"💵 5 Diagnostics ($8)", btn_pack15:"💵 15 Diagnostics ($20)",
-    camName:"Caméra", camInstr:"Photographiez le pot d'échappement clairement", camStart:"Démarrer la capture", camConfirm:"Confirmer", camRetake:"Recommencer",
-    micName:"Microphone", micInstr:"Enregistrez le son du moteur à 30 cm (8 sec)", micStart:"Démarrer l'enregistrement", micConfirm:"Confirmer", micRetake:"Ré-enregistrer",
-    vibName:"Vibration", vibInstr:"Posez le téléphone sur le couvercle du moteur (5 sec)", vibStart:"Démarrer la mesure", vibConfirm:"Confirmer", vibRetake:"Remesurer",
-    userName:"Notes supplémentaires", userInstr:"Enregistrez vos notes (optionnel - augmente la précision)", userSpeakBtn:"Décrire le problème", userClearBtn:"Effacer",
-    smoke_white:"Blanc", smoke_black:"Noir", smoke_blue:"Bleu", smoke_gray:"Gris", smoke_none:"Aucune",
-    sound_smooth:"Normal", sound_knocking:"Cliquetis", sound_rough:"Rugueux", sound_whistle:"Sifflement", sound_ticking:"Tic-tac", sound_squeal:"Grincement", sound_rumble:"Bourdonnement", sound_hiss:"Sifflement aigu",
-    low:"Faible", medium:"Moyen", high:"Élevé", very_high:"Très élevé",
-    diag_title:"Diagnostic final", solution:"Solution", severity:"Gravité", severity_low:"Faible", severity_medium:"Moyenne", severity_high:"Élevée", severity_critical:"Critique",
-    listen:"Écouter le résultat", pdf:"Enregistrer en PDF", copy:"Copier le rapport", email:"Envoyer", save:"Sauvegarder le diagnostic", copied:"Copié", no_credits:"❌ Crédits insuffisants", diag_ok:"✅ Diagnostic consommé",
-    fault_white_knocking:"Joint de culasse endommagé avec cliquetis", solution_white_knocking:"Remplacer le joint de culasse",
-    fault_white_smooth:"Fuite de liquide de refroidissement (joint de culasse)", solution_white_smooth:"Vérifier le joint de culasse",
-    fault_black_rough:"Mélange riche (injecteurs)", solution_black_rough:"Nettoyer les injecteurs et le capteur O2",
-    fault_black_knocking:"Carburant pauvre ou bougies défectueuses", solution_black_knocking:"Utiliser du carburant 95, remplacer les bougies",
-    fault_blue_smooth:"Consommation d'huile (segments de piston)", solution_blue_smooth:"Révision du moteur",
-    fault_blue_knocking:"Segments de piston usés avec cliquetis", solution_blue_knocking:"Révision complète du moteur",
-    fault_gray_whistle:"Soupape EGR encrassée", solution_gray_whistle:"Nettoyer la soupape EGR",
-    fault_gray_smooth:"Filtre à air obstrué", solution_gray_smooth:"Remplacer le filtre à air",
-    fault_none_ticking:"Soupapes ou huile basse", solution_none_ticking:"Régler les soupapes, vérifier l'huile",
-    fault_none_squeal:"Courroie desserrée", solution_none_squeal:"Tendre ou remplacer la courroie",
-    fault_normal_normal:"Pas de défaut clair", solution_normal_normal:"Entretien régulier"
+  fr: { subtitle:"Diagnostic intelligent moteur", free_badge:"🔓 3 diagnostics gratuits restants", credit_label:"Crédits restants:", activate:"Activer", start_btn:"Démarrer diagnostic", analyze_btn:"Analyser & Diagnostic final", back_btn:"Retour",
+        camName:"Caméra", camInstr:"Photographiez le pot d'échappement", camStartText:"Capturer", camConfirmText:"Confirmer", camRetakeText:"Recommencer",
+        micName:"Microphone", micInstr:"Enregistrez le son du moteur (8s)", micStartText:"Enregistrer", micConfirmText:"Confirmer", micRetakeText:"Ré-enregistrer",
+        vibName:"Vibration", vibInstr:"Posez téléphone sur moteur (6s)", vibStartText:"Mesurer", vibConfirmText:"Confirmer", vibRetakeText:"Remesurer",
+        userName:"Notes supplémentaires", userInstr:"Ajoutez une note vocale", userSpeakText:"Décrire", userClearText:"Effacer",
+        analyzeText:"Analyser & Diagnostic final",
+        smoke_white:"Blanc", smoke_black:"Noir", smoke_blue:"Bleu", smoke_gray:"Gris", smoke_none:"Aucune",
+        sound_smooth:"Normal", sound_knocking:"Cliquetis", sound_rough:"Rugueux", sound_whistle:"Sifflement", sound_ticking:"Tic-tac", sound_squeal:"Grincement", sound_rumble:"Bourdonnement", sound_hiss:"Sifflement aigu",
+        low:"Faible", medium:"Moyen", high:"Élevé", very_high:"Très élevé",
+        diag_title:"Diagnostic final", solution:"Solution", severity:"Gravité", severity_low:"Faible", severity_medium:"Moyenne", severity_high:"Élevée", severity_critical:"Critique",
+        listen:"Écouter", pdf:"PDF", copy:"Copier", email:"Envoyer", save:"Sauvegarder", copied:"Copié", no_credits:"❌ Crédits insuffisants", diag_ok:"✅ Diagnostic consommé",
+        single_btn:"💵 1 Diagnostic ($2)", pack5_btn:"💵 5 Diagnostics ($8)", pack15_btn:"💵 15 Diagnostics ($20)",
+        fault_white_knocking:"Joint culasse endommagé", solution_white_knocking:"Remplacer joint culasse",
+        fault_white_smooth:"Fuite refroidissement", solution_white_smooth:"Vérifier joint culasse",
+        fault_black_rough:"Mélange riche", solution_black_rough:"Nettoyer injecteurs",
+        fault_black_knocking:"Carburant ou bougies", solution_black_knocking:"Utiliser carburant 95, remplacer bougies",
+        fault_blue_smooth:"Consommation d'huile", solution_blue_smooth:"Révision moteur",
+        fault_blue_knocking:"Segments usés", solution_blue_knocking:"Révision complète",
+        fault_gray_whistle:"EGR encrassée", solution_gray_whistle:"Nettoyer EGR",
+        fault_gray_smooth:"Filtre à air obstrué", solution_gray_smooth:"Remplacer filtre à air",
+        fault_none_ticking:"Soupapes ou huile", solution_none_ticking:"Régler soupapes, vérifier huile",
+        fault_none_squeal:"Courroie desserrée", solution_none_squeal:"Tendre courroie",
+        fault_normal_normal:"Pas de défaut", solution_normal_normal:"Entretien régulier"
   }
 };
-for(let l of langList) if(!defaultTranslations[l]) defaultTranslations[l] = defaultTranslations.en;
-let translations = defaultTranslations;
+for(let l of langList) if(!translations[l]) translations[l] = translations.en;
 let currentLang = localStorage.getItem('appLang') || 'ar';
-function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key; }
+function t(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
 
 // ==================== 2. الوقت والمكان والـ QR والجهاز ====================
 function updateDateTime() {
@@ -252,7 +255,10 @@ function getLocation() {
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(pos=>{
       document.getElementById('currentLocation').innerHTML = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
-    },()=>document.getElementById('currentLocation').innerHTML='غير مصرح');
+    },()=>{
+      document.getElementById('currentLocation').innerHTML = 'غير مصرح';
+      showToast("الرجاء السماح بالوصول إلى الموقع للحصول على الإحداثيات");
+    });
   } else document.getElementById('currentLocation').innerHTML='غير مدعوم';
 }
 getLocation();
@@ -304,9 +310,6 @@ function consumeCredit() {
     return false;
   }
 }
-document.getElementById('singlePayBtn').onclick = () => buyPlan(1);
-document.getElementById('pack5PayBtn').onclick = () => buyPlan(5);
-document.getElementById('pack15PayBtn').onclick = () => buyPlan(15);
 function buyPlan(plan) {
   let url = plan===1?"https://mouloudkamali.gumroad.com/l/lqfaey": plan===5?"https://mouloudkamali.gumroad.com/l/xovgm":"https://mouloudkamali.gumroad.com/l/tlbdm";
   window.open(url,'_blank');
@@ -317,6 +320,9 @@ function buyPlan(plan) {
     }
   },2000);
 }
+document.getElementById('singlePayBtn').onclick = () => buyPlan(1);
+document.getElementById('pack5PayBtn').onclick = () => buyPlan(5);
+document.getElementById('pack15PayBtn').onclick = () => buyPlan(15);
 document.getElementById('activateLicenseBtn').onclick = () => {
   let code = document.getElementById('licenseCode').value.trim();
   if(code === 'MOULOUD2026') {
@@ -327,20 +333,6 @@ document.getElementById('activateLicenseBtn').onclick = () => {
   } else showToast('❌ رمز غير صالح');
 };
 updateCreditsUI();
-
-let clickCount = 0, clickTimer = null;
-document.getElementById('secretAdminIcon').onclick = () => {
-  clickCount++;
-  if(clickTimer) clearTimeout(clickTimer);
-  clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
-  if(clickCount >= 5) {
-    admin = true;
-    updateCreditsUI();
-    showToast('✅ وضع المطور مفعل (5 نقرات)');
-    document.getElementById('adminHint').innerHTML = '👑 وضع المطور نشط (5 نقرات)';
-    clickCount = 0;
-  }
-};
 
 // ==================== 4. قاعدة بيانات الأعطال ====================
 const faultsDB = [
@@ -368,6 +360,7 @@ function getFault(smoke,sound,vib) {
 let camOK=false, micOK=false, vibOK=false;
 let smokeColor=null, soundType=null, vibIntensity=null, userText="";
 let cameraStream=null, micStream=null, audioCtx=null;
+let measuring = false;
 
 function resetSensorsUI() {
   camOK=false; micOK=false; vibOK=false;
@@ -393,7 +386,9 @@ function checkAllReady() {
   if(camOK && micOK && vibOK) document.getElementById('analyzeBtn').disabled=false;
 }
 
+// كاميرا
 document.getElementById('camStartBtn').onclick = async () => {
+  if(measuring) return; measuring=true;
   if(cameraStream) cameraStream.getTracks().forEach(t=>t.stop());
   try {
     let stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
@@ -423,13 +418,18 @@ document.getElementById('camStartBtn').onclick = async () => {
       document.getElementById('camRetakeBtn').disabled=false;
       document.getElementById('camStartBtn').disabled=true;
       video.remove();
-    },3000);
-  } catch(e){ showToast('❌ فشل الكاميرا'); }
+      measuring=false;
+    },8000);
+  } catch(e){ showToast('❌ فشل الكاميرا'); measuring=false; }
 };
-document.getElementById('camRetakeBtn').onclick = () => { document.getElementById('camStartBtn').click(); };
+document.getElementById('camRetakeBtn').onclick = () => {
+  document.getElementById('camStartBtn').click();
+};
 document.getElementById('camConfirmBtn').onclick = () => { camOK=true; document.getElementById('camConfirmBtn').disabled=true; checkAllReady(); };
 
+// ميكروفون
 document.getElementById('micStartBtn').onclick = async () => {
+  if(measuring) return; measuring=true;
   if(micStream) micStream.getTracks().forEach(t=>t.stop());
   try {
     let stream = await navigator.mediaDevices.getUserMedia({audio:true});
@@ -464,14 +464,19 @@ document.getElementById('micStartBtn').onclick = async () => {
       document.getElementById('micStartBtn').disabled=true;
       if(micStream) micStream.getTracks().forEach(t=>t.stop()); if(audioCtx) audioCtx.close();
       micStream=null; audioCtx=null;
+      measuring=false;
     },8000);
-  } catch(e){ showToast('❌ فشل الميكروفون'); }
+  } catch(e){ showToast('❌ فشل الميكروفون'); measuring=false; }
 };
-document.getElementById('micRetakeBtn').onclick = () => { document.getElementById('micStartBtn').click(); };
+document.getElementById('micRetakeBtn').onclick = () => {
+  document.getElementById('micStartBtn').click();
+};
 document.getElementById('micConfirmBtn').onclick = () => { micOK=true; document.getElementById('micConfirmBtn').disabled=true; checkAllReady(); };
 
+// اهتزاز
 document.getElementById('vibStartBtn').onclick = () => {
-  if(!window.DeviceMotionEvent){ showToast('الاهتزاز غير مدعوم'); return; }
+  if(measuring) return; measuring=true;
+  if(!window.DeviceMotionEvent){ showToast('الاهتزاز غير مدعوم'); measuring=false; return; }
   let vals=[];
   let handler = e => { let a=e.accelerationIncludingGravity; if(a) vals.push(Math.sqrt(a.x*a.x+a.y*a.y+a.z*a.z)); };
   window.addEventListener('devicemotion',handler);
@@ -488,17 +493,21 @@ document.getElementById('vibStartBtn').onclick = () => {
     document.getElementById('vibConfirmBtn').disabled=false;
     document.getElementById('vibRetakeBtn').disabled=false;
     document.getElementById('vibStartBtn').disabled=true;
-  },5000);
+    measuring=false;
+  },6000);
 };
-document.getElementById('vibRetakeBtn').onclick = () => { document.getElementById('vibStartBtn').click(); };
+document.getElementById('vibRetakeBtn').onclick = () => {
+  document.getElementById('vibStartBtn').click();
+};
 document.getElementById('vibConfirmBtn').onclick = () => { vibOK=true; document.getElementById('vibConfirmBtn').disabled=true; checkAllReady(); };
 
+// إدخال المستخدم
 let recognition=null;
 document.getElementById('userSpeakBtn').onclick = () => {
   if(!('webkitSpeechRecognition' in window)){ showToast("❌ غير مدعوم"); return; }
   const SpeechRecognition = window.SpeechRecognition||window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();
-  recognition.lang = (currentLang==='ar'?'ar-EG':(currentLang==='fr'?'fr-FR':'en-US'));
+  recognition.lang = BCP_MAP[currentLang] || (currentLang==='ar'?'ar-EG':(currentLang==='fr'?'fr-FR':'en-US'));
   recognition.onresult = (e) => {
     userText = e.results[0][0].transcript;
     document.getElementById('userResult').innerHTML = `📝 ${userText}`;
@@ -508,6 +517,7 @@ document.getElementById('userSpeakBtn').onclick = () => {
 };
 document.getElementById('userClearBtn').onclick = () => { userText=""; document.getElementById('userResult').innerHTML = ''; };
 
+// التشخيص النهائي
 document.getElementById('analyzeBtn').onclick = () => {
   if(!smokeColor || !soundType || !vibIntensity) { showToast("أكمل جميع الحساسات أولاً"); return; }
   if(!consumeCredit()) return;
@@ -529,9 +539,10 @@ document.getElementById('analyzeBtn').onclick = () => {
   document.getElementById('resultPanel').innerHTML = html;
   document.getElementById('resultPanel').style.display = 'block';
   document.getElementById('diagPanel').style.display = 'none';
+  // ربط الأزرار
   document.getElementById('listenResultBtn').onclick = () => {
     let u = new SpeechSynthesisUtterance(title+'. '+sol);
-    u.lang = (currentLang==='ar'?'ar-EG':(currentLang==='fr'?'fr-FR':'en-US'));
+    u.lang = BCP_MAP[currentLang] || (currentLang==='ar'?'ar-EG':(currentLang==='fr'?'fr-FR':'en-US'));
     window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
   };
   document.getElementById('pdfResultBtn').onclick = () => {
@@ -540,7 +551,8 @@ document.getElementById('analyzeBtn').onclick = () => {
     let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`diagnosis_${Date.now()}.txt`; a.click();
   };
   document.getElementById('copyResultBtn').onclick = () => {
-    navigator.clipboard.writeText(title+'\n'+sol); showToast(t('copied'));
+    navigator.clipboard.writeText(title+'\n'+sol);
+    showToast(t('copied'));
   };
   document.getElementById('emailResultBtn').onclick = () => {
     window.location.href=`mailto:?subject=Car%20Diagnosis&body=${encodeURIComponent(title+'\n'+sol)}`;
@@ -551,6 +563,7 @@ document.getElementById('analyzeBtn').onclick = () => {
   };
 };
 
+// زر بدء التشخيص الرئيسي
 document.getElementById('startBtn').onclick = () => {
   let total = admin ? 9999 : Math.max(0,3-freeUsed)+paid;
   if(total<=0 && !admin) { showToast(t('no_credits')); return; }
@@ -564,6 +577,7 @@ document.getElementById('backBtn').onclick = () => {
   if(micStream) micStream.getTracks().forEach(t=>t.stop());
   if(audioCtx) audioCtx.close();
   cameraStream=null; micStream=null; audioCtx=null;
+  measuring=false;
 };
 
 // ==================== 6. بناء قائمة اللغات وتطبيق الترجمة ====================
@@ -584,39 +598,54 @@ function buildLangSelect() {
   };
 }
 function applyTranslations() {
-  document.getElementById('dynamicSubtitle').innerHTML = t('subtitle');
+  document.getElementById('dynamicSubtitle').innerText = t('subtitle');
   document.getElementById('freeBadge').innerHTML = t('free_badge').replace('3', Math.max(0,3-freeUsed));
   document.getElementById('creditLabel').innerHTML = t('credit_label');
   document.getElementById('activateLicenseBtn').innerHTML = t('activate');
   document.getElementById('startBtn').innerHTML = `🧠 ${t('start_btn')}`;
-  document.getElementById('analyzeBtn').innerHTML = `📊 ${t('analyze_btn')}`;
+  document.getElementById('analyzeBtn').innerHTML = `📊 ${t('analyzeText')}`;
   document.getElementById('backBtn').innerHTML = `↩️ ${t('back_btn')}`;
-  document.getElementById('userSpeakBtn').innerHTML = `🎤 ${t('userSpeakBtn')}`;
-  document.getElementById('userClearBtn').innerHTML = `🗑 ${t('userClearBtn')}`;
-  document.getElementById('singlePayBtn').innerHTML = t('btn_single');
-  document.getElementById('pack5PayBtn').innerHTML = t('btn_pack5');
-  document.getElementById('pack15PayBtn').innerHTML = t('btn_pack15');
+  document.getElementById('userSpeakBtn').innerHTML = `🎤 ${t('userSpeakText')}`;
+  document.getElementById('userClearBtn').innerHTML = `🗑 ${t('userClearText')}`;
+  document.getElementById('singlePayBtn').innerHTML = t('single_btn');
+  document.getElementById('pack5PayBtn').innerHTML = t('pack5_btn');
+  document.getElementById('pack15PayBtn').innerHTML = t('pack15_btn');
   document.getElementById('camName').innerHTML = t('camName');
   document.getElementById('camInstr').innerHTML = t('camInstr');
-  document.getElementById('camStartBtn').innerHTML = t('camStart');
-  document.getElementById('camConfirmBtn').innerHTML = t('camConfirm');
-  document.getElementById('camRetakeBtn').innerHTML = t('camRetake');
+  document.getElementById('camStartText').innerHTML = t('camStartText');
+  document.getElementById('camConfirmText').innerHTML = t('camConfirmText');
+  document.getElementById('camRetakeText').innerHTML = t('camRetakeText');
   document.getElementById('micName').innerHTML = t('micName');
   document.getElementById('micInstr').innerHTML = t('micInstr');
-  document.getElementById('micStartBtn').innerHTML = t('micStart');
-  document.getElementById('micConfirmBtn').innerHTML = t('micConfirm');
-  document.getElementById('micRetakeBtn').innerHTML = t('micRetake');
+  document.getElementById('micStartText').innerHTML = t('micStartText');
+  document.getElementById('micConfirmText').innerHTML = t('micConfirmText');
+  document.getElementById('micRetakeText').innerHTML = t('micRetakeText');
   document.getElementById('vibName').innerHTML = t('vibName');
   document.getElementById('vibInstr').innerHTML = t('vibInstr');
-  document.getElementById('vibStartBtn').innerHTML = t('vibStart');
-  document.getElementById('vibConfirmBtn').innerHTML = t('vibConfirm');
-  document.getElementById('vibRetakeBtn').innerHTML = t('vibRetake');
+  document.getElementById('vibStartText').innerHTML = t('vibStartText');
+  document.getElementById('vibConfirmText').innerHTML = t('vibConfirmText');
+  document.getElementById('vibRetakeText').innerHTML = t('vibRetakeText');
   document.getElementById('userName').innerHTML = t('userName');
   document.getElementById('userInstr').innerHTML = t('userInstr');
   updateCreditsUI();
 }
 buildLangSelect();
 applyTranslations();
+
+// ==================== 7. المدير بالنقر على أيقونة السيارة ====================
+let clickCount = 0, clickTimer = null;
+document.getElementById('secretAdminIcon').onclick = () => {
+  clickCount++;
+  if(clickTimer) clearTimeout(clickTimer);
+  clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
+  if(clickCount >= 5) {
+    admin = true;
+    updateCreditsUI();
+    showToast('✅ وضع المطور مفعل (5 نقرات)');
+    document.getElementById('adminHint').innerHTML = '👑 وضع المطور نشط (5 نقرات)';
+    clickCount = 0;
+  }
+};
 </script>
 </body>
 </html>
