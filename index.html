@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>AI Car Diagnostics - الإصدار النهائي</title>
+  <title>AI Car Diagnostics - الإصدار النهائي المتكامل</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -19,9 +19,10 @@
     .title-translated{font-size:0.8rem;color:#b9c7d9}
     .car-icon{font-size:1.8rem;color:#f5a623;cursor:pointer}
     .info-strip{display:flex;justify-content:space-between;align-items:center;background:#00000055;padding:6px 12px;font-size:0.7rem;flex-wrap:wrap;gap:6px;margin-top:4px}
-    .lang-device{display:flex;gap:8px;align-items:center}
+    .lang-device{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .lang-select{background:#1e2a3a;border:1px solid #f5a623;border-radius:40px;padding:4px 8px;color:#fff;font-size:0.7rem}
     .device-id{background:#1e2a3a;border-radius:40px;padding:4px 10px;font-family:monospace;font-size:0.7rem}
+    .settings-icon{background:#1e2a3a;border:1px solid #f5a623;border-radius:40px;padding:4px 10px;cursor:pointer;font-size:0.9rem;display:inline-flex;align-items:center;gap:6px}
     .free-badge{text-align:center;background:#f5a62320;margin:8px 12px;padding:6px;border-radius:40px;font-weight:bold;color:#f5a623}
     .credit-card{background:#0f172a;border-radius:1.5rem;margin:12px;padding:10px;text-align:center;border:1px solid #3b82f6}
     .credit-amount{font-size:1.8rem;font-weight:800;color:#f5a623}
@@ -47,12 +48,17 @@
     .danger-high{background:#ef4444;color:#fff}
     .danger-critical{background:#7f1d1d;color:#fff}
     footer{text-align:center;padding:12px;background:#060a12;border-top:1px solid #2a3a5a;font-size:0.65rem}
-    footer a{color:#f5a623;text-decoration:none;word-break:break-all}
+    .share-buttons{display:flex;justify-content:center;gap:12px;margin-top:8px}
+    .share-btn{background:#1e293b;border:1px solid #f5a623;border-radius:40px;padding:6px 12px;cursor:pointer;font-size:0.7rem;display:inline-flex;align-items:center;gap:6px}
+    .share-btn i{font-size:0.9rem}
     video,canvas{width:100%;max-height:180px;border-radius:12px;margin-top:6px}
     .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#f97316;padding:5px 15px;border-radius:30px;opacity:0;transition:0.2s;z-index:999;font-weight:bold;color:#000}
     .toast.show{opacity:1}
     .hidden{display:none}
     .admin-only{display:none; margin-top:8px; font-size:0.7rem; background:#1e293b; border-radius:20px; padding:6px; text-align:center}
+    .modal-settings{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:1000;visibility:hidden}
+    .modal-settings.show{visibility:visible}
+    .modal-content{background:#1e2a3a;border-radius:2rem;padding:20px;width:90%;max-width:350px}
   </style>
 </head>
 <body>
@@ -75,6 +81,7 @@
     <span>📅 <span id="currentDate">--/--/----</span></span>
     <div class="lang-device">
       <select id="langSelect" class="lang-select"></select>
+      <div class="settings-icon" id="settingsIcon"><i class="fas fa-cog"></i> <span style="font-size:0.7rem">⚙️</span></div>
       <span class="device-id" id="deviceId">ID: ----</span>
     </div>
   </div>
@@ -151,21 +158,115 @@
   <div id="resultPanel" style="display:none;" class="result-area"></div>
 
   <footer>
-    <a href="https://ai-car-diagnostics.netlify.app" target="_blank">https://ai-car-diagnostics.netlify.app</a>
+    <div style="margin-bottom:6px; word-break:break-all; font-size:0.7rem;">https://ai-car-diagnostics.netlify.app</div>
+    <div class="share-buttons">
+      <button class="share-btn" id="shareWhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+      <button class="share-btn" id="shareEmail"><i class="fas fa-envelope"></i> Email</button>
+      <button class="share-btn" id="shareGeneral"><i class="fas fa-share-alt"></i> مشاركة</button>
+    </div>
   </footer>
 </div>
+
+<div id="settingsModal" class="modal-settings">
+  <div class="modal-content">
+    <h3 id="settingsTitle" style="margin-bottom:10px">⚙️ الإعدادات</h3>
+    <label style="display:flex; align-items:center; gap:8px; margin-bottom:16px">
+      <input type="checkbox" id="autoTranslateCheckbox">
+      <span id="autoTranslateLabel">تفعيل الترجمة التلقائية (للغات غير المدعومة) - قد يتطلب اتصالاً بالإنترنت</span>
+    </label>
+    <button id="closeSettingsBtn" class="btn-primary" style="background:#555; margin-top:8px">إغلاق</button>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
-// ==================== 1. قائمة اللغات (54) وخريطة BCP-47 للنطق ====================
-const langList = ["ar","en","fr","es","de","it","pt","ru","zh","ja","ko","hi","tr","fa","ur","sw","vi","el","cs","he","th","uk","ro","hu","sv","da","fi","no","pl","nl","id","ms","bn","pa","ta","te","mr","ha","tl","gu","am","yo","uz","my","az","ig","so","sk","bg","hr","lt","lv","et","sl"];
-const langNames = {
-  ar:"🇸🇦 العربية", en:"🇬🇧 English", fr:"🇫🇷 Français", es:"🇪🇸 Español", de:"🇩🇪 Deutsch", it:"🇮🇹 Italiano", pt:"🇵🇹 Português", ru:"🇷🇺 Русский", zh:"🇨🇳 中文", ja:"🇯🇵 日本語", ko:"🇰🇷 한국어", hi:"🇮🇳 हिन्दी", tr:"🇹🇷 Türkçe", fa:"🇮🇷 فارسی", ur:"🇵🇰 اردو", sw:"🇰🇪 Kiswahili", vi:"🇻🇳 Tiếng Việt", el:"🇬🇷 Ελληνικά", cs:"🇨🇿 Čeština", he:"🇮🇱 עברית", th:"🇹🇭 ไทย", uk:"🇺🇦 Українська", ro:"🇷🇴 Română", hu:"🇭🇺 Magyar", sv:"🇸🇪 Svenska", da:"🇩🇰 Dansk", fi:"🇫🇮 Suomi", no:"🇳🇴 Norsk", pl:"🇵🇱 Polski", nl:"🇳🇱 Nederlands", id:"🇮🇩 Indonesia", ms:"🇲🇾 Melayu", bn:"🇧🇩 বাংলা", pa:"🇮🇳 ਪੰਜਾਬੀ", ta:"🇮🇳 தமிழ்", te:"🇮🇳 తెలుగు", mr:"🇮🇳 मराठी", ha:"🇳🇬 Hausa", tl:"🇵🇭 Filipino", gu:"🇮🇳 ગુજરાતી", am:"🇪🇹 አማርኛ", yo:"🇳🇬 Yorùbá", uz:"🇺🇿 O‘zbek", my:"🇲🇲 မြန်မာ", az:"🇦🇿 Azərbaycan", ig:"🇳🇬 Igbo", so:"🇸🇴 Soomaali", sk:"🇸🇰 Slovenčina", bg:"🇧🇬 Български", hr:"🇭🇷 Hrvatski", lt:"🇱🇹 Lietuvių", lv:"🇱🇻 Latviešu", et:"🇪🇪 Eesti", sl:"🇸🇮 Slovenščina"
-};
+// ==================== قائمة اللغات الكاملة (54 لغة) ====================
+// أول 20 لغة حسب عدد الناطقين (مع الأعلام والاسم الكامل)
+const langPriority = [
+  { code:"en", name:"English", flag:"🇬🇧", dir:"ltr", native:"English", speakers:1500 },
+  { code:"zh", name:"中文", flag:"🇨🇳", dir:"ltr", native:"中文", speakers:1200 },
+  { code:"hi", name:"हिन्दी", flag:"🇮🇳", dir:"ltr", native:"हिन्दी", speakers:700 },
+  { code:"es", name:"Español", flag:"🇪🇸", dir:"ltr", native:"Español", speakers:600 },
+  { code:"ar", name:"العربية", flag:"🇸🇦", dir:"rtl", native:"العربية", speakers:420 },
+  { code:"fr", name:"Français", flag:"🇫🇷", dir:"ltr", native:"Français", speakers:320 },
+  { code:"bn", name:"বাংলা", flag:"🇧🇩", dir:"ltr", native:"বাংলা", speakers:300 },
+  { code:"pt", name:"Português", flag:"🇵🇹", dir:"ltr", native:"Português", speakers:270 },
+  { code:"ru", name:"Русский", flag:"🇷🇺", dir:"ltr", native:"Русский", speakers:260 },
+  { code:"ur", name:"اردو", flag:"🇵🇰", dir:"rtl", native:"اردو", speakers:240 },
+  { code:"id", name:"Bahasa Indonesia", flag:"🇮🇩", dir:"ltr", native:"Indonesia", speakers:230 },
+  { code:"de", name:"Deutsch", flag:"🇩🇪", dir:"ltr", native:"Deutsch", speakers:135 },
+  { code:"ja", name:"日本語", flag:"🇯🇵", dir:"ltr", native:"日本語", speakers:125 },
+  { code:"sw", name:"Kiswahili", flag:"🇹🇿", dir:"ltr", native:"Kiswahili", speakers:120 },
+  { code:"tr", name:"Türkçe", flag:"🇹🇷", dir:"ltr", native:"Türkçe", speakers:95 },
+  { code:"vi", name:"Tiếng Việt", flag:"🇻🇳", dir:"ltr", native:"Tiếng Việt", speakers:90 },
+  { code:"ko", name:"한국어", flag:"🇰🇷", dir:"ltr", native:"한국어", speakers:85 },
+  { code:"ta", name:"தமிழ்", flag:"🇮🇳", dir:"ltr", native:"தமிழ்", speakers:90 },
+  { code:"fa", name:"فارسی", flag:"🇮🇷", dir:"rtl", native:"فارسی", speakers:80 },
+  { code:"it", name:"Italiano", flag:"🇮🇹", dir:"ltr", native:"Italiano", speakers:70 }
+];
+// اللغات الـ 34 المتبقية (مرتبة أبجدياً بالاسم الإنجليزي)
+const restLanguages = [
+  { code:"af", name:"Afrikaans", flag:"🇿🇦", dir:"ltr", native:"Afrikaans" },
+  { code:"am", name:"አማርኛ", flag:"🇪🇹", dir:"ltr", native:"Amharic" },
+  { code:"az", name:"Azərbaycan", flag:"🇦🇿", dir:"ltr", native:"Azerbaijani" },
+  { code:"be", name:"Беларуская", flag:"🇧🇾", dir:"ltr", native:"Belarusian" },
+  { code:"bg", name:"Български", flag:"🇧🇬", dir:"ltr", native:"Bulgarian" },
+  { code:"ca", name:"Català", flag:"🇪🇸", dir:"ltr", native:"Catalan" },
+  { code:"cs", name:"Čeština", flag:"🇨🇿", dir:"ltr", native:"Czech" },
+  { code:"cy", name:"Cymraeg", flag:"🏴", dir:"ltr", native:"Welsh" },
+  { code:"da", name:"Dansk", flag:"🇩🇰", dir:"ltr", native:"Danish" },
+  { code:"el", name:"Ελληνικά", flag:"🇬🇷", dir:"ltr", native:"Greek" },
+  { code:"et", name:"Eesti", flag:"🇪🇪", dir:"ltr", native:"Estonian" },
+  { code:"eu", name:"Euskara", flag:"🇪🇸", dir:"ltr", native:"Basque" },
+  { code:"fi", name:"Suomi", flag:"🇫🇮", dir:"ltr", native:"Finnish" },
+  { code:"ga", name:"Gaeilge", flag:"🇮🇪", dir:"ltr", native:"Irish" },
+  { code:"gl", name:"Galego", flag:"🇪🇸", dir:"ltr", native:"Galician" },
+  { code:"gu", name:"ગુજરાતી", flag:"🇮🇳", dir:"ltr", native:"Gujarati" },
+  { code:"ha", name:"Hausa", flag:"🇳🇬", dir:"ltr", native:"Hausa" },
+  { code:"he", name:"עברית", flag:"🇮🇱", dir:"rtl", native:"Hebrew" },
+  { code:"hr", name:"Hrvatski", flag:"🇭🇷", dir:"ltr", native:"Croatian" },
+  { code:"hu", name:"Magyar", flag:"🇭🇺", dir:"ltr", native:"Hungarian" },
+  { code:"hy", name:"Հայերեն", flag:"🇦🇲", dir:"ltr", native:"Armenian" },
+  { code:"is", name:"Íslenska", flag:"🇮🇸", dir:"ltr", native:"Icelandic" },
+  { code:"ka", name:"ქართული", flag:"🇬🇪", dir:"ltr", native:"Georgian" },
+  { code:"kn", name:"ಕನ್ನಡ", flag:"🇮🇳", dir:"ltr", native:"Kannada" },
+  { code:"lt", name:"Lietuvių", flag:"🇱🇹", dir:"ltr", native:"Lithuanian" },
+  { code:"lv", name:"Latviešu", flag:"🇱🇻", dir:"ltr", native:"Latvian" },
+  { code:"mk", name:"Македонски", flag:"🇲🇰", dir:"ltr", native:"Macedonian" },
+  { code:"ml", name:"മലയാളം", flag:"🇮🇳", dir:"ltr", native:"Malayalam" },
+  { code:"mn", name:"Монгол", flag:"🇲🇳", dir:"ltr", native:"Mongolian" },
+  { code:"mr", name:"मराठी", flag:"🇮🇳", dir:"ltr", native:"Marathi" },
+  { code:"ms", name:"Bahasa Melayu", flag:"🇲🇾", dir:"ltr", native:"Malay" },
+  { code:"my", name:"မြန်မာ", flag:"🇲🇲", dir:"ltr", native:"Burmese" },
+  { code:"ne", name:"नेपाली", flag:"🇳🇵", dir:"ltr", native:"Nepali" },
+  { code:"nl", name:"Nederlands", flag:"🇳🇱", dir:"ltr", native:"Dutch" },
+  { code:"no", name:"Norsk", flag:"🇳🇴", dir:"ltr", native:"Norwegian" },
+  { code:"pa", name:"ਪੰਜਾਬੀ", flag:"🇮🇳", dir:"ltr", native:"Punjabi" },
+  { code:"pl", name:"Polski", flag:"🇵🇱", dir:"ltr", native:"Polish" },
+  { code:"ro", name:"Română", flag:"🇷🇴", dir:"ltr", native:"Romanian" },
+  { code:"sd", name:"سنڌي", flag:"🇵🇰", dir:"rtl", native:"Sindhi" },
+  { code:"sk", name:"Slovenčina", flag:"🇸🇰", dir:"ltr", native:"Slovak" },
+  { code:"sl", name:"Slovenščina", flag:"🇸🇮", dir:"ltr", native:"Slovenian" },
+  { code:"so", name:"Soomaali", flag:"🇸🇴", dir:"ltr", native:"Somali" },
+  { code:"sq", name:"Shqip", flag:"🇦🇱", dir:"ltr", native:"Albanian" },
+  { code:"sr", name:"Српски", flag:"🇷🇸", dir:"ltr", native:"Serbian" },
+  { code:"sv", name:"Svenska", flag:"🇸🇪", dir:"ltr", native:"Swedish" },
+  { code:"te", name:"తెలుగు", flag:"🇮🇳", dir:"ltr", native:"Telugu" },
+  { code:"th", name:"ไทย", flag:"🇹🇭", dir:"ltr", native:"Thai" },
+  { code:"tl", name:"Filipino", flag:"🇵🇭", dir:"ltr", native:"Tagalog" },
+  { code:"uk", name:"Українська", flag:"🇺🇦", dir:"ltr", native:"Ukrainian" },
+  { code:"uz", name:"O‘zbek", flag:"🇺🇿", dir:"ltr", native:"Uzbek" },
+  { code:"yo", name:"Yorùbá", flag:"🇳🇬", dir:"ltr", native:"Yoruba" }
+];
+const allLangs = [...langPriority, ...restLanguages];
+
+// خريطة BCP-47 للنطق (مكملة لجميع اللغات)
 const BCP_MAP = {
-  ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN", el:"el-GR", cs:"cs-CZ", he:"he-IL", th:"th-TH", uk:"uk-UA", ro:"ro-RO", hu:"hu-HU", sv:"sv-SE", da:"da-DK", fi:"fi-FI", no:"nb-NO", pl:"pl-PL", nl:"nl-NL", id:"id-ID", ms:"ms-MY", bn:"bn-BD", pa:"pa-IN", ta:"ta-IN", te:"te-IN", mr:"mr-IN", ha:"ha-NG", tl:"fil-PH", gu:"gu-IN", am:"am-ET", yo:"yo-NG", uz:"uz-UZ", my:"my-MM", az:"az-AZ", ig:"ig-NG", so:"so-SO", sk:"sk-SK", bg:"bg-BG", hr:"hr-HR", lt:"lt-LT", lv:"lv-LV", et:"et-EE", sl:"sl-SI"
+  ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN", el:"el-GR", cs:"cs-CZ", he:"he-IL", th:"th-TH", uk:"uk-UA", ro:"ro-RO", hu:"hu-HU", sv:"sv-SE", da:"da-DK", fi:"fi-FI", no:"nb-NO", pl:"pl-PL", nl:"nl-NL", id:"id-ID", ms:"ms-MY", bn:"bn-BD", pa:"pa-IN", ta:"ta-IN", te:"te-IN", mr:"mr-IN", ha:"ha-NG", tl:"fil-PH", gu:"gu-IN", am:"am-ET", yo:"yo-NG", uz:"uz-UZ", my:"my-MM", az:"az-AZ", ig:"ig-NG", so:"so-SO", sk:"sk-SK", bg:"bg-BG", hr:"hr-HR", lt:"lt-LT", lv:"lv-LV", et:"et-EE", sl:"sl-SI", ca:"ca-ES", cy:"cy-GB", da:"da-DK", el:"el-GR", et:"et-EE", eu:"eu-ES", ga:"ga-IE", gl:"gl-ES", is:"is-IS", ka:"ka-GE", kn:"kn-IN", mk:"mk-MK", ml:"ml-IN", mn:"mn-MN", ne:"ne-NP", sq:"sq-AL", sr:"sr-RS", ta:"ta-IN", te:"te-IN", th:"th-TH", tl:"fil-PH", uk:"uk-UA", uz:"uz-UZ", yo:"yo-NG"
 };
-// الترجمات الأساسية (العربية، الإنجليزية، الفرنسية كاملة). باقي اللغات ترث الإنجليزية.
+
+// الترجمات الأساسية (العربية، الإنجليزية، الفرنسية)
 const translations = {
   ar: { subtitle:"التشخيص الذكي للمحرك", free_badge:"🔓 3 تشخيصات مجانية متبقية", credit_label:"الرصيد المتبقي:", activate:"تفعيل", start_btn:"ابدأ التشخيص الذكي", analyze_btn:"تحليل البيانات والتشخيص النهائي", back_btn:"رجوع",
         camName:"كاميرا", camInstr:"صوّر فتحة العادم (المؤخرة) بوضوح", camStartText:"بدء التصوير", camConfirmText:"تأكيد", camRetakeText:"إعادة",
@@ -189,7 +290,8 @@ const translations = {
         fault_gray_smooth:"فلتر هواء مسدود", solution_gray_smooth:"استبدل فلتر الهواء",
         fault_none_ticking:"صمامات تالفة أو نقص زيت", solution_none_ticking:"اضبط الصمامات وافحص الزيت",
         fault_none_squeal:"سير مكينة مرتخي", solution_none_squeal:"شد السير أو استبدله",
-        fault_normal_normal:"لا يوجد عطل واضح", solution_normal_normal:"صيانة دورية"
+        fault_normal_normal:"لا يوجد عطل واضح", solution_normal_normal:"صيانة دورية",
+        settings_title:"⚙️ الإعدادات", settings_auto_label:"تفعيل الترجمة التلقائية (للغات غير المدعومة) - قد يتطلب اتصالاً بالإنترنت", settings_close:"إغلاق"
   },
   en: { subtitle:"Smart Engine Diagnosis", free_badge:"🔓 3 free diagnoses left", credit_label:"Remaining credits:", activate:"Activate", start_btn:"Start Smart Diagnosis", analyze_btn:"Analyze & Final Diagnosis", back_btn:"Back",
         camName:"Camera", camInstr:"Capture exhaust pipe clearly", camStartText:"Start Capture", camConfirmText:"Confirm", camRetakeText:"Retake",
@@ -213,7 +315,8 @@ const translations = {
         fault_gray_smooth:"Clogged air filter", solution_gray_smooth:"Replace air filter",
         fault_none_ticking:"Valve or low oil", solution_none_ticking:"Adjust valves, check oil",
         fault_none_squeal:"Loose belt", solution_none_squeal:"Tighten or replace belt",
-        fault_normal_normal:"No clear fault", solution_normal_normal:"Routine maintenance"
+        fault_normal_normal:"No clear fault", solution_normal_normal:"Routine maintenance",
+        settings_title:"⚙️ Settings", settings_auto_label:"Enable automatic translation (for unsupported languages) - may require internet connection", settings_close:"Close"
   },
   fr: { subtitle:"Diagnostic intelligent moteur", free_badge:"🔓 3 diagnostics gratuits restants", credit_label:"Crédits restants:", activate:"Activer", start_btn:"Démarrer diagnostic", analyze_btn:"Analyser & Diagnostic final", back_btn:"Retour",
         camName:"Caméra", camInstr:"Photographiez le pot d'échappement", camStartText:"Capturer", camConfirmText:"Confirmer", camRetakeText:"Recommencer",
@@ -237,14 +340,72 @@ const translations = {
         fault_gray_smooth:"Filtre à air obstrué", solution_gray_smooth:"Remplacer filtre à air",
         fault_none_ticking:"Soupapes ou huile", solution_none_ticking:"Régler soupapes, vérifier huile",
         fault_none_squeal:"Courroie desserrée", solution_none_squeal:"Tendre courroie",
-        fault_normal_normal:"Pas de défaut", solution_normal_normal:"Entretien régulier"
+        fault_normal_normal:"Pas de défaut", solution_normal_normal:"Entretien régulier",
+        settings_title:"⚙️ Paramètres", settings_auto_label:"Activer la traduction automatique (pour les langues non supportées) - peut nécessiter une connexion Internet", settings_close:"Fermer"
   }
 };
-for(let l of langList) if(!translations[l]) translations[l] = translations.en;
+for(let l of allLangs) if(!translations[l.code]) translations[l.code] = translations.en;
 let currentLang = localStorage.getItem('appLang') || 'ar';
+let autoTranslateEnabled = localStorage.getItem('autoTranslate') === 'true';
+let translationCache = JSON.parse(localStorage.getItem('translationCache') || '{}');
+
+async function translateText(text, targetLang) {
+  if (!autoTranslateEnabled) return text;
+  if (targetLang === 'ar') return text;
+  if (targetLang === 'en' || targetLang === 'fr') return text;
+  const cacheKey = `${targetLang}_${text}`;
+  if (translationCache[cacheKey]) return translationCache[cacheKey];
+  try {
+    const resp = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ar|${targetLang}`);
+    const data = await resp.json();
+    let translated = data.responseData.translatedText;
+    if (translated && translated !== text && !translated.includes("an error")) {
+      translationCache[cacheKey] = translated;
+      localStorage.setItem('translationCache', JSON.stringify(translationCache));
+      return translated;
+    }
+  } catch(e) { console.warn(e); }
+  return text;
+}
+
+async function applyTranslations() {
+  document.getElementById('dynamicSubtitle').innerText = await translateText(t('subtitle'), currentLang);
+  document.getElementById('freeBadge').innerHTML = await translateText(t('free_badge').replace('3', Math.max(0,3-freeUsed)), currentLang);
+  document.getElementById('creditLabel').innerHTML = await translateText(t('credit_label'), currentLang);
+  document.getElementById('activateLicenseBtn').innerHTML = await translateText(t('activate'), currentLang);
+  document.getElementById('startBtn').innerHTML = `🧠 ${await translateText(t('start_btn'), currentLang)}`;
+  document.getElementById('analyzeBtn').innerHTML = `📊 ${await translateText(t('analyzeText'), currentLang)}`;
+  document.getElementById('backBtn').innerHTML = `↩️ ${await translateText(t('back_btn'), currentLang)}`;
+  document.getElementById('userSpeakBtn').innerHTML = `🎤 ${await translateText(t('userSpeakText'), currentLang)}`;
+  document.getElementById('userClearBtn').innerHTML = `🗑 ${await translateText(t('userClearText'), currentLang)}`;
+  document.getElementById('singlePayBtn').innerHTML = await translateText(t('single_btn'), currentLang);
+  document.getElementById('pack5PayBtn').innerHTML = await translateText(t('pack5_btn'), currentLang);
+  document.getElementById('pack15PayBtn').innerHTML = await translateText(t('pack15_btn'), currentLang);
+  document.getElementById('camName').innerHTML = await translateText(t('camName'), currentLang);
+  document.getElementById('camInstr').innerHTML = await translateText(t('camInstr'), currentLang);
+  document.getElementById('camStartText').innerHTML = await translateText(t('camStartText'), currentLang);
+  document.getElementById('camConfirmText').innerHTML = await translateText(t('camConfirmText'), currentLang);
+  document.getElementById('camRetakeText').innerHTML = await translateText(t('camRetakeText'), currentLang);
+  document.getElementById('micName').innerHTML = await translateText(t('micName'), currentLang);
+  document.getElementById('micInstr').innerHTML = await translateText(t('micInstr'), currentLang);
+  document.getElementById('micStartText').innerHTML = await translateText(t('micStartText'), currentLang);
+  document.getElementById('micConfirmText').innerHTML = await translateText(t('micConfirmText'), currentLang);
+  document.getElementById('micRetakeText').innerHTML = await translateText(t('micRetakeText'), currentLang);
+  document.getElementById('vibName').innerHTML = await translateText(t('vibName'), currentLang);
+  document.getElementById('vibInstr').innerHTML = await translateText(t('vibInstr'), currentLang);
+  document.getElementById('vibStartText').innerHTML = await translateText(t('vibStartText'), currentLang);
+  document.getElementById('vibConfirmText').innerHTML = await translateText(t('vibConfirmText'), currentLang);
+  document.getElementById('vibRetakeText').innerHTML = await translateText(t('vibRetakeText'), currentLang);
+  document.getElementById('userName').innerHTML = await translateText(t('userName'), currentLang);
+  document.getElementById('userInstr').innerHTML = await translateText(t('userInstr'), currentLang);
+  document.getElementById('settingsTitle').innerHTML = await translateText(t('settings_title'), currentLang);
+  document.getElementById('autoTranslateLabel').innerHTML = await translateText(t('settings_auto_label'), currentLang);
+  document.getElementById('closeSettingsBtn').innerHTML = await translateText(t('settings_close'), currentLang);
+  updateCreditsUI();
+}
 function t(key) { return (translations[currentLang] && translations[currentLang][key]) || key; }
 
-// ==================== 2. الوقت والمكان والـ QR والجهاز ====================
+// ==================== الوقت والمكان والـ QR والجهاز ====================
 function updateDateTime() {
   let d=new Date();
   document.getElementById('currentDate').innerText=`${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
@@ -275,7 +436,7 @@ function updateQR() {
 updateQR(); setInterval(updateQR,5000);
 document.getElementById('qrContainer').onclick = () => { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); };
 
-// ==================== 3. الرصيد والمدير ====================
+// ==================== الرصيد والمدير ====================
 let freeUsed = parseInt(localStorage.getItem('freeUsed')||'0');
 let paid = parseInt(localStorage.getItem('paid')||'0');
 let admin = false;
@@ -325,16 +486,13 @@ document.getElementById('pack5PayBtn').onclick = () => buyPlan(5);
 document.getElementById('pack15PayBtn').onclick = () => buyPlan(15);
 document.getElementById('activateLicenseBtn').onclick = () => {
   let code = document.getElementById('licenseCode').value.trim();
-  if(code === 'MOULOUD2026') {
-    admin=true; updateCreditsUI(); showToast('✅ وضع المطور مفعل');
-    document.getElementById('adminHint').innerHTML='👑 وضع المطور نشط';
-  } else if(code === 'FREE50') {
-    paid += 50; localStorage.setItem('paid',paid); updateCreditsUI(); showToast('✅ تمت إضافة 50 تشخيص');
-  } else showToast('❌ رمز غير صالح');
+  if(code === 'MOULOUD2026') { admin=true; updateCreditsUI(); showToast('✅ وضع المطور مفعل'); document.getElementById('adminHint').innerHTML='👑 وضع المطور نشط'; }
+  else if(code === 'FREE50') { paid += 50; localStorage.setItem('paid',paid); updateCreditsUI(); showToast('✅ تمت إضافة 50 تشخيص'); }
+  else showToast('❌ رمز غير صالح');
 };
 updateCreditsUI();
 
-// ==================== 4. قاعدة بيانات الأعطال ====================
+// ==================== قاعدة بيانات الأعطال ====================
 const faultsDB = [
   { smoke:'white', sound:'knocking', vib:'high', faultKey:'white_knocking', danger:'high' },
   { smoke:'white', sound:'smooth', vib:'medium', faultKey:'white_smooth', danger:'medium' },
@@ -356,7 +514,7 @@ function getFault(smoke,sound,vib) {
   return f;
 }
 
-// ==================== 5. الحساسات والتشخيص ====================
+// ==================== الحساسات والتشخيص ====================
 let camOK=false, micOK=false, vibOK=false;
 let smokeColor=null, soundType=null, vibIntensity=null, userText="";
 let cameraStream=null, micStream=null, audioCtx=null;
@@ -385,7 +543,12 @@ function resetSensorsUI() {
 function checkAllReady() {
   if(camOK && micOK && vibOK) document.getElementById('analyzeBtn').disabled=false;
 }
-
+function resetSingleSensor(sensor) {
+  if(sensor === 'camera') { camOK=false; smokeColor=null; document.getElementById('camResult').innerHTML=''; document.getElementById('camConfirmBtn').disabled=true; document.getElementById('camRetakeBtn').disabled=true; document.getElementById('camStartBtn').disabled=false; }
+  else if(sensor === 'mic') { micOK=false; soundType=null; document.getElementById('micResult').innerHTML=''; document.getElementById('micConfirmBtn').disabled=true; document.getElementById('micRetakeBtn').disabled=true; document.getElementById('micStartBtn').disabled=false; }
+  else if(sensor === 'vib') { vibOK=false; vibIntensity=null; document.getElementById('vibResult').innerHTML=''; document.getElementById('vibConfirmBtn').disabled=true; document.getElementById('vibRetakeBtn').disabled=true; document.getElementById('vibStartBtn').disabled=false; }
+  document.getElementById('analyzeBtn').disabled=true;
+}
 // كاميرا
 document.getElementById('camStartBtn').onclick = async () => {
   if(measuring) return; measuring=true;
@@ -422,11 +585,8 @@ document.getElementById('camStartBtn').onclick = async () => {
     },8000);
   } catch(e){ showToast('❌ فشل الكاميرا'); measuring=false; }
 };
-document.getElementById('camRetakeBtn').onclick = () => {
-  document.getElementById('camStartBtn').click();
-};
+document.getElementById('camRetakeBtn').onclick = () => { resetSingleSensor('camera'); document.getElementById('camStartBtn').click(); };
 document.getElementById('camConfirmBtn').onclick = () => { camOK=true; document.getElementById('camConfirmBtn').disabled=true; checkAllReady(); };
-
 // ميكروفون
 document.getElementById('micStartBtn').onclick = async () => {
   if(measuring) return; measuring=true;
@@ -468,11 +628,8 @@ document.getElementById('micStartBtn').onclick = async () => {
     },8000);
   } catch(e){ showToast('❌ فشل الميكروفون'); measuring=false; }
 };
-document.getElementById('micRetakeBtn').onclick = () => {
-  document.getElementById('micStartBtn').click();
-};
+document.getElementById('micRetakeBtn').onclick = () => { resetSingleSensor('mic'); document.getElementById('micStartBtn').click(); };
 document.getElementById('micConfirmBtn').onclick = () => { micOK=true; document.getElementById('micConfirmBtn').disabled=true; checkAllReady(); };
-
 // اهتزاز
 document.getElementById('vibStartBtn').onclick = () => {
   if(measuring) return; measuring=true;
@@ -496,11 +653,8 @@ document.getElementById('vibStartBtn').onclick = () => {
     measuring=false;
   },6000);
 };
-document.getElementById('vibRetakeBtn').onclick = () => {
-  document.getElementById('vibStartBtn').click();
-};
+document.getElementById('vibRetakeBtn').onclick = () => { resetSingleSensor('vib'); document.getElementById('vibStartBtn').click(); };
 document.getElementById('vibConfirmBtn').onclick = () => { vibOK=true; document.getElementById('vibConfirmBtn').disabled=true; checkAllReady(); };
-
 // إدخال المستخدم
 let recognition=null;
 document.getElementById('userSpeakBtn').onclick = () => {
@@ -508,62 +662,39 @@ document.getElementById('userSpeakBtn').onclick = () => {
   const SpeechRecognition = window.SpeechRecognition||window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();
   recognition.lang = BCP_MAP[currentLang] || (currentLang==='ar'?'ar-EG':(currentLang==='fr'?'fr-FR':'en-US'));
-  recognition.onresult = (e) => {
-    userText = e.results[0][0].transcript;
-    document.getElementById('userResult').innerHTML = `📝 ${userText}`;
-    showToast(t('copied'));
-  };
+  recognition.onresult = (e) => { userText = e.results[0][0].transcript; document.getElementById('userResult').innerHTML = `📝 ${userText}`; showToast(t('copied')); };
   recognition.start();
 };
 document.getElementById('userClearBtn').onclick = () => { userText=""; document.getElementById('userResult').innerHTML = ''; };
-
 // التشخيص النهائي
-document.getElementById('analyzeBtn').onclick = () => {
+document.getElementById('analyzeBtn').onclick = async () => {
   if(!smokeColor || !soundType || !vibIntensity) { showToast("أكمل جميع الحساسات أولاً"); return; }
   if(!consumeCredit()) return;
   let fault = getFault(smokeColor, soundType, vibIntensity);
-  let title = t(`fault_${fault.faultKey}`) || t('fault_normal_normal');
-  let sol = t(`solution_${fault.faultKey}`) || t('solution_normal_normal');
-  let dangerText = t(`severity_${fault.danger}`);
-  let html = `<div class="danger-${fault.danger}" style="display:inline-block;margin-bottom:8px">⚠️ ${t('severity')}: ${dangerText}</div><br>
-              <strong>🔍 ${t('diag_title')}:</strong> ${title}<br><br>
-              <strong>🔧 ${t('solution')}:</strong> ${sol}<br><br>
-              ${userText? `<strong>🗣️ ملاحظة المستخدم:</strong> ${userText}<br><br>` : ''}
+  let title = await translateText(t(`fault_${fault.faultKey}`) || t('fault_normal_normal'), currentLang);
+  let sol = await translateText(t(`solution_${fault.faultKey}`) || t('solution_normal_normal'), currentLang);
+  let dangerText = await translateText(t(`severity_${fault.danger}`), currentLang);
+  let html = `<div class="danger-${fault.danger}" style="display:inline-block;margin-bottom:8px">⚠️ ${await translateText(t('severity'), currentLang)}: ${dangerText}</div><br>
+              <strong>🔍 ${await translateText(t('diag_title'), currentLang)}:</strong> ${title}<br><br>
+              <strong>🔧 ${await translateText(t('solution'), currentLang)}:</strong> ${sol}<br><br>
+              ${userText? `<strong>🗣️ ${await translateText(t('userName'), currentLang)}:</strong> ${userText}<br><br>` : ''}
               <div class="action-buttons">
-                <button id="listenResultBtn" class="action-btn">🔊 ${t('listen')}</button>
-                <button id="pdfResultBtn" class="action-btn">📄 ${t('pdf')}</button>
-                <button id="copyResultBtn" class="action-btn">📋 ${t('copy')}</button>
-                <button id="emailResultBtn" class="action-btn">📧 ${t('email')}</button>
-                <button id="saveResultBtn" class="action-btn">💾 ${t('save')}</button>
+                <button id="listenResultBtn" class="action-btn">🔊 ${await translateText(t('listen'), currentLang)}</button>
+                <button id="pdfResultBtn" class="action-btn">📄 ${await translateText(t('pdf'), currentLang)}</button>
+                <button id="copyResultBtn" class="action-btn">📋 ${await translateText(t('copy'), currentLang)}</button>
+                <button id="emailResultBtn" class="action-btn">📧 ${await translateText(t('email'), currentLang)}</button>
+                <button id="saveResultBtn" class="action-btn">💾 ${await translateText(t('save'), currentLang)}</button>
               </div>`;
   document.getElementById('resultPanel').innerHTML = html;
   document.getElementById('resultPanel').style.display = 'block';
   document.getElementById('diagPanel').style.display = 'none';
-  // ربط الأزرار
-  document.getElementById('listenResultBtn').onclick = () => {
-    let u = new SpeechSynthesisUtterance(title+'. '+sol);
-    u.lang = BCP_MAP[currentLang] || (currentLang==='ar'?'ar-EG':(currentLang==='fr'?'fr-FR':'en-US'));
-    window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-  };
-  document.getElementById('pdfResultBtn').onclick = () => {
-    let content = `AI Car Diagnostics\n${t('diag_title')}: ${title}\n${t('solution')}: ${sol}\n${t('severity')}: ${dangerText}\n${userText? 'Note: '+userText:''}\nDate: ${new Date().toLocaleString()}`;
-    let blob = new Blob([content],{type:'text/plain'});
-    let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`diagnosis_${Date.now()}.txt`; a.click();
-  };
-  document.getElementById('copyResultBtn').onclick = () => {
-    navigator.clipboard.writeText(title+'\n'+sol);
-    showToast(t('copied'));
-  };
-  document.getElementById('emailResultBtn').onclick = () => {
-    window.location.href=`mailto:?subject=Car%20Diagnosis&body=${encodeURIComponent(title+'\n'+sol)}`;
-  };
-  document.getElementById('saveResultBtn').onclick = () => {
-    localStorage.setItem('lastDiagnosis', JSON.stringify({title,sol}));
-    showToast("✅ تم حفظ التشخيص");
-  };
+  document.getElementById('listenResultBtn').onclick = () => { let u = new SpeechSynthesisUtterance(title+'. '+sol); u.lang = BCP_MAP[currentLang] || (currentLang==='ar'?'ar-EG':(currentLang==='fr'?'fr-FR':'en-US')); window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); };
+  document.getElementById('pdfResultBtn').onclick = () => { let content = `AI Car Diagnostics\n${t('diag_title')}: ${title}\n${t('solution')}: ${sol}\n${t('severity')}: ${dangerText}\n${userText? 'Note: '+userText:''}\nDate: ${new Date().toLocaleString()}`; let blob = new Blob([content],{type:'text/plain'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`diagnosis_${Date.now()}.txt`; a.click(); };
+  document.getElementById('copyResultBtn').onclick = () => { navigator.clipboard.writeText(title+'\n'+sol); showToast(t('copied')); };
+  document.getElementById('emailResultBtn').onclick = () => { window.location.href=`mailto:?subject=Car%20Diagnosis&body=${encodeURIComponent(title+'\n'+sol)}`; };
+  document.getElementById('saveResultBtn').onclick = () => { localStorage.setItem('lastDiagnosis', JSON.stringify({title,sol})); showToast("✅ تم حفظ التشخيص"); };
 };
 
-// زر بدء التشخيص الرئيسي
 document.getElementById('startBtn').onclick = () => {
   let total = admin ? 9999 : Math.max(0,3-freeUsed)+paid;
   if(total<=0 && !admin) { showToast(t('no_credits')); return; }
@@ -580,70 +711,61 @@ document.getElementById('backBtn').onclick = () => {
   measuring=false;
 };
 
-// ==================== 6. بناء قائمة اللغات وتطبيق الترجمة ====================
+// ==================== بناء قائمة اللغات ====================
 function buildLangSelect() {
   let sel = document.getElementById('langSelect');
   sel.innerHTML = '';
-  langList.forEach(code=>{
+  for(let lang of allLangs) {
     let opt = document.createElement('option');
-    opt.value = code;
-    opt.textContent = langNames[code] || code;
-    if(code===currentLang) opt.selected = true;
+    opt.value = lang.code;
+    opt.textContent = `${lang.flag} ${lang.name}`;
+    if(lang.code === currentLang) opt.selected = true;
     sel.appendChild(opt);
-  });
-  sel.onchange = () => {
+  }
+  sel.onchange = async () => {
     currentLang = sel.value;
     localStorage.setItem('appLang', currentLang);
-    applyTranslations();
+    let langInfo = allLangs.find(l=>l.code===currentLang);
+    if(langInfo && langInfo.dir === 'rtl') document.documentElement.dir = 'rtl';
+    else document.documentElement.dir = 'ltr';
+    await applyTranslations();
   };
-}
-function applyTranslations() {
-  document.getElementById('dynamicSubtitle').innerText = t('subtitle');
-  document.getElementById('freeBadge').innerHTML = t('free_badge').replace('3', Math.max(0,3-freeUsed));
-  document.getElementById('creditLabel').innerHTML = t('credit_label');
-  document.getElementById('activateLicenseBtn').innerHTML = t('activate');
-  document.getElementById('startBtn').innerHTML = `🧠 ${t('start_btn')}`;
-  document.getElementById('analyzeBtn').innerHTML = `📊 ${t('analyzeText')}`;
-  document.getElementById('backBtn').innerHTML = `↩️ ${t('back_btn')}`;
-  document.getElementById('userSpeakBtn').innerHTML = `🎤 ${t('userSpeakText')}`;
-  document.getElementById('userClearBtn').innerHTML = `🗑 ${t('userClearText')}`;
-  document.getElementById('singlePayBtn').innerHTML = t('single_btn');
-  document.getElementById('pack5PayBtn').innerHTML = t('pack5_btn');
-  document.getElementById('pack15PayBtn').innerHTML = t('pack15_btn');
-  document.getElementById('camName').innerHTML = t('camName');
-  document.getElementById('camInstr').innerHTML = t('camInstr');
-  document.getElementById('camStartText').innerHTML = t('camStartText');
-  document.getElementById('camConfirmText').innerHTML = t('camConfirmText');
-  document.getElementById('camRetakeText').innerHTML = t('camRetakeText');
-  document.getElementById('micName').innerHTML = t('micName');
-  document.getElementById('micInstr').innerHTML = t('micInstr');
-  document.getElementById('micStartText').innerHTML = t('micStartText');
-  document.getElementById('micConfirmText').innerHTML = t('micConfirmText');
-  document.getElementById('micRetakeText').innerHTML = t('micRetakeText');
-  document.getElementById('vibName').innerHTML = t('vibName');
-  document.getElementById('vibInstr').innerHTML = t('vibInstr');
-  document.getElementById('vibStartText').innerHTML = t('vibStartText');
-  document.getElementById('vibConfirmText').innerHTML = t('vibConfirmText');
-  document.getElementById('vibRetakeText').innerHTML = t('vibRetakeText');
-  document.getElementById('userName').innerHTML = t('userName');
-  document.getElementById('userInstr').innerHTML = t('userInstr');
-  updateCreditsUI();
 }
 buildLangSelect();
 applyTranslations();
 
-// ==================== 7. المدير بالنقر على أيقونة السيارة ====================
+// ==================== المدير والإعدادات ====================
 let clickCount = 0, clickTimer = null;
 document.getElementById('secretAdminIcon').onclick = () => {
   clickCount++;
   if(clickTimer) clearTimeout(clickTimer);
   clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
-  if(clickCount >= 5) {
-    admin = true;
-    updateCreditsUI();
-    showToast('✅ وضع المطور مفعل (5 نقرات)');
-    document.getElementById('adminHint').innerHTML = '👑 وضع المطور نشط (5 نقرات)';
-    clickCount = 0;
+  if(clickCount >= 5) { admin = true; updateCreditsUI(); showToast('✅ وضع المطور مفعل (5 نقرات)'); document.getElementById('adminHint').innerHTML = '👑 وضع المطور نشط (5 نقرات)'; clickCount = 0; }
+};
+
+const settingsModal = document.getElementById('settingsModal');
+const autoTranslateCheckbox = document.getElementById('autoTranslateCheckbox');
+autoTranslateCheckbox.checked = autoTranslateEnabled;
+autoTranslateCheckbox.onchange = () => {
+  autoTranslateEnabled = autoTranslateCheckbox.checked;
+  localStorage.setItem('autoTranslate', autoTranslateEnabled);
+  if (!autoTranslateEnabled) { translationCache = {}; localStorage.setItem('translationCache', '{}'); }
+  applyTranslations();
+};
+document.getElementById('settingsIcon').onclick = () => settingsModal.classList.add('show');
+document.getElementById('closeSettingsBtn').onclick = () => settingsModal.classList.remove('show');
+settingsModal.onclick = (e) => { if(e.target === settingsModal) settingsModal.classList.remove('show'); };
+
+// ==================== أزرار المشاركة ====================
+const APP_URL = 'https://ai-car-diagnostics.netlify.app';
+document.getElementById('shareWhatsApp').onclick = () => window.open(`https://wa.me/?text=${encodeURIComponent(APP_URL)}`, '_blank');
+document.getElementById('shareEmail').onclick = () => window.location.href = `mailto:?subject=${encodeURIComponent('AI Car Diagnostics - تطبيق تشخيص أعطال السيارة')}&body=${encodeURIComponent(`جرب تطبيق تشخيص السيارة الذكي: ${APP_URL}`)}`;
+document.getElementById('shareGeneral').onclick = () => {
+  if (navigator.share) {
+    navigator.share({ title: 'AI Car Diagnostics', text: 'تشخيص أعطال السيارة بالذكاء الاصطناعي', url: APP_URL }).catch(() => showToast('تم الإلغاء'));
+  } else {
+    navigator.clipboard.writeText(APP_URL);
+    showToast('✅ تم نسخ الرابط للمشاركة');
   }
 };
 </script>
