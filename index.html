@@ -5,72 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>AI Car Diagnostics - التشخيص الذكي للمحرك</title>
+  <title>AI Mechanic – المخبر الفيزيائي الناطق</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:#0a0f1a;color:#fff;font-family:'Segoe UI',system-ui,sans-serif;padding:1rem}
-    .container{max-width:700px;margin:auto;background:#0e1422;border-radius:2rem;border:1px solid #f5a623;overflow:hidden;box-shadow:0 10px 25px -5px black}
-    .header{display:flex;align-items:center;justify-content:space-between;padding:0.8rem 1rem;background:#0b0f1a;border-bottom:3px solid #f5a623;flex-wrap:wrap;gap:8px}
-    .qr-code{width:50px;height:50px;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .container{max-width:700px;margin:auto;background:#0e1422;border-radius:2rem;border:1px solid #f5a623;overflow:hidden;box-shadow:0 10px 25px -5px black;padding:1.5rem}
+    .gold-line{height:2px;background:linear-gradient(90deg,transparent,#f5a623,transparent);margin:10px 0;border:none;width:100%}
+    .header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+    .qr-code{width:50px;height:50px;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
     .qr-code img{width:44px;height:44px}
-    .title-section{text-align:center;flex:1;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
-    .title-fixed{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,#ffe6b0,#f5a623);background-clip:text;-webkit-background-clip:text;color:transparent}
-    .title-translated{font-size:0.8rem;color:#b9c7d9}
-    .car-icon{font-size:1.8rem;color:#f5a623;cursor:pointer}
-    .info-strip{display:flex;justify-content:space-between;align-items:center;background:#00000055;padding:6px 12px;font-size:0.7rem;flex-wrap:wrap;gap:6px;margin-top:4px}
-    .lang-device{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .lang-select{background:#1e2a3a;border:1px solid #f5a623;border-radius:40px;padding:4px 8px;color:#fff;font-size:0.7rem;max-width:180px}
-    .device-id{background:#1e2a3a;border-radius:40px;padding:4px 10px;font-family:monospace;font-size:0.7rem}
-    .free-badge{text-align:center;background:#f5a62320;margin:8px 12px;padding:6px;border-radius:40px;font-weight:bold;color:#f5a623}
-    .credit-card{background:#0f172a;border-radius:1.5rem;margin:12px;padding:10px;text-align:center;border:1px solid #3b82f6}
+    .title-section{text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+    .title-fixed{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,#ffe6b0,#f5a623);background-clip:text;-webkit-background-clip:text;color:transparent;line-height:1.3}
+    .title-translated{font-size:0.75rem;color:#b9c7d9;min-height:1.2rem;transition:all 0.2s}
+    .car-icon{font-size:1.8rem;color:#f5a623;cursor:pointer;flex-shrink:0;width:44px;text-align:center}
+    .info-strip{display:flex;justify-content:space-between;align-items:center;background:#00000055;padding:4px 10px;font-size:0.65rem;flex-wrap:wrap;gap:4px;margin:4px 0}
+    .lang-device{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+    .lang-select{background:#1e2a3a;border:1px solid #f5a623;border-radius:40px;padding:2px 6px;color:#fff;font-size:0.7rem;max-width:160px}
+    .device-id{background:#1e2a3a;border-radius:40px;padding:2px 8px;font-family:monospace;font-size:0.65rem}
+    .free-badge{text-align:center;background:#f5a62320;margin:6px 0;padding:4px;border-radius:40px;font-weight:bold;color:#f5a623;font-size:0.9rem;transition:all 0.2s}
+    .credit-card{background:#0f172a;border-radius:1.5rem;margin:8px 0;padding:10px;text-align:center;border:1px solid #3b82f6}
     .credit-amount{font-size:1.8rem;font-weight:800;color:#f5a623}
-    .pay-buttons{display:flex;gap:8px;justify-content:center;margin:6px 0;flex-wrap:wrap}
-    .pay-btn{background:#10b981;border:none;border-radius:60px;padding:5px 12px;font-weight:bold;cursor:pointer;color:#fff}
-    .license-box{display:flex;gap:8px;justify-content:center;margin-top:6px;flex-wrap:wrap}
-    .license-box input{background:#1e2a3a;border:1px solid #3b82f6;border-radius:60px;padding:5px 12px;color:#fff;width:140px}
-    .license-box button{background:#3b82f6;border:none;border-radius:60px;padding:5px 16px;cursor:pointer;font-weight:bold;color:#fff}
-    .btn-primary{background:#8b5cf6;width:100%;padding:12px;border:none;border-radius:40px;font-weight:bold;color:#fff;margin:12px 0;cursor:pointer}
-    .sensor-card{background:#1e2a3e;border-radius:1.5rem;padding:12px;margin:12px;border:2px solid #3b82f6}
-    .sensor-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-    .sensor-icon{font-size:1.8rem;color:#f5a623}
-    .sensor-instr{font-size:0.7rem;color:#ccc;margin-bottom:8px}
-    .sensor-result{background:#03060c;border-radius:1rem;padding:8px;margin-top:8px;font-size:0.8rem;min-height:55px;border:1px dashed #f5a623}
-    .btn-group{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}
-    button{background:#f97316;border:none;border-radius:40px;padding:6px 12px;font-weight:bold;cursor:pointer;color:#fff}
-    button:disabled{opacity:0.5;cursor:not-allowed}
-    .result-area{background:#0a1020;border-radius:1.5rem;margin:12px;padding:16px;border:2px solid #f5a623}
-    .action-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-    .action-btn{flex:1;background:#2d3a4e;padding:8px;border-radius:40px;text-align:center;cursor:pointer;font-size:0.7rem}
-    .danger-low{background:#10b981;color:#000;display:inline-block;padding:2px 12px;border-radius:30px}
+    .pay-buttons{display:flex;gap:6px;justify-content:center;margin:4px 0;flex-wrap:wrap}
+    .pay-btn{background:#10b981;border:none;border-radius:60px;padding:4px 10px;font-weight:bold;cursor:pointer;color:#fff;font-size:0.75rem}
+    .license-box{display:flex;gap:6px;justify-content:center;margin-top:4px;flex-wrap:wrap}
+    .license-box input{background:#1e2a3a;border:1px solid #3b82f6;border-radius:60px;padding:3px 10px;color:#fff;width:120px;font-size:0.7rem}
+    .license-box button{background:#3b82f6;border:none;border-radius:60px;padding:3px 12px;cursor:pointer;font-weight:bold;color:#fff;font-size:0.7rem}
+    .admin-only{display:none;margin-top:6px;font-size:0.6rem;background:#1e293b;border-radius:20px;padding:4px 8px;text-align:center}
+    .btn-primary{background:#8b5cf6;width:100%;padding:12px;border:none;border-radius:40px;font-weight:bold;color:#fff;margin:10px 0;cursor:pointer;transition:0.2s;font-size:1rem}
+    .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+    .sensor-card{background:#1e2a3e;border-radius:1.5rem;padding:12px;margin:10px 0;border:2px solid #3b82f6;transition:0.3s}
+    .sensor-card.confirmed{border-color:#10b981}
+    .sensor-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+    .sensor-icon{font-size:1.6rem;color:#f5a623}
+    .sensor-title{font-weight:bold;font-size:0.95rem}
+    .sensor-status{font-size:0.65rem;color:#94a3b8;margin-right:auto;min-width:80px;text-align:left}
+    .sensor-instr{font-size:0.7rem;color:#ccc;margin-bottom:4px}
+    .sensor-preview{background:#000;border-radius:8px;padding:6px;min-height:30px;font-size:0.75rem;color:#94a3b8;margin-bottom:4px}
+    .sensor-result{background:#03060c;border-radius:1rem;padding:6px;margin-top:4px;font-size:0.75rem;min-height:26px;border:1px dashed #f5a623}
+    .btn-group{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
+    .btn-group button{background:#f97316;border:none;border-radius:40px;padding:3px 10px;font-weight:bold;cursor:pointer;color:#fff;font-size:0.7rem}
+    .btn-group button:disabled{opacity:0.4;cursor:not-allowed}
+    .btn-group .confirm-btn{background:#10b981}
+    .btn-group .retake-btn{background:#f59e0b}
+    .btn-group .stop-btn{background:#ef4444}
+    .result-area{background:#0a1020;border-radius:1.5rem;margin:10px 0;padding:14px;border:2px solid #f5a623;display:none}
+    .action-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .action-btn{flex:1;background:#2d3a4e;padding:6px;border-radius:40px;text-align:center;cursor:pointer;font-size:0.65rem;border:none;color:#fff;min-width:60px}
+    .danger-low{background:#10b981;color:#000;display:inline-block;padding:2px 10px;border-radius:30px}
     .danger-medium{background:#f59e0b;color:#000}
     .danger-high{background:#ef4444;color:#fff}
     .danger-critical{background:#7f1d1d;color:#fff}
-    footer{text-align:center;padding:12px;background:#060a12;border-top:1px solid #2a3a5a;font-size:0.65rem}
-    .share-buttons{display:flex;justify-content:center;gap:12px;margin-top:8px}
-    .share-btn{background:#1e293b;border:1px solid #f5a623;border-radius:40px;padding:6px 12px;cursor:pointer;font-size:0.7rem;display:inline-flex;align-items:center;gap:6px;color:#fff}
-    .share-btn i{font-size:0.9rem}
-    video,canvas{width:100%;max-height:180px;border-radius:12px;margin-top:6px}
-    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#f97316;padding:5px 15px;border-radius:30px;opacity:0;transition:0.2s;z-index:999;font-weight:bold;color:#000}
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#f97316;padding:4px 14px;border-radius:30px;opacity:0;transition:0.2s;z-index:999;font-weight:bold;color:#000;font-size:0.8rem}
     .toast.show{opacity:1}
+    .share-buttons{display:flex;justify-content:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+    .share-btn{background:#1e293b;border:1px solid #f5a623;border-radius:40px;padding:4px 10px;cursor:pointer;font-size:0.65rem;display:inline-flex;align-items:center;gap:4px;color:#fff}
+    footer{text-align:center;padding:8px;background:#060a12;border-top:1px solid #2a3a5a;font-size:0.6rem;margin-top:10px}
     .hidden{display:none}
-    .admin-only{display:none; margin-top:8px; font-size:0.7rem; background:#1e293b; border-radius:20px; padding:6px; text-align:center}
+    video{width:100%;max-height:150px;border-radius:12px;margin-top:4px}
+    .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
+    .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
+    #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
   </style>
 </head>
 <body>
 <div class="container">
+
+  <!-- ===== HEADER with QR ===== -->
   <div class="header">
     <div class="qr-code" id="qrContainer"><img id="qrImage" alt="QR"></div>
     <div class="title-section">
-      <i class="fas fa-car-side car-icon" id="secretAdminIcon"></i>
-      <div>
-        <div class="title-fixed">AI Car Diagnostics</div>
-        <div class="title-translated" id="dynamicSubtitle">التشخيص الذكي للمحرك</div>
-      </div>
+      <div class="title-fixed">⚡ AI Mechanic</div>
+      <div class="title-translated" id="dynamicSubtitle">المخبر الفيزيائي الناطق</div>
     </div>
-    <div style="width:40px"></div>
+    <div class="car-icon" id="secretAdminIcon"><i class="fas fa-car-side"></i></div>
   </div>
 
+  <!-- ===== GOLD LINE ===== -->
+  <hr class="gold-line">
+
+  <!-- ===== INFO STRIP ===== -->
   <div class="info-strip">
     <span>📍 <span id="currentLocation">جاري...</span></span>
     <span>🕐 <span id="currentTime">--:--:--</span></span>
@@ -81,7 +95,13 @@
     </div>
   </div>
 
+  <!-- ===== GOLD LINE ===== -->
+  <hr class="gold-line">
+
+  <!-- ===== FREE BADGE ===== -->
   <div class="free-badge" id="freeBadge">🔓 3 تشخيصات مجانية متبقية</div>
+
+  <!-- ===== CREDIT CARD ===== -->
   <div class="credit-card">
     <div><i class="fas fa-coins"></i> <span id="creditLabel">الرصيد المتبقي:</span> <span class="credit-amount" id="creditValue">0</span></div>
     <div class="pay-buttons">
@@ -93,72 +113,92 @@
       <input type="text" id="licenseCode" placeholder="🔑 رمز التفعيل">
       <button id="activateLicenseBtn">تفعيل</button>
     </div>
-    <div id="adminHint" style="font-size:0.65rem; margin-top:5px;"></div>
-    <div id="adminSection" class="admin-only">
-      <i class="fas fa-code-branch"></i> رابط المشروع (للمطور): <a href="https://github.com/moulkamali-boop/car-diag" target="_blank">https://github.com/moulkamali-boop/car-diag</a>
+    <div id="adminHint"></div>
+    <div id="adminSection" class="admin-only"><i class="fas fa-code-branch"></i> رابط المشروع: <a href="https://github.com/moulkamali-boop/car-diag" target="_blank">github.com/moulkamali-boop/car-diag</a></div>
+  </div>
+
+  <!-- ===== GOLD LINE ===== -->
+  <hr class="gold-line">
+
+  <!-- ===== START DIAGNOSIS BUTTON ===== -->
+  <button id="startDiagnosisBtn" class="btn-primary">🧠 ابدأ التشخيص الذكي</button>
+
+  <!-- ===== SENSORS AREA (hidden initially) ===== -->
+  <div id="sensorsArea" style="display:none;">
+
+    <!-- Sound Sensor -->
+    <div class="sensor-card" id="sensor-sound">
+      <div class="sensor-header">
+        <i class="fas fa-microphone sensor-icon"></i>
+        <span class="sensor-title" id="soundName">🎤 الميكروفون</span>
+        <span class="sensor-status" id="soundStatus">⏸ غير نشط</span>
+      </div>
+      <div class="sensor-instr" id="soundInstr">ضع الهاتف على بعد 20 سم من المحرك</div>
+      <div class="sensor-preview" id="soundPreview">⏳ انتظر...</div>
+      <div class="sensor-result" id="soundResult"></div>
+      <div class="btn-group">
+        <button id="soundStartBtn" class="start-btn">▶ تشغيل (8s)</button>
+        <button id="soundStopBtn" class="stop-btn" disabled>⏹ إيقاف</button>
+        <button id="soundConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
+        <button id="soundRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
+      </div>
+    </div>
+
+    <!-- Vibration Sensor -->
+    <div class="sensor-card" id="sensor-vibration">
+      <div class="sensor-header">
+        <i class="fas fa-vibrate sensor-icon"></i>
+        <span class="sensor-title" id="vibName">📳 الاهتزاز</span>
+        <span class="sensor-status" id="vibStatus">⏸ غير نشط</span>
+      </div>
+      <div class="sensor-instr" id="vibInstr">ضع الهاتف على خرقة فوق المحرك</div>
+      <div class="sensor-preview" id="vibPreview">⏳ انتظر...</div>
+      <div class="sensor-result" id="vibResult"></div>
+      <div class="btn-group">
+        <button id="vibStartBtn" class="start-btn">▶ تشغيل (6s)</button>
+        <button id="vibStopBtn" class="stop-btn" disabled>⏹ إيقاف</button>
+        <button id="vibConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
+        <button id="vibRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
+      </div>
+    </div>
+
+    <!-- Camera Sensor -->
+    <div class="sensor-card" id="sensor-camera">
+      <div class="sensor-header">
+        <i class="fas fa-camera sensor-icon"></i>
+        <span class="sensor-title" id="camName">📸 الكاميرا (الدخان)</span>
+        <span class="sensor-status" id="camStatus">⏸ غير نشط</span>
+      </div>
+      <div class="sensor-instr" id="camInstr">صوّر عادم السيارة من المؤخرة</div>
+      <div class="sensor-preview" id="camPreview">⏳ انتظر...</div>
+      <div class="sensor-result" id="camResult"></div>
+      <div class="btn-group">
+        <button id="camStartBtn" class="start-btn">▶ تشغيل (5s)</button>
+        <button id="camStopBtn" class="stop-btn" disabled>⏹ إيقاف</button>
+        <button id="camConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
+        <button id="camRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
+      </div>
+    </div>
+
+    <!-- Control buttons -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">
+      <button id="finalizeBtn" class="btn-primary" disabled style="flex:2;">📊 الخلاصة النهائية</button>
+      <button id="resetBtn" class="btn-primary" style="background:#555;flex:1;">🔄 بداية جديدة</button>
     </div>
   </div>
 
-  <button id="startBtn" class="btn-primary">🧠 ابدأ التشخيص الذكي</button>
+  <!-- ===== RESULT PANEL ===== -->
+  <div id="resultPanel" class="result-area"></div>
 
-  <div id="diagPanel" style="display:none;">
-    <div class="sensor-card">
-      <div class="sensor-header"><i class="fas fa-camera sensor-icon"></i><span id="camName"></span></div>
-      <div class="sensor-instr" id="camInstr"></div>
-      <div id="camPreview"></div>
-      <div id="camResult" class="sensor-result"></div>
-      <div class="btn-group">
-        <button id="camStartBtn">▶ <span id="camStartText"></span> (8s)</button>
-        <button id="camConfirmBtn" disabled>✅ <span id="camConfirmText"></span></button>
-        <button id="camRetakeBtn" disabled>🔄 <span id="camRetakeText"></span></button>
-      </div>
-    </div>
-
-    <div class="sensor-card">
-      <div class="sensor-header"><i class="fas fa-microphone sensor-icon"></i><span id="micName"></span></div>
-      <div class="sensor-instr" id="micInstr"></div>
-      <div id="micResult" class="sensor-result"></div>
-      <div class="btn-group">
-        <button id="micStartBtn">▶ <span id="micStartText"></span> (8s)</button>
-        <button id="micConfirmBtn" disabled>✅ <span id="micConfirmText"></span></button>
-        <button id="micRetakeBtn" disabled>🔄 <span id="micRetakeText"></span></button>
-      </div>
-    </div>
-
-    <div class="sensor-card">
-      <div class="sensor-header"><i class="fas fa-vibrate sensor-icon"></i><span id="vibName"></span></div>
-      <div class="sensor-instr" id="vibInstr"></div>
-      <div id="vibResult" class="sensor-result"></div>
-      <div class="btn-group">
-        <button id="vibStartBtn">▶ <span id="vibStartText"></span> (6s)</button>
-        <button id="vibConfirmBtn" disabled>✅ <span id="vibConfirmText"></span></button>
-        <button id="vibRetakeBtn" disabled>🔄 <span id="vibRetakeText"></span></button>
-      </div>
-    </div>
-
-    <div class="sensor-card">
-      <div class="sensor-header"><i class="fas fa-user-edit sensor-icon"></i><span id="userName"></span></div>
-      <div class="sensor-instr" id="userInstr"></div>
-      <div id="userResult" class="sensor-result"></div>
-      <div class="btn-group">
-        <button id="userSpeakBtn">🎤 <span id="userSpeakText"></span></button>
-        <button id="userClearBtn">🗑 <span id="userClearText"></span></button>
-      </div>
-    </div>
-
-    <button id="analyzeBtn" class="btn-primary" disabled>📊 <span id="analyzeText"></span></button>
-    <button id="backBtn" class="btn-primary" style="background:#555;">↩️ <span id="backText"></span></button>
+  <!-- ===== SHARE BUTTONS ===== -->
+  <div class="share-buttons">
+    <button class="share-btn" id="shareWhatsApp"><i class="fab fa-whatsapp"></i> <span id="shareWhatsAppText">واتساب</span></button>
+    <button class="share-btn" id="shareEmail"><i class="fas fa-envelope"></i> <span id="shareEmailText">إيميل</span></button>
+    <button class="share-btn" id="shareGeneral"><i class="fas fa-share-alt"></i> <span id="shareGeneralText">مشاركة</span></button>
   </div>
-
-  <div id="resultPanel" style="display:none;" class="result-area"></div>
 
   <footer>
-    <div style="margin-bottom:6px; word-break:break-all; font-size:0.7rem;">https://ai-car-diagnostics.netlify.app</div>
-    <div class="share-buttons">
-      <button class="share-btn" id="shareWhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</button>
-      <button class="share-btn" id="shareEmail"><i class="fas fa-envelope"></i> Email</button>
-      <button class="share-btn" id="shareGeneral"><i class="fas fa-share-alt"></i> مشاركة</button>
-    </div>
+    <div style="margin-bottom:4px; word-break:break-all; font-size:0.65rem;">https://ai-car-diagnostics.netlify.app</div>
   </footer>
 </div>
 
@@ -166,1004 +206,1026 @@
 
 <script>
 // ============================================================
-// AI CAR DIAGNOSTICS - نظام حواس الفيزياء للترجمة (54 لغة)
-// ============================================================
-
-// ============================================================
-// 1. قائمة اللغات الكاملة (54 لغة)
+// 1. LANGUAGES (54 – نظام حواس الفيزياء)
 // ============================================================
 var allLangs = [
-  { code:"ar", name:"العربية", flag:"🇸🇦", dir:"rtl", native:"العربية", speakers:420 },
-  { code:"en", name:"English", flag:"🇬🇧", dir:"ltr", native:"English", speakers:1500 },
-  { code:"fr", name:"Français", flag:"🇫🇷", dir:"ltr", native:"Français", speakers:320 },
-  { code:"es", name:"Español", flag:"🇪🇸", dir:"ltr", native:"Español", speakers:600 },
-  { code:"de", name:"Deutsch", flag:"🇩🇪", dir:"ltr", native:"Deutsch", speakers:135 },
-  { code:"it", name:"Italiano", flag:"🇮🇹", dir:"ltr", native:"Italiano", speakers:70 },
-  { code:"pt", name:"Português", flag:"🇵🇹", dir:"ltr", native:"Português", speakers:270 },
-  { code:"ru", name:"Русский", flag:"🇷🇺", dir:"ltr", native:"Русский", speakers:260 },
-  { code:"zh", name:"中文", flag:"🇨🇳", dir:"ltr", native:"中文", speakers:1200 },
-  { code:"ja", name:"日本語", flag:"🇯🇵", dir:"ltr", native:"日本語", speakers:125 },
-  { code:"ko", name:"한국어", flag:"🇰🇷", dir:"ltr", native:"한국어", speakers:85 },
-  { code:"hi", name:"हिन्दी", flag:"🇮🇳", dir:"ltr", native:"हिन्दी", speakers:700 },
-  { code:"tr", name:"Türkçe", flag:"🇹🇷", dir:"ltr", native:"Türkçe", speakers:95 },
-  { code:"id", name:"Bahasa Indonesia", flag:"🇮🇩", dir:"ltr", native:"Indonesia", speakers:230 },
-  { code:"ms", name:"Bahasa Melayu", flag:"🇲🇾", dir:"ltr", native:"Malay", speakers:80 },
-  { code:"vi", name:"Tiếng Việt", flag:"🇻🇳", dir:"ltr", native:"Tiếng Việt", speakers:90 },
-  { code:"th", name:"ไทย", flag:"🇹🇭", dir:"ltr", native:"Thai", speakers:70 },
-  { code:"nl", name:"Nederlands", flag:"🇳🇱", dir:"ltr", native:"Dutch", speakers:24 },
-  { code:"pl", name:"Polski", flag:"🇵🇱", dir:"ltr", native:"Polish", speakers:40 },
-  { code:"sv", name:"Svenska", flag:"🇸🇪", dir:"ltr", native:"Swedish", speakers:13 },
-  { code:"fa", name:"فارسی", flag:"🇮🇷", dir:"rtl", native:"فارسی", speakers:80 },
-  { code:"ur", name:"اردو", flag:"🇵🇰", dir:"rtl", native:"اردو", speakers:240 },
-  { code:"bn", name:"বাংলা", flag:"🇧🇩", dir:"ltr", native:"বাংলা", speakers:300 },
-  { code:"pa", name:"ਪੰਜਾਬੀ", flag:"🇮🇳", dir:"ltr", native:"Punjabi", speakers:60 },
-  { code:"ta", name:"தமிழ்", flag:"🇮🇳", dir:"ltr", native:"தமிழ்", speakers:90 },
-  { code:"te", name:"తెలుగు", flag:"🇮🇳", dir:"ltr", native:"Telugu", speakers:82 },
-  { code:"mr", name:"मराठी", flag:"🇮🇳", dir:"ltr", native:"Marathi", speakers:83 },
-  { code:"ha", name:"Hausa", flag:"🇳🇬", dir:"ltr", native:"Hausa", speakers:70 },
-  { code:"tl", name:"Filipino", flag:"🇵🇭", dir:"ltr", native:"Tagalog", speakers:28 },
-  { code:"gu", name:"ગુજરાતી", flag:"🇮🇳", dir:"ltr", native:"Gujarati", speakers:55 },
-  { code:"am", name:"አማርኛ", flag:"🇪🇹", dir:"ltr", native:"Amharic", speakers:32 },
-  { code:"yo", name:"Yorùbá", flag:"🇳🇬", dir:"ltr", native:"Yoruba", speakers:45 },
-  { code:"uz", name:"O‘zbek", flag:"🇺🇿", dir:"ltr", native:"Uzbek", speakers:34 },
-  { code:"my", name:"မြန်မာ", flag:"🇲🇲", dir:"ltr", native:"Burmese", speakers:33 },
-  { code:"az", name:"Azərbaycan", flag:"🇦🇿", dir:"ltr", native:"Azerbaijani", speakers:23 },
-  { code:"ig", name:"Igbo", flag:"🇳🇬", dir:"ltr", native:"Igbo", speakers:30 },
-  { code:"so", name:"Soomaali", flag:"🇸🇴", dir:"ltr", native:"Somali", speakers:16 },
-  { code:"sw", name:"Kiswahili", flag:"🇹🇿", dir:"ltr", native:"Kiswahili", speakers:120 },
-  { code:"sk", name:"Slovenčina", flag:"🇸🇰", dir:"ltr", native:"Slovak", speakers:6 },
-  { code:"bg", name:"Български", flag:"🇧🇬", dir:"ltr", native:"Bulgarian", speakers:8 },
-  { code:"hr", name:"Hrvatski", flag:"🇭🇷", dir:"ltr", native:"Croatian", speakers:6 },
-  { code:"lt", name:"Lietuvių", flag:"🇱🇹", dir:"ltr", native:"Lithuanian", speakers:3 },
-  { code:"lv", name:"Latviešu", flag:"🇱🇻", dir:"ltr", native:"Latvian", speakers:1.5 },
-  { code:"et", name:"Eesti", flag:"🇪🇪", dir:"ltr", native:"Estonian", speakers:1.1 },
-  { code:"sl", name:"Slovenščina", flag:"🇸🇮", dir:"ltr", native:"Slovenian", speakers:2.5 },
-  { code:"da", name:"Dansk", flag:"🇩🇰", dir:"ltr", native:"Danish", speakers:6 },
-  { code:"fi", name:"Suomi", flag:"🇫🇮", dir:"ltr", native:"Finnish", speakers:5 },
-  { code:"no", name:"Norsk", flag:"🇳🇴", dir:"ltr", native:"Norwegian", speakers:5 },
-  { code:"el", name:"Ελληνικά", flag:"🇬🇷", dir:"ltr", native:"Greek", speakers:13 },
-  { code:"cs", name:"Čeština", flag:"🇨🇿", dir:"ltr", native:"Czech", speakers:13 },
-  { code:"he", name:"עברית", flag:"🇮🇱", dir:"rtl", native:"Hebrew", speakers:9 },
-  { code:"uk", name:"Українська", flag:"🇺🇦", dir:"ltr", native:"Ukrainian", speakers:37 },
-  { code:"ro", name:"Română", flag:"🇷🇴", dir:"ltr", native:"Romanian", speakers:24 },
-  { code:"hu", name:"Magyar", flag:"🇭🇺", dir:"ltr", native:"Hungarian", speakers:13 }
+  { code:"ar", name:"العربية", flag:"🇸🇦", dir:"rtl" },
+  { code:"en", name:"English", flag:"🇬🇧", dir:"ltr" },
+  { code:"fr", name:"Français", flag:"🇫🇷", dir:"ltr" },
+  { code:"es", name:"Español", flag:"🇪🇸", dir:"ltr" },
+  { code:"de", name:"Deutsch", flag:"🇩🇪", dir:"ltr" },
+  { code:"it", name:"Italiano", flag:"🇮🇹", dir:"ltr" },
+  { code:"pt", name:"Português", flag:"🇵🇹", dir:"ltr" },
+  { code:"ru", name:"Русский", flag:"🇷🇺", dir:"ltr" },
+  { code:"zh", name:"中文", flag:"🇨🇳", dir:"ltr" },
+  { code:"ja", name:"日本語", flag:"🇯🇵", dir:"ltr" },
+  { code:"ko", name:"한국어", flag:"🇰🇷", dir:"ltr" },
+  { code:"hi", name:"हिन्दी", flag:"🇮🇳", dir:"ltr" },
+  { code:"tr", name:"Türkçe", flag:"🇹🇷", dir:"ltr" },
+  { code:"id", name:"Bahasa Indonesia", flag:"🇮🇩", dir:"ltr" },
+  { code:"ms", name:"Bahasa Melayu", flag:"🇲🇾", dir:"ltr" },
+  { code:"vi", name:"Tiếng Việt", flag:"🇻🇳", dir:"ltr" },
+  { code:"th", name:"ไทย", flag:"🇹🇭", dir:"ltr" },
+  { code:"nl", name:"Nederlands", flag:"🇳🇱", dir:"ltr" },
+  { code:"pl", name:"Polski", flag:"🇵🇱", dir:"ltr" },
+  { code:"sv", name:"Svenska", flag:"🇸🇪", dir:"ltr" },
+  { code:"fa", name:"فارسی", flag:"🇮🇷", dir:"rtl" },
+  { code:"ur", name:"اردو", flag:"🇵🇰", dir:"rtl" },
+  { code:"bn", name:"বাংলা", flag:"🇧🇩", dir:"ltr" },
+  { code:"pa", name:"ਪੰਜਾਬੀ", flag:"🇮🇳", dir:"ltr" },
+  { code:"ta", name:"தமிழ்", flag:"🇮🇳", dir:"ltr" },
+  { code:"te", name:"తెలుగు", flag:"🇮🇳", dir:"ltr" },
+  { code:"mr", name:"मराठी", flag:"🇮🇳", dir:"ltr" },
+  { code:"ha", name:"Hausa", flag:"🇳🇬", dir:"ltr" },
+  { code:"tl", name:"Filipino", flag:"🇵🇭", dir:"ltr" },
+  { code:"gu", name:"ગુજરાતી", flag:"🇮🇳", dir:"ltr" },
+  { code:"am", name:"አማርኛ", flag:"🇪🇹", dir:"ltr" },
+  { code:"yo", name:"Yorùbá", flag:"🇳🇬", dir:"ltr" },
+  { code:"uz", name:"O‘zbek", flag:"🇺🇿", dir:"ltr" },
+  { code:"my", name:"မြန်မာ", flag:"🇲🇲", dir:"ltr" },
+  { code:"az", name:"Azərbaycan", flag:"🇦🇿", dir:"ltr" },
+  { code:"ig", name:"Igbo", flag:"🇳🇬", dir:"ltr" },
+  { code:"so", name:"Soomaali", flag:"🇸🇴", dir:"ltr" },
+  { code:"sw", name:"Kiswahili", flag:"🇹🇿", dir:"ltr" },
+  { code:"sk", name:"Slovenčina", flag:"🇸🇰", dir:"ltr" },
+  { code:"bg", name:"Български", flag:"🇧🇬", dir:"ltr" },
+  { code:"hr", name:"Hrvatski", flag:"🇭🇷", dir:"ltr" },
+  { code:"lt", name:"Lietuvių", flag:"🇱🇹", dir:"ltr" },
+  { code:"lv", name:"Latviešu", flag:"🇱🇻", dir:"ltr" },
+  { code:"et", name:"Eesti", flag:"🇪🇪", dir:"ltr" },
+  { code:"sl", name:"Slovenščina", flag:"🇸🇮", dir:"ltr" },
+  { code:"da", name:"Dansk", flag:"🇩🇰", dir:"ltr" },
+  { code:"fi", name:"Suomi", flag:"🇫🇮", dir:"ltr" },
+  { code:"no", name:"Norsk", flag:"🇳🇴", dir:"ltr" },
+  { code:"el", name:"Ελληνικά", flag:"🇬🇷", dir:"ltr" },
+  { code:"cs", name:"Čeština", flag:"🇨🇿", dir:"ltr" },
+  { code:"he", name:"עברית", flag:"🇮🇱", dir:"rtl" },
+  { code:"uk", name:"Українська", flag:"🇺🇦", dir:"ltr" },
+  { code:"ro", name:"Română", flag:"🇷🇴", dir:"ltr" },
+  { code:"hu", name:"Magyar", flag:"🇭🇺", dir:"ltr" }
 ];
-
-// BCP-47 للنطق
-var BCP_MAP = {
-  ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN", el:"el-GR", cs:"cs-CZ", he:"he-IL", th:"th-TH", uk:"uk-UA", ro:"ro-RO", hu:"hu-HU", sv:"sv-SE", da:"da-DK", fi:"fi-FI", no:"nb-NO", pl:"pl-PL", nl:"nl-NL", id:"id-ID", ms:"ms-MY", bn:"bn-BD", pa:"pa-IN", ta:"ta-IN", te:"te-IN", mr:"mr-IN", ha:"ha-NG", tl:"fil-PH", gu:"gu-IN", am:"am-ET", yo:"yo-NG", uz:"uz-UZ", my:"my-MM", az:"az-AZ", ig:"ig-NG", so:"so-SO", sk:"sk-SK", bg:"bg-BG", hr:"hr-HR", lt:"lt-LT", lv:"lv-LV", et:"et-EE", sl:"sl-SI"
-};
+var BCP_MAP = { ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN" };
 
 // ============================================================
-// 2. نظام الترجمة (نظام حواس الفيزياء المسطح)
+// 2. TRANSLATIONS – كاملة (ar, en, fr) + باقي اللغات إنجليزية
 // ============================================================
 var translations = {
   ar: {
-    subtitle: "التشخيص الذكي للمحرك",
+    subtitle: "المخبر الفيزيائي الناطق",
     free_badge: "🔓 {0} تشخيصات مجانية متبقية",
     credit_label: "الرصيد المتبقي:",
     activate: "تفعيل",
-    start_btn: "ابدأ التشخيص الذكي",
-    analyze_btn: "تحليل البيانات والتشخيص النهائي",
-    back_btn: "رجوع",
-    camName: "كاميرا",
-    camInstr: "صوّر فتحة العادم (المؤخرة) بوضوح",
-    camStartText: "بدء التصوير",
-    camConfirmText: "تأكيد",
-    camRetakeText: "إعادة",
-    micName: "ميكروفون",
-    micInstr: "سجّل صوت المحرك من مسافة 30 سم (8 ثوانٍ)",
-    micStartText: "بدء التسجيل",
-    micConfirmText: "تأكيد",
-    micRetakeText: "إعادة",
-    vibName: "اهتزاز",
-    vibInstr: "ضع الهاتف فوق غطاء المحرك (6 ثوانٍ)",
-    vibStartText: "بدء القياس",
-    vibConfirmText: "تأكيد",
-    vibRetakeText: "إعادة",
-    userName: "وصف إضافي",
-    userInstr: "سجّل ملاحظاتك (اختياري - يزيد الدقة)",
-    userSpeakText: "تحدث لوصف المشكلة",
-    userClearText: "مسح",
-    analyzeText: "تحليل البيانات والتشخيص النهائي",
-    smoke_white: "أبيض",
-    smoke_black: "أسود",
-    smoke_blue: "أزرق",
-    smoke_gray: "رمادي",
-    smoke_none: "لا دخان",
-    sound_smooth: "طبيعي",
-    sound_knocking: "طقطقة",
-    sound_rough: "خشن",
-    sound_whistle: "صفير",
-    sound_ticking: "تكتكة",
-    sound_squeal: "صُرير",
-    sound_rumble: "أزيز",
-    sound_hiss: "هسهسة",
-    low: "منخفض",
-    medium: "متوسط",
-    high: "مرتفع",
-    very_high: "مرتفع جداً",
-    diag_title: "التشخيص النهائي",
-    solution: "الحل",
-    severity: "الخطورة",
-    severity_low: "منخفضة",
-    severity_medium: "متوسطة",
-    severity_high: "مرتفعة",
-    severity_critical: "حرجة",
-    listen: "استمع للنتيجة",
-    pdf: "حفظ PDF",
-    copy: "نسخ التقرير",
-    email: "إرسال",
-    save: "حفظ التشخيص",
-    copied: "تم النسخ",
-    no_credits: "❌ لا رصيد كافٍ",
-    diag_ok: "✅ تم خصم تشخيص",
+    start_diag: "🧠 ابدأ التشخيص الذكي",
     single_btn: "💵 1 تشخيص ($2)",
     pack5_btn: "💵 5 تشخيصات ($8)",
     pack15_btn: "💵 15 تشخيصاً ($20)",
-    fault_white_knocking: "حشية رأس محرك تالفة + طقطقة",
-    solution_white_knocking: "استبدل حشية الرأس وافحص التبريد",
-    fault_white_smooth: "تسرب ماء تبريد (حشية رأس)",
-    solution_white_smooth: "افحص حشية الرأس",
-    fault_black_rough: "خليط وقود غني (بخاخات)",
-    solution_black_rough: "نظف البخاخات وحساس الأكسجين",
-    fault_black_knocking: "وقود رديء أو بوجيهات تالفة",
-    solution_black_knocking: "استخدم وقود 95 واستبدل البوجيهات",
-    fault_blue_smooth: "حرق زيت (حلقات مكبس)",
-    solution_blue_smooth: "عمرة محرك",
-    fault_blue_knocking: "حلقات مكبس تالفة مع طقطقة",
-    solution_blue_knocking: "فحص وعمرة كاملة",
-    fault_gray_whistle: "صمام EGR متسخ",
-    solution_gray_whistle: "نظف صمام EGR",
-    fault_gray_smooth: "فلتر هواء مسدود",
-    solution_gray_smooth: "استبدل فلتر الهواء",
-    fault_none_ticking: "صمامات تالفة أو نقص زيت",
-    solution_none_ticking: "اضبط الصمامات وافحص الزيت",
-    fault_none_squeal: "سير مكينة مرتخي",
-    solution_none_squeal: "شد السير أو استبدله",
-    fault_normal_normal: "لا يوجد عطل واضح",
-    solution_normal_normal: "صيانة دورية",
-    back: "رجوع",
-    share: "مشاركة",
-    wait: "⏳ انتظار...",
-    measuring: "⏳ جاري القياس... {s} ث",
-    back_btn: "رجوع",
-    userSpeakText: "تحدث لوصف المشكلة",
-    userClearText: "مسح",
-    analyzeText: "تحليل البيانات والتشخيص النهائي",
-    settings_title: "⚙️ الإعدادات",
-    settings_auto_label: "تفعيل الترجمة التلقائية",
-    settings_close: "إغلاق"
+    license_placeholder: "🔑 رمز التفعيل",
+    no_credits: "❌ لا رصيد كافٍ",
+    diag_ok: "✅ تم خصم تشخيص",
+    added: "تمت الإضافة",
+    listen: "🔊 استمع",
+    copy: "📋 نسخ التقرير",
+    share: "📤 مشاركة",
+    copied: "تم النسخ",
+    shared: "تم المشاركة",
+    admin_on: "✅ وضع المدير مفعل",
+    admin_off: "🔒 وضع المدير مغلق",
+    invalid: "❌ رمز غير صالح",
+    sound_name: "🎤 الميكروفون",
+    sound_instr: "ضع الهاتف على بعد 20 سم من المحرك",
+    vib_name: "📳 الاهتزاز",
+    vib_instr: "ضع الهاتف على خرقة فوق المحرك",
+    cam_name: "📸 الكاميرا (الدخان)",
+    cam_instr: "صوّر عادم السيارة من المؤخرة",
+    start_btn: "▶ تشغيل",
+    stop_btn: "⏹ إيقاف",
+    confirm_btn: "✅ تأكيد",
+    retake_btn: "🔄 إعادة",
+    status_idle: "⏸ غير نشط",
+    status_recording: "🔴 جاري التسجيل...",
+    status_done: "✅ مكتمل",
+    finalize_btn: "📊 الخلاصة النهائية",
+    reset_btn: "🔄 بداية جديدة",
+    diag_title: "🔍 التشخيص النهائي",
+    solution: "🔧 الحل",
+    severity: "⚠️ الخطورة",
+    severity_low: "منخفضة",
+    severity_medium: "متوسطة",
+    severity_high: "عالية",
+    severity_critical: "حرجة",
+    confidence: "نسبة الثقة",
+    share_whatsapp: "واتساب",
+    share_email: "إيميل",
+    share_general: "مشاركة",
+    waiting: "⏳ انتظر...",
+    location_denied: "غير مصرح",
+    location_loading: "جاري...",
+    fault_healthy: "محرك سليم",
+    solution_healthy: "صيانة دورية فقط",
+    fault_knocking: "طقطقة – وقود/إشعال",
+    solution_knocking: "استخدم وقود 95، افحص البوجيهات والتوقيت",
+    fault_squeal: "صرير حاد – سير/مضخة ماء",
+    solution_squeal: "افحص السير، شد أو استبدل، افحص مضخة الماء",
+    fault_hiss: "هسهسة – تسريب تبريد/EGR",
+    solution_hiss: "افحص الردياتير والخراطيم، نظف صمام EGR",
+    fault_ticking: "تكتكة معدنية – صمامات/زيت",
+    solution_ticking: "اضبط الصمامات، استخدم زيتاً مناسباً، افحص الضغط",
+    fault_rough: "صوت خشن – هواء/بخاخات",
+    solution_rough: "استبدل فلتر الهواء، نظف البخاخات وحساس الأكسجين",
+    fault_deep_knock: "نقر عميق – جلبة عمود مرفقي",
+    solution_deep_knock: "افحص الجلب، قد تحتاج عمرة محرك",
+    fault_preignition: "اشتعال مبكر – حرارة عالية",
+    solution_preignition: "افحص حساس الأكسجين، نظف البخاخات، استخدم وقوداً عالي الأوكتان",
+    fault_oil_burn: "حرق زيت – حلقات مكبس/صمامات",
+    solution_oil_burn: "افحص الحلقات والصمامات، قد تحتاج عمرة",
+    fault_coolant_leak: "تسريب ماء تبريد – دخان أبيض",
+    solution_coolant_leak: "افحص الردياتير والخراطيم، استبدل الأجزاء التالفة",
+    fault_air_filter: "فلتر هواء مسدود",
+    solution_air_filter: "استبدل فلتر الهواء",
+    fault_egr: "صمام EGR متسخ",
+    solution_egr: "نظف صمام EGR",
+    fault_belt_loose: "سير مرتخي",
+    solution_belt_loose: "شد السير أو استبدله",
+    fault_valve_tick: "تكتكة صمامات",
+    solution_valve_tick: "اضبط خلوص الصمامات",
+    fault_pump_whine: "أزيز مضخة وقود/زيت",
+    solution_pump_whine: "افحص مضخة الوقود أو الزيت"
   },
   en: {
-    subtitle: "Smart Engine Diagnosis",
+    subtitle: "The Talking Physics Lab",
     free_badge: "🔓 {0} free diagnoses left",
     credit_label: "Remaining credits:",
     activate: "Activate",
-    start_btn: "Start Smart Diagnosis",
-    analyze_btn: "Analyze & Final Diagnosis",
-    back_btn: "Back",
-    camName: "Camera",
-    camInstr: "Capture exhaust pipe clearly",
-    camStartText: "Start Capture",
-    camConfirmText: "Confirm",
-    camRetakeText: "Retake",
-    micName: "Microphone",
-    micInstr: "Record engine sound from 30cm (8 sec)",
-    micStartText: "Start Recording",
-    micConfirmText: "Confirm",
-    micRetakeText: "Re-record",
-    vibName: "Vibration",
-    vibInstr: "Place phone on engine cover (6 sec)",
-    vibStartText: "Start Measurement",
-    vibConfirmText: "Confirm",
-    vibRetakeText: "Remeasure",
-    userName: "Additional notes",
-    userInstr: "Record your notes (optional)",
-    userSpeakText: "Describe problem",
-    userClearText: "Clear",
-    analyzeText: "Analyze Data & Final Diagnosis",
-    smoke_white: "White",
-    smoke_black: "Black",
-    smoke_blue: "Blue",
-    smoke_gray: "Gray",
-    smoke_none: "No smoke",
-    sound_smooth: "Smooth",
-    sound_knocking: "Knocking",
-    sound_rough: "Rough",
-    sound_whistle: "Whistle",
-    sound_ticking: "Ticking",
-    sound_squeal: "Squeal",
-    sound_rumble: "Rumble",
-    sound_hiss: "Hiss",
-    low: "Low",
-    medium: "Medium",
-    high: "High",
-    very_high: "Very High",
-    diag_title: "Final Diagnosis",
-    solution: "Solution",
-    severity: "Severity",
+    start_diag: "🧠 Start Smart Diagnosis",
+    single_btn: "💵 1 Diagnosis ($2)",
+    pack5_btn: "💵 5 Diagnoses ($8)",
+    pack15_btn: "💵 15 Diagnoses ($20)",
+    license_placeholder: "🔑 Activation code",
+    no_credits: "❌ Insufficient credits",
+    diag_ok: "✅ Diagnosis consumed",
+    added: "Added",
+    listen: "🔊 Listen",
+    copy: "📋 Copy Report",
+    share: "📤 Share",
+    copied: "Copied",
+    shared: "Shared",
+    admin_on: "✅ Admin mode activated",
+    admin_off: "🔒 Admin mode deactivated",
+    invalid: "❌ Invalid code",
+    sound_name: "🎤 Microphone",
+    sound_instr: "Place phone 20cm from engine",
+    vib_name: "📳 Vibration",
+    vib_instr: "Place phone on cloth over engine",
+    cam_name: "📸 Camera (Smoke)",
+    cam_instr: "Capture exhaust from behind car",
+    start_btn: "▶ Start",
+    stop_btn: "⏹ Stop",
+    confirm_btn: "✅ Confirm",
+    retake_btn: "🔄 Retake",
+    status_idle: "⏸ Inactive",
+    status_recording: "🔴 Recording...",
+    status_done: "✅ Done",
+    finalize_btn: "📊 Final Diagnosis",
+    reset_btn: "🔄 New Start",
+    diag_title: "🔍 Final Diagnosis",
+    solution: "🔧 Solution",
+    severity: "⚠️ Severity",
     severity_low: "Low",
     severity_medium: "Medium",
     severity_high: "High",
     severity_critical: "Critical",
-    listen: "Listen to result",
-    pdf: "Save PDF",
-    copy: "Copy Report",
-    email: "Email",
-    save: "Save Diagnosis",
-    copied: "Copied",
-    no_credits: "❌ Insufficient credits",
-    diag_ok: "✅ Diagnosis consumed",
-    single_btn: "💵 1 Diagnosis ($2)",
-    pack5_btn: "💵 5 Diagnoses ($8)",
-    pack15_btn: "💵 15 Diagnoses ($20)",
-    fault_white_knocking: "Blown head gasket with knocking",
-    solution_white_knocking: "Replace head gasket",
-    fault_white_smooth: "Coolant leak (head gasket)",
-    solution_white_smooth: "Check head gasket",
-    fault_black_rough: "Rich fuel mixture (injectors)",
-    solution_black_rough: "Clean injectors and O2 sensor",
-    fault_black_knocking: "Poor fuel or spark plugs",
-    solution_black_knocking: "Use 95 octane fuel, replace plugs",
-    fault_blue_smooth: "Oil burning (piston rings)",
-    solution_blue_smooth: "Engine overhaul",
-    fault_blue_knocking: "Worn piston rings with knocking",
-    solution_blue_knocking: "Full engine overhaul",
-    fault_gray_whistle: "Dirty EGR valve",
-    solution_gray_whistle: "Clean EGR valve",
-    fault_gray_smooth: "Clogged air filter",
-    solution_gray_smooth: "Replace air filter",
-    fault_none_ticking: "Valve or low oil",
-    solution_none_ticking: "Adjust valves, check oil",
-    fault_none_squeal: "Loose belt",
-    solution_none_squeal: "Tighten or replace belt",
-    fault_normal_normal: "No clear fault",
-    solution_normal_normal: "Routine maintenance",
-    back: "Back",
-    share: "Share",
-    wait: "⏳ Waiting...",
-    measuring: "⏳ Measuring... {s}s",
-    settings_title: "⚙️ Settings",
-    settings_auto_label: "Enable automatic translation",
-    settings_close: "Close"
+    confidence: "Confidence",
+    share_whatsapp: "WhatsApp",
+    share_email: "Email",
+    share_general: "Share",
+    waiting: "⏳ Waiting...",
+    location_denied: "Denied",
+    location_loading: "Loading...",
+    fault_healthy: "Healthy Engine",
+    solution_healthy: "Routine maintenance only",
+    fault_knocking: "Knocking – Fuel/Ignition",
+    solution_knocking: "Use 95 octane, check plugs and timing",
+    fault_squeal: "Squeal – Belt/Water Pump",
+    solution_squeal: "Check belt, tighten/replace, check water pump",
+    fault_hiss: "Hiss – Coolant leak/EGR",
+    solution_hiss: "Check radiator, hoses, clean EGR valve",
+    fault_ticking: "Metallic ticking – Valves/Oil",
+    solution_ticking: "Adjust valves, use proper oil, check pressure",
+    fault_rough: "Rough – Air/Injectors",
+    solution_rough: "Replace air filter, clean injectors and O2 sensor",
+    fault_deep_knock: "Deep knock – Crank bearing",
+    solution_deep_knock: "Check bearings, may need overhaul",
+    fault_preignition: "Pre-ignition – High heat",
+    solution_preignition: "Check O2 sensor, clean injectors, use high octane fuel",
+    fault_oil_burn: "Oil burning – Rings/Valves",
+    solution_oil_burn: "Check rings and valves, may need overhaul",
+    fault_coolant_leak: "Coolant leak – White smoke",
+    solution_coolant_leak: "Check radiator, hoses, replace damaged parts",
+    fault_air_filter: "Clogged air filter",
+    solution_air_filter: "Replace air filter",
+    fault_egr: "Dirty EGR valve",
+    solution_egr: "Clean EGR valve",
+    fault_belt_loose: "Loose belt",
+    solution_belt_loose: "Tighten or replace belt",
+    fault_valve_tick: "Valve ticking",
+    solution_valve_tick: "Adjust valve clearance",
+    fault_pump_whine: "Fuel/Oil pump whine",
+    solution_pump_whine: "Check fuel or oil pump"
   },
   fr: {
-    subtitle: "Diagnostic intelligent moteur",
+    subtitle: "Le laboratoire physique parlant",
     free_badge: "🔓 {0} diagnostics gratuits restants",
     credit_label: "Crédits restants:",
     activate: "Activer",
-    start_btn: "Démarrer diagnostic",
-    analyze_btn: "Analyser & Diagnostic final",
-    back_btn: "Retour",
-    camName: "Caméra",
-    camInstr: "Photographiez le pot d'échappement",
-    camStartText: "Capturer",
-    camConfirmText: "Confirmer",
-    camRetakeText: "Recommencer",
-    micName: "Microphone",
-    micInstr: "Enregistrez le son du moteur (8s)",
-    micStartText: "Enregistrer",
-    micConfirmText: "Confirmer",
-    micRetakeText: "Ré-enregistrer",
-    vibName: "Vibration",
-    vibInstr: "Posez téléphone sur moteur (6s)",
-    vibStartText: "Mesurer",
-    vibConfirmText: "Confirmer",
-    vibRetakeText: "Remesurer",
-    userName: "Notes supplémentaires",
-    userInstr: "Ajoutez une note vocale",
-    userSpeakText: "Décrire",
-    userClearText: "Effacer",
-    analyzeText: "Analyser & Diagnostic final",
-    smoke_white: "Blanc",
-    smoke_black: "Noir",
-    smoke_blue: "Bleu",
-    smoke_gray: "Gris",
-    smoke_none: "Aucune",
-    sound_smooth: "Normal",
-    sound_knocking: "Cliquetis",
-    sound_rough: "Rugueux",
-    sound_whistle: "Sifflement",
-    sound_ticking: "Tic-tac",
-    sound_squeal: "Grincement",
-    sound_rumble: "Bourdonnement",
-    sound_hiss: "Sifflement aigu",
-    low: "Faible",
-    medium: "Moyen",
-    high: "Élevé",
-    very_high: "Très élevé",
-    diag_title: "Diagnostic final",
-    solution: "Solution",
-    severity: "Gravité",
+    start_diag: "🧠 Démarrer diagnostic",
+    single_btn: "💵 1 Diagnostic ($2)",
+    pack5_btn: "💵 5 Diagnostics ($8)",
+    pack15_btn: "💵 15 Diagnostics ($20)",
+    license_placeholder: "🔑 Code d'activation",
+    no_credits: "❌ Crédits insuffisants",
+    diag_ok: "✅ Diagnostic consommé",
+    added: "Ajouté",
+    listen: "🔊 Écouter",
+    copy: "📋 Copier",
+    share: "📤 Partager",
+    copied: "Copié",
+    shared: "Partagé",
+    admin_on: "✅ Mode admin activé",
+    admin_off: "🔒 Mode admin désactivé",
+    invalid: "❌ Code invalide",
+    sound_name: "🎤 Microphone",
+    sound_instr: "Placez le téléphone à 20 cm du moteur",
+    vib_name: "📳 Vibration",
+    vib_instr: "Posez le téléphone sur un chiffon sur le moteur",
+    cam_name: "📸 Caméra (Fumée)",
+    cam_instr: "Photographiez l'échappement à l'arrière",
+    start_btn: "▶ Démarrer",
+    stop_btn: "⏹ Arrêter",
+    confirm_btn: "✅ Confirmer",
+    retake_btn: "🔄 Recommencer",
+    status_idle: "⏸ Inactif",
+    status_recording: "🔴 Enregistrement...",
+    status_done: "✅ Terminé",
+    finalize_btn: "📊 Diagnostic final",
+    reset_btn: "🔄 Nouveau départ",
+    diag_title: "🔍 Diagnostic final",
+    solution: "🔧 Solution",
+    severity: "⚠️ Gravité",
     severity_low: "Faible",
     severity_medium: "Moyenne",
     severity_high: "Élevée",
     severity_critical: "Critique",
-    listen: "Écouter",
-    pdf: "PDF",
-    copy: "Copier",
-    email: "Envoyer",
-    save: "Sauvegarder",
-    copied: "Copié",
-    no_credits: "❌ Crédits insuffisants",
-    diag_ok: "✅ Diagnostic consommé",
-    single_btn: "💵 1 Diagnostic ($2)",
-    pack5_btn: "💵 5 Diagnostics ($8)",
-    pack15_btn: "💵 15 Diagnostics ($20)",
-    fault_white_knocking: "Joint culasse endommagé",
-    solution_white_knocking: "Remplacer joint culasse",
-    fault_white_smooth: "Fuite refroidissement",
-    solution_white_smooth: "Vérifier joint culasse",
-    fault_black_rough: "Mélange riche",
-    solution_black_rough: "Nettoyer injecteurs",
-    fault_black_knocking: "Carburant ou bougies",
-    solution_black_knocking: "Utiliser carburant 95, remplacer bougies",
-    fault_blue_smooth: "Consommation d'huile",
-    solution_blue_smooth: "Révision moteur",
-    fault_blue_knocking: "Segments usés",
-    solution_blue_knocking: "Révision complète",
-    fault_gray_whistle: "EGR encrassée",
-    solution_gray_whistle: "Nettoyer EGR",
-    fault_gray_smooth: "Filtre à air obstrué",
-    solution_gray_smooth: "Remplacer filtre à air",
-    fault_none_ticking: "Soupapes ou huile",
-    solution_none_ticking: "Régler soupapes, vérifier huile",
-    fault_none_squeal: "Courroie desserrée",
-    solution_none_squeal: "Tendre courroie",
-    fault_normal_normal: "Pas de défaut",
-    solution_normal_normal: "Entretien régulier",
-    back: "Retour",
-    share: "Partager",
-    wait: "⏳ Attente...",
-    measuring: "⏳ Mesure en cours... {s}s",
-    settings_title: "⚙️ Paramètres",
-    settings_auto_label: "Activer la traduction automatique",
-    settings_close: "Fermer"
+    confidence: "Confiance",
+    share_whatsapp: "WhatsApp",
+    share_email: "Email",
+    share_general: "Partager",
+    waiting: "⏳ Attente...",
+    location_denied: "Refusé",
+    location_loading: "Chargement...",
+    fault_healthy: "Moteur sain",
+    solution_healthy: "Entretien régulier",
+    fault_knocking: "Cliquetis – Carburant/Allumage",
+    solution_knocking: "Carburant 95, bougies et timing",
+    fault_squeal: "Grincement – Courroie/Pompe à eau",
+    solution_squeal: "Vérifier courroie, pompe à eau",
+    fault_hiss: "Sifflement – Fuite refroidissement/EGR",
+    solution_hiss: "Vérifier radiateur, durites, nettoyer EGR",
+    fault_ticking: "Tic-tac métallique – Soupapes/Huile",
+    solution_ticking: "Régler soupapes, huile adaptée",
+    fault_rough: "Son rugueux – Air/Injecteurs",
+    solution_rough: "Filtre à air, injecteurs, sonde O2",
+    fault_deep_knock: "Cognement profond – Paliers",
+    solution_deep_knock: "Vérifier paliers, possible révision",
+    fault_preignition: "Pré-allumage – Chaleur élevée",
+    solution_preignition: "Sonde O2, injecteurs, carburant haute octane",
+    fault_oil_burn: "Consommation d'huile – Segments/Soupapes",
+    solution_oil_burn: "Vérifier segments et soupapes",
+    fault_coolant_leak: "Fuite liquide de refroidissement – Fumée blanche",
+    solution_coolant_leak: "Vérifier radiateur, durites",
+    fault_air_filter: "Filtre à air obstrué",
+    solution_air_filter: "Remplacer filtre à air",
+    fault_egr: "EGR encrassée",
+    solution_egr: "Nettoyer EGR",
+    fault_belt_loose: "Courroie desserrée",
+    solution_belt_loose: "Tendre ou remplacer courroie",
+    fault_valve_tick: "Tic-tac soupapes",
+    solution_valve_tick: "Régler jeu soupapes",
+    fault_pump_whine: "Bruit pompe carburant/huile",
+    solution_pump_whine: "Vérifier pompe"
   }
 };
+// Fill all languages with English fallback
+for(var l of allLangs) {
+  if(!translations[l.code]) {
+    translations[l.code] = {};
+    for(var k in translations.en) translations[l.code][k] = translations.en[k];
+  }
+}
 
 // ============================================================
-// 3. الحالة العامة
+// 3. HELPERS
 // ============================================================
 var currentLang = localStorage.getItem('appLang') || 'ar';
-var autoTranslateEnabled = true; // مفعل افتراضياً
-var translationCache = JSON.parse(localStorage.getItem('translationCache') || '{}');
+var autoTranslate = true;
+var cache = JSON.parse(localStorage.getItem('transCache') || '{}');
 
-var freeUsed = parseInt(localStorage.getItem('freeUsed') || '0');
-var paid = parseInt(localStorage.getItem('paid') || '0');
-var admin = false;
-
-// ============================================================
-// 4. دالة الترجمة (نظام حواس الفيزياء)
-// ============================================================
-function t(key) {
-  var str = translations[currentLang]?.[key] || translations.en?.[key] || key;
-  return str;
-}
-
-async function translateText(text, targetLang) {
-  if (!autoTranslateEnabled) return text;
-  if (targetLang === 'ar' || targetLang === 'en' || targetLang === 'fr') return text;
-  var cacheKey = targetLang + '_' + text;
-  if (translationCache[cacheKey]) return translationCache[cacheKey];
-  try {
-    var resp = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=ar|' + targetLang);
-    var data = await resp.json();
-    var translated = data.responseData.translatedText;
-    if (translated && translated !== text && !translated.includes("an error")) {
-      translationCache[cacheKey] = translated;
-      localStorage.setItem('translationCache', JSON.stringify(translationCache));
-      return translated;
+function t(key){ return translations[currentLang]?.[key] || translations.en?.[key] || key; }
+async function tt(text, lang){
+  if(!autoTranslate || lang==='ar'||lang==='en'||lang==='fr') return text;
+  var ck=lang+'_'+text;
+  if(cache[ck]) return cache[ck];
+  try{
+    var r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=ar|'+lang);
+    var d=await r.json();
+    var tr=d.responseData.translatedText;
+    if(tr && tr!==text && !tr.includes('an error')){
+      cache[ck]=tr;
+      localStorage.setItem('transCache',JSON.stringify(cache));
+      return tr;
     }
-  } catch(e) {}
+  }catch(e){}
   return text;
 }
-
-async function applyTranslations() {
-  var left = Math.max(0, 3 - freeUsed);
-  
-  document.getElementById('dynamicSubtitle').innerText = await translateText(t('subtitle'), currentLang);
-  document.getElementById('freeBadge').innerHTML = await translateText(t('free_badge').replace('{0}', left), currentLang);
-  document.getElementById('creditLabel').innerHTML = await translateText(t('credit_label'), currentLang);
-  document.getElementById('activateLicenseBtn').innerHTML = await translateText(t('activate'), currentLang);
-  document.getElementById('startBtn').innerHTML = '🧠 ' + await translateText(t('start_btn'), currentLang);
-  document.getElementById('analyzeBtn').innerHTML = '📊 ' + await translateText(t('analyzeText'), currentLang);
-  document.getElementById('backBtn').innerHTML = '↩️ ' + await translateText(t('back_btn'), currentLang);
-  document.getElementById('userSpeakBtn').innerHTML = '🎤 ' + await translateText(t('userSpeakText'), currentLang);
-  document.getElementById('userClearBtn').innerHTML = '🗑 ' + await translateText(t('userClearText'), currentLang);
-  document.getElementById('singlePayBtn').innerHTML = await translateText(t('single_btn'), currentLang);
-  document.getElementById('pack5PayBtn').innerHTML = await translateText(t('pack5_btn'), currentLang);
-  document.getElementById('pack15PayBtn').innerHTML = await translateText(t('pack15_btn'), currentLang);
-  document.getElementById('camName').innerHTML = await translateText(t('camName'), currentLang);
-  document.getElementById('camInstr').innerHTML = await translateText(t('camInstr'), currentLang);
-  document.getElementById('camStartText').innerHTML = await translateText(t('camStartText'), currentLang);
-  document.getElementById('camConfirmText').innerHTML = await translateText(t('camConfirmText'), currentLang);
-  document.getElementById('camRetakeText').innerHTML = await translateText(t('camRetakeText'), currentLang);
-  document.getElementById('micName').innerHTML = await translateText(t('micName'), currentLang);
-  document.getElementById('micInstr').innerHTML = await translateText(t('micInstr'), currentLang);
-  document.getElementById('micStartText').innerHTML = await translateText(t('micStartText'), currentLang);
-  document.getElementById('micConfirmText').innerHTML = await translateText(t('micConfirmText'), currentLang);
-  document.getElementById('micRetakeText').innerHTML = await translateText(t('micRetakeText'), currentLang);
-  document.getElementById('vibName').innerHTML = await translateText(t('vibName'), currentLang);
-  document.getElementById('vibInstr').innerHTML = await translateText(t('vibInstr'), currentLang);
-  document.getElementById('vibStartText').innerHTML = await translateText(t('vibStartText'), currentLang);
-  document.getElementById('vibConfirmText').innerHTML = await translateText(t('vibConfirmText'), currentLang);
-  document.getElementById('vibRetakeText').innerHTML = await translateText(t('vibRetakeText'), currentLang);
-  document.getElementById('userName').innerHTML = await translateText(t('userName'), currentLang);
-  document.getElementById('userInstr').innerHTML = await translateText(t('userInstr'), currentLang);
-  
+async function applyTranslations(){
+  var left=Math.max(0,3-freeUsed);
+  // Title
+  document.getElementById('dynamicSubtitle').innerText = await tt(t('subtitle'), currentLang);
+  // Free badge
+  document.getElementById('freeBadge').innerHTML = await tt(t('free_badge').replace('{0}', left), currentLang);
+  // Credit label
+  document.getElementById('creditLabel').innerHTML = await tt(t('credit_label'), currentLang);
+  // Activate button
+  document.getElementById('activateLicenseBtn').innerHTML = await tt(t('activate'), currentLang);
+  // Start diagnosis button
+  document.getElementById('startDiagnosisBtn').innerHTML = await tt(t('start_diag'), currentLang);
+  // Pay buttons
+  document.getElementById('singlePayBtn').innerHTML = await tt(t('single_btn'), currentLang);
+  document.getElementById('pack5PayBtn').innerHTML = await tt(t('pack5_btn'), currentLang);
+  document.getElementById('pack15PayBtn').innerHTML = await tt(t('pack15_btn'), currentLang);
+  // License placeholder
+  document.getElementById('licenseCode').placeholder = await tt(t('license_placeholder'), currentLang);
+  // Sensor names & instructions
+  document.getElementById('soundName').innerHTML = await tt(t('sound_name'), currentLang);
+  document.getElementById('soundInstr').innerHTML = await tt(t('sound_instr'), currentLang);
+  document.getElementById('vibName').innerHTML = await tt(t('vib_name'), currentLang);
+  document.getElementById('vibInstr').innerHTML = await tt(t('vib_instr'), currentLang);
+  document.getElementById('camName').innerHTML = await tt(t('cam_name'), currentLang);
+  document.getElementById('camInstr').innerHTML = await tt(t('cam_instr'), currentLang);
+  // Buttons inside sensors – keep the emoji prefix, translate the text
+  document.querySelectorAll('.start-btn').forEach(function(b){ if(!b.disabled) b.innerHTML = '▶ ' + t('start_btn'); });
+  document.querySelectorAll('.stop-btn').forEach(function(b){ b.innerHTML = '⏹ ' + t('stop_btn'); });
+  document.querySelectorAll('.confirm-btn').forEach(function(b){ b.innerHTML = '✅ ' + t('confirm_btn'); });
+  document.querySelectorAll('.retake-btn').forEach(function(b){ b.innerHTML = '🔄 ' + t('retake_btn'); });
+  // Status texts – refresh from sensor state
+  updateSensorUI('sound');
+  updateSensorUI('vibration');
+  updateSensorUI('camera');
+  // Finalize & reset
+  document.getElementById('finalizeBtn').innerHTML = '📊 ' + t('finalize_btn');
+  document.getElementById('resetBtn').innerHTML = '🔄 ' + t('reset_btn');
+  // Share buttons
+  document.getElementById('shareWhatsAppText').innerHTML = t('share_whatsapp');
+  document.getElementById('shareEmailText').innerHTML = t('share_email');
+  document.getElementById('shareGeneralText').innerHTML = t('share_general');
+  // Admin hint
+  if(admin) document.getElementById('adminHint').innerHTML = '👑 ' + t('admin_on');
+  else document.getElementById('adminHint').innerHTML = '';
+  // Location – update if denied or loading
+  var locEl = document.getElementById('currentLocation');
+  var locText = locEl.innerText;
+  if(locText === 'غير مصرح' || locText === 'Denied' || locText === 'Refusé' || locText === 'جاري...' || locText === 'Loading...' || locText === 'Chargement...') {
+    // If it's a status message, translate it
+    if(locText === 'غير مصرح' || locText === 'Denied' || locText === 'Refusé') {
+      locEl.innerHTML = t('location_denied');
+    } else if(locText === 'جاري...' || locText === 'Loading...' || locText === 'Chargement...') {
+      locEl.innerHTML = t('location_loading');
+    } else {
+      // Otherwise check if it's coordinates or actual location
+      // If it has a comma, it's coordinates, keep as is
+      if(!locText.includes(',')) {
+        // Try to get location again or show loading
+        locEl.innerHTML = t('location_loading');
+        getLocation();
+      }
+    }
+  }
   updateCreditsUI();
 }
 
+function showToast(msg){ var el=document.getElementById('toast'); el.innerText=msg; el.classList.add('show'); clearTimeout(el._h); el._h=setTimeout(function(){el.classList.remove('show');},2500); }
+
 // ============================================================
-// 5. الرصيد والمدير
+// 4. CREDITS & ADMIN
 // ============================================================
-function updateCreditsUI() {
-  var total = admin ? 9999 : Math.max(0, 3 - freeUsed) + paid;
-  document.getElementById('creditValue').innerText = total;
-  var left = Math.max(0, 3 - freeUsed);
-  document.getElementById('freeBadge').innerHTML = t('free_badge').replace('{0}', left);
-  if (admin) {
-    document.getElementById('adminSection').style.display = 'block';
-  } else {
-    document.getElementById('adminSection').style.display = 'none';
-  }
+var freeUsed=parseInt(localStorage.getItem('cdFree')||'0');
+var paid=parseInt(localStorage.getItem('cdPaid')||'0');
+var admin=false;
+
+function totalCredits(){ return admin?9999:Math.max(0,3-freeUsed)+paid; }
+function updateCreditsUI(){
+  var total=totalCredits();
+  document.getElementById('creditValue').innerText=total;
+  var left=Math.max(0,3-freeUsed);
+  document.getElementById('freeBadge').innerHTML=t('free_badge').replace('{0}', left);
+  var sec=document.getElementById('adminSection');
+  sec.style.display=admin?'block':'none';
+  if(admin) document.getElementById('adminHint').innerHTML='👑 '+t('admin_on');
+  else document.getElementById('adminHint').innerHTML='';
 }
-
-function showToast(msg) {
-  var el = document.getElementById('toast');
-  el.innerText = msg;
-  el.classList.add('show');
-  clearTimeout(el._h);
-  el._h = setTimeout(function() { el.classList.remove('show'); }, 2500);
+function consumeCredit(){
+  if(admin) return true;
+  var left=Math.max(0,3-freeUsed);
+  if(left>0){ freeUsed++; localStorage.setItem('cdFree',freeUsed); updateCreditsUI(); showToast(t('diag_ok')); return true; }
+  else if(paid>0){ paid--; localStorage.setItem('cdPaid',paid); updateCreditsUI(); showToast(t('diag_ok')); return true; }
+  else { showToast(t('no_credits')); return false; }
 }
-
-function consumeCredit() {
-  if (admin) return true;
-  var left = Math.max(0, 3 - freeUsed);
-  if (left > 0) {
-    freeUsed++;
-    localStorage.setItem('freeUsed', freeUsed);
-    updateCreditsUI();
-    showToast(t('diag_ok') + ' (مجاني: ' + (3 - freeUsed) + ' متبقية)');
-    return true;
-  } else if (paid > 0) {
-    paid--;
-    localStorage.setItem('paid', paid);
-    updateCreditsUI();
-    showToast(t('diag_ok') + ' (مدفوع: ' + paid + ' متبقية)');
-    return true;
-  } else {
-    showToast(t('no_credits'));
-    return false;
-  }
+function buyPlan(p){
+  var urls={1:'https://mouloudkamali.gumroad.com/l/lqfaey',5:'https://mouloudkamali.gumroad.com/l/xovgm',15:'https://mouloudkamali.gumroad.com/l/tlbdm'};
+  window.open(urls[p],'_blank');
+  setTimeout(function(){ if(confirm('هل أكملت الدفع؟')){ paid+=p; localStorage.setItem('cdPaid',paid); updateCreditsUI(); showToast('✅ '+t('added')+' '+p); } },2000);
 }
-
-function buyPlan(plan) {
-  var urls = {
-    1: 'https://mouloudkamali.gumroad.com/l/lqfaey',
-    5: 'https://mouloudkamali.gumroad.com/l/xovgm',
-    15: 'https://mouloudkamali.gumroad.com/l/tlbdm'
-  };
-  window.open(urls[plan], '_blank');
-  setTimeout(function() {
-    if (confirm('هل أكملت الدفع؟ (تجريبي)')) {
-      paid += plan;
-      localStorage.setItem('paid', paid);
-      updateCreditsUI();
-      showToast('✅ تمت إضافة ' + plan + ' تشخيص');
-    }
-  }, 2000);
-}
-
-document.getElementById('singlePayBtn').onclick = function() { buyPlan(1); };
-document.getElementById('pack5PayBtn').onclick = function() { buyPlan(5); };
-document.getElementById('pack15PayBtn').onclick = function() { buyPlan(15); };
-
-document.getElementById('activateLicenseBtn').onclick = function() {
-  var code = document.getElementById('licenseCode').value.trim();
-  if (code === 'MOULOUD2026') {
-    admin = true;
-    updateCreditsUI();
-    showToast('✅ وضع المطور مفعل');
-    document.getElementById('adminHint').innerHTML = '👑 وضع المطور نشط';
-  } else if (code === 'FREE50') {
-    paid += 50;
-    localStorage.setItem('paid', paid);
-    updateCreditsUI();
-    showToast('✅ تمت إضافة 50 تشخيص');
-  } else {
-    showToast('❌ رمز غير صالح');
-  }
-  document.getElementById('licenseCode').value = '';
+document.getElementById('singlePayBtn').onclick=function(){buyPlan(1);};
+document.getElementById('pack5PayBtn').onclick=function(){buyPlan(5);};
+document.getElementById('pack15PayBtn').onclick=function(){buyPlan(15);};
+document.getElementById('activateLicenseBtn').onclick=function(){
+  var code=document.getElementById('licenseCode').value.trim();
+  if(code==='MOULOUD2026'){ admin=true; updateCreditsUI(); showToast(t('admin_on')); }
+  else if(code==='FREE50'){ paid+=50; localStorage.setItem('cdPaid',paid); updateCreditsUI(); showToast('✅ تمت إضافة 50 تشخيص'); }
+  else showToast(t('invalid'));
+  document.getElementById('licenseCode').value='';
 };
 
 // ============================================================
-// 6. الوقت والمكان والجهاز
+// 5. UI HELPERS
 // ============================================================
-function updateDateTime() {
-  var d = new Date();
-  document.getElementById('currentDate').innerText =
-    String(d.getDate()).padStart(2, '0') + '/' +
-    String(d.getMonth() + 1).padStart(2, '0') + '/' +
-    d.getFullYear();
-  document.getElementById('currentTime').innerText =
-    String(d.getHours()).padStart(2, '0') + ':' +
-    String(d.getMinutes()).padStart(2, '0') + ':' +
-    String(d.getSeconds()).padStart(2, '0');
+function updateDateTime(){
+  var d=new Date();
+  document.getElementById('currentDate').innerText=d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear();
+  document.getElementById('currentTime').innerText=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
 }
-setInterval(updateDateTime, 1000);
-updateDateTime();
+setInterval(updateDateTime,1000); updateDateTime();
 
-function getLocation() {
-  if (navigator.geolocation) {
+function getLocation(){
+  if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
-      function(pos) {
-        document.getElementById('currentLocation').innerHTML = pos.coords.latitude.toFixed(4) + ', ' + pos.coords.longitude.toFixed(4);
+      function(p){
+        document.getElementById('currentLocation').innerHTML = p.coords.latitude.toFixed(4) + ', ' + p.coords.longitude.toFixed(4);
       },
-      function() {
-        document.getElementById('currentLocation').innerHTML = 'غير مصرح';
+      function(){
+        document.getElementById('currentLocation').innerHTML = t('location_denied');
       }
     );
+  } else {
+    document.getElementById('currentLocation').innerHTML = t('location_denied');
   }
 }
-getLocation();
 
-function getDeviceId() {
-  var id = localStorage.getItem('deviceId');
-  if (!id) {
-    id = 'DEV' + Math.random().toString(36).substr(2, 8).toUpperCase();
-    localStorage.setItem('deviceId', id);
-  }
-  document.getElementById('deviceId').innerHTML = 'ID: ' + id;
+function getDeviceId(){
+  var id=localStorage.getItem('deviceId');
+  if(!id){ id='DEV'+Math.random().toString(36).substr(2,8).toUpperCase(); localStorage.setItem('deviceId',id); }
+  document.getElementById('deviceId').innerHTML='ID: '+id;
 }
 getDeviceId();
 
-function updateQR() {
-  var url = window.location.href;
-  document.getElementById('qrImage').src = 'https://quickchart.io/qr?text=' + encodeURIComponent(url) + '&size=120&margin=2';
+function updateQR(){
+  document.getElementById('qrImage').src='https://quickchart.io/qr?text='+encodeURIComponent(window.location.href)+'&size=120&margin=2';
 }
-updateQR();
-setInterval(updateQR, 5000);
+updateQR(); setInterval(updateQR,5000);
+document.getElementById('qrContainer').onclick=function(){ navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); };
 
-document.getElementById('qrContainer').onclick = function() {
-  navigator.clipboard.writeText(window.location.href);
-  showToast('✅ تم نسخ الرابط');
-};
-
-// ============================================================
-// 7. قاعدة بيانات الأعطال
-// ============================================================
-var faultsDB = [
-  { smoke: 'white', sound: 'knocking', vib: 'high', faultKey: 'white_knocking', danger: 'high' },
-  { smoke: 'white', sound: 'smooth', vib: 'medium', faultKey: 'white_smooth', danger: 'medium' },
-  { smoke: 'black', sound: 'rough', vib: 'medium', faultKey: 'black_rough', danger: 'medium' },
-  { smoke: 'black', sound: 'knocking', vib: 'high', faultKey: 'black_knocking', danger: 'high' },
-  { smoke: 'blue', sound: 'smooth', vib: 'low', faultKey: 'blue_smooth', danger: 'high' },
-  { smoke: 'blue', sound: 'knocking', vib: 'high', faultKey: 'blue_knocking', danger: 'critical' },
-  { smoke: 'gray', sound: 'whistle', vib: 'medium', faultKey: 'gray_whistle', danger: 'medium' },
-  { smoke: 'gray', sound: 'smooth', vib: 'low', faultKey: 'gray_smooth', danger: 'low' },
-  { smoke: 'none', sound: 'ticking', vib: 'medium', faultKey: 'none_ticking', danger: 'medium' },
-  { smoke: 'none', sound: 'squeal', vib: 'low', faultKey: 'none_squeal', danger: 'low' },
-  { smoke: 'none', sound: 'smooth', vib: 'low', faultKey: 'normal_normal', danger: 'low' }
-];
-
-function getFault(smoke, sound, vib) {
-  var f = faultsDB.find(function(f) {
-    return f.smoke === smoke && f.sound === sound && f.vib === vib;
-  });
-  if (!f) {
-    f = faultsDB.find(function(f) {
-      return f.smoke === smoke && f.sound === sound;
-    });
-  }
-  if (!f) {
-    f = faultsDB.find(function(f) {
-      return f.smoke === smoke;
-    });
-  }
-  if (!f) {
-    f = faultsDB[faultsDB.length - 1];
-  }
-  return f;
-}
-
-// ============================================================
-// 8. الحساسات والتشخيص
-// ============================================================
-var camOK = false, micOK = false, vibOK = false;
-var smokeColor = null, soundType = null, vibIntensity = null, userText = "";
-var cameraStream = null, micStream = null, audioCtx = null;
-var measuring = false;
-
-function resetSensorsUI() {
-  camOK = false; micOK = false; vibOK = false;
-  smokeColor = null; soundType = null; vibIntensity = null;
-  document.getElementById('camResult').innerHTML = '';
-  document.getElementById('micResult').innerHTML = '';
-  document.getElementById('vibResult').innerHTML = '';
-  document.getElementById('camConfirmBtn').disabled = true;
-  document.getElementById('camRetakeBtn').disabled = true;
-  document.getElementById('micConfirmBtn').disabled = true;
-  document.getElementById('micRetakeBtn').disabled = true;
-  document.getElementById('vibConfirmBtn').disabled = true;
-  document.getElementById('vibRetakeBtn').disabled = true;
-  document.getElementById('camStartBtn').disabled = false;
-  document.getElementById('micStartBtn').disabled = false;
-  document.getElementById('vibStartBtn').disabled = false;
-  document.getElementById('analyzeBtn').disabled = true;
-}
-
-function checkAllReady() {
-  if (camOK && micOK && vibOK) {
-    document.getElementById('analyzeBtn').disabled = false;
-  }
-}
-
-function resetSingleSensor(sensor) {
-  if (sensor === 'camera') {
-    camOK = false; smokeColor = null;
-    document.getElementById('camResult').innerHTML = '';
-    document.getElementById('camConfirmBtn').disabled = true;
-    document.getElementById('camRetakeBtn').disabled = true;
-    document.getElementById('camStartBtn').disabled = false;
-  } else if (sensor === 'mic') {
-    micOK = false; soundType = null;
-    document.getElementById('micResult').innerHTML = '';
-    document.getElementById('micConfirmBtn').disabled = true;
-    document.getElementById('micRetakeBtn').disabled = true;
-    document.getElementById('micStartBtn').disabled = false;
-  } else if (sensor === 'vib') {
-    vibOK = false; vibIntensity = null;
-    document.getElementById('vibResult').innerHTML = '';
-    document.getElementById('vibConfirmBtn').disabled = true;
-    document.getElementById('vibRetakeBtn').disabled = true;
-    document.getElementById('vibStartBtn').disabled = false;
-  }
-  document.getElementById('analyzeBtn').disabled = true;
-}
-
-// كاميرا
-document.getElementById('camStartBtn').onclick = async function() {
-  if (measuring) return;
-  measuring = true;
-  if (cameraStream) { cameraStream.getTracks().forEach(function(t) { t.stop(); }); }
-  try {
-    var stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-    cameraStream = stream;
-    var video = document.createElement('video');
-    video.srcObject = stream;
-    video.autoplay = true;
-    video.playsInline = true;
-    video.style.width = '100%';
-    video.style.maxHeight = '180px';
-    var container = document.getElementById('camPreview');
-    container.innerHTML = '';
-    container.appendChild(video);
-    setTimeout(function() {
-      var canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-      if (cameraStream) { cameraStream.getTracks().forEach(function(t) { t.stop(); }); }
-      cameraStream = null;
-      var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
-      var r = 0, g = 0, b = 0;
-      for (var i = 0; i < data.length; i += 4) {
-        r += data[i];
-        g += data[i + 1];
-        b += data[i + 2];
-      }
-      var count = data.length / 4;
-      r /= count; g /= count; b /= count;
-      var smoke = 'none';
-      if (r > 200 && g > 200 && b > 200) smoke = 'white';
-      else if (r < 80 && g < 80 && b < 80) smoke = 'black';
-      else if (r < 100 && g < 100 && b > 150) smoke = 'blue';
-      else if (r > 150 && g > 150 && b < 100) smoke = 'gray';
-      smokeColor = smoke;
-      document.getElementById('camResult').innerHTML = '<i class="fas fa-smog"></i> ' + t('smoke_' + smoke);
-      document.getElementById('camConfirmBtn').disabled = false;
-      document.getElementById('camRetakeBtn').disabled = false;
-      document.getElementById('camStartBtn').disabled = true;
-      video.remove();
-      measuring = false;
-    }, 8000);
-  } catch (e) {
-    showToast('❌ فشل الكاميرا');
-    measuring = false;
-  }
-};
-
-document.getElementById('camRetakeBtn').onclick = function() {
-  resetSingleSensor('camera');
-  document.getElementById('camStartBtn').click();
-};
-
-document.getElementById('camConfirmBtn').onclick = function() {
-  camOK = true;
-  document.getElementById('camConfirmBtn').disabled = true;
-  checkAllReady();
-};
-
-// ميكروفون
-document.getElementById('micStartBtn').onclick = async function() {
-  if (measuring) return;
-  measuring = true;
-  if (micStream) { micStream.getTracks().forEach(function(t) { t.stop(); }); }
-  try {
-    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    micStream = stream;
-    var actx = new AudioContext();
-    audioCtx = actx;
-    await actx.resume();
-    var source = actx.createMediaStreamSource(stream);
-    var analyser = actx.createAnalyser();
-    analyser.fftSize = 256;
-    source.connect(analyser);
-    var data = new Uint8Array(analyser.frequencyBinCount);
-    var levels = [];
-    document.getElementById('micResult').innerHTML = '⏳ جاري التسجيل...';
-    var interval = setInterval(function() {
-      analyser.getByteFrequencyData(data);
-      var avg = 0;
-      for (var j = 0; j < data.length; j++) { avg += data[j]; }
-      avg /= data.length;
-      levels.push(avg);
-    }, 100);
-    setTimeout(function() {
-      clearInterval(interval);
-      var max = Math.max.apply(null, levels);
-      var mean = levels.reduce(function(a, b) { return a + b; }, 0) / levels.length;
-      var type = 'smooth';
-      if (max > 220) type = 'knocking';
-      else if (mean > 150 && max < 200) type = 'rough';
-      else if (mean < 50 && max < 90) type = 'whistle';
-      else if (mean > 90 && max < 150) type = 'ticking';
-      else if (mean > 80 && max > 140) type = 'squeal';
-      else if (mean < 30) type = 'hiss';
-      soundType = type;
-      document.getElementById('micResult').innerHTML = '<i class="fas fa-waveform"></i> ' + t('sound_' + type);
-      document.getElementById('micConfirmBtn').disabled = false;
-      document.getElementById('micRetakeBtn').disabled = false;
-      document.getElementById('micStartBtn').disabled = true;
-      if (micStream) { micStream.getTracks().forEach(function(t) { t.stop(); }); }
-      if (audioCtx) audioCtx.close();
-      micStream = null; audioCtx = null;
-      measuring = false;
-    }, 8000);
-  } catch (e) {
-    showToast('❌ فشل الميكروفون');
-    measuring = false;
-  }
-};
-
-document.getElementById('micRetakeBtn').onclick = function() {
-  resetSingleSensor('mic');
-  document.getElementById('micStartBtn').click();
-};
-
-document.getElementById('micConfirmBtn').onclick = function() {
-  micOK = true;
-  document.getElementById('micConfirmBtn').disabled = true;
-  checkAllReady();
-};
-
-// اهتزاز
-document.getElementById('vibStartBtn').onclick = function() {
-  if (measuring) return;
-  measuring = true;
-  if (!window.DeviceMotionEvent) {
-    showToast('الاهتزاز غير مدعوم');
-    measuring = false;
-    return;
-  }
-  var vals = [];
-  var handler = function(e) {
-    var a = e.accelerationIncludingGravity;
-    if (a) {
-      vals.push(Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z));
-    }
-  };
-  window.addEventListener('devicemotion', handler);
-  document.getElementById('vibResult').innerHTML = '⏳ جاري القياس...';
-  setTimeout(function() {
-    window.removeEventListener('devicemotion', handler);
-    var avg = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
-    var level = 'low';
-    if (avg > 15) level = 'very_high';
-    else if (avg > 8) level = 'high';
-    else if (avg > 4) level = 'medium';
-    vibIntensity = level;
-    document.getElementById('vibResult').innerHTML = '<i class="fas fa-vibrate"></i> ' + t(level);
-    document.getElementById('vibConfirmBtn').disabled = false;
-    document.getElementById('vibRetakeBtn').disabled = false;
-    document.getElementById('vibStartBtn').disabled = true;
-    measuring = false;
-  }, 6000);
-};
-
-document.getElementById('vibRetakeBtn').onclick = function() {
-  resetSingleSensor('vib');
-  document.getElementById('vibStartBtn').click();
-};
-
-document.getElementById('vibConfirmBtn').onclick = function() {
-  vibOK = true;
-  document.getElementById('vibConfirmBtn').disabled = true;
-  checkAllReady();
-};
-
-// إدخال المستخدم
-var recognition = null;
-document.getElementById('userSpeakBtn').onclick = function() {
-  if (!('webkitSpeechRecognition' in window)) {
-    showToast('❌ غير مدعوم');
-    return;
-  }
-  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.lang = BCP_MAP[currentLang] || (currentLang === 'ar' ? 'ar-EG' : (currentLang === 'fr' ? 'fr-FR' : 'en-US'));
-  recognition.onresult = function(e) {
-    userText = e.results[0][0].transcript;
-    document.getElementById('userResult').innerHTML = '📝 ' + userText;
-    showToast(t('copied'));
-  };
-  recognition.start();
-};
-
-document.getElementById('userClearBtn').onclick = function() {
-  userText = "";
-  document.getElementById('userResult').innerHTML = '';
-};
-
-// التشخيص النهائي
-document.getElementById('analyzeBtn').onclick = async function() {
-  if (!smokeColor || !soundType || !vibIntensity) {
-    showToast('أكمل جميع الحساسات أولاً');
-    return;
-  }
-  if (!consumeCredit()) return;
-  var fault = getFault(smokeColor, soundType, vibIntensity);
-  var title = await translateText(t('fault_' + fault.faultKey) || t('fault_normal_normal'), currentLang);
-  var sol = await translateText(t('solution_' + fault.faultKey) || t('solution_normal_normal'), currentLang);
-  var dangerText = await translateText(t('severity_' + fault.danger), currentLang);
-  var html = '<div class="danger-' + fault.danger + '" style="display:inline-block;margin-bottom:8px;padding:4px 12px;border-radius:30px;">⚠️ ' +
-    await translateText(t('severity'), currentLang) + ': ' + dangerText + '</div><br>' +
-    '<strong>🔍 ' + await translateText(t('diag_title'), currentLang) + ':</strong> ' + title + '<br><br>' +
-    '<strong>🔧 ' + await translateText(t('solution'), currentLang) + ':</strong> ' + sol + '<br><br>' +
-    (userText ? '<strong>🗣️ ' + await translateText(t('userName'), currentLang) + ':</strong> ' + userText + '<br><br>' : '') +
-    '<div class="action-buttons">' +
-    '<button id="listenResultBtn" class="action-btn">🔊 ' + await translateText(t('listen'), currentLang) + '</button>' +
-    '<button id="pdfResultBtn" class="action-btn">📄 ' + await translateText(t('pdf'), currentLang) + '</button>' +
-    '<button id="copyResultBtn" class="action-btn">📋 ' + await translateText(t('copy'), currentLang) + '</button>' +
-    '<button id="emailResultBtn" class="action-btn">📧 ' + await translateText(t('email'), currentLang) + '</button>' +
-    '<button id="saveResultBtn" class="action-btn">💾 ' + await translateText(t('save'), currentLang) + '</button>' +
-    '</div>';
-  document.getElementById('resultPanel').innerHTML = html;
-  document.getElementById('resultPanel').style.display = 'block';
-  document.getElementById('diagPanel').style.display = 'none';
-
-  document.getElementById('listenResultBtn').onclick = function() {
-    var u = new SpeechSynthesisUtterance(title + '. ' + sol);
-    u.lang = BCP_MAP[currentLang] || (currentLang === 'ar' ? 'ar-EG' : (currentLang === 'fr' ? 'fr-FR' : 'en-US'));
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
-  };
-  document.getElementById('pdfResultBtn').onclick = function() {
-    var content = 'AI Car Diagnostics\n' + t('diag_title') + ': ' + title + '\n' + t('solution') + ': ' + sol + '\n' +
-      t('severity') + ': ' + dangerText + '\n' + (userText ? 'Note: ' + userText : '') + '\nDate: ' + new Date().toLocaleString();
-    var blob = new Blob([content], { type: 'text/plain' });
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'diagnosis_' + Date.now() + '.txt';
-    a.click();
-  };
-  document.getElementById('copyResultBtn').onclick = function() {
-    navigator.clipboard.writeText(title + '\n' + sol);
-    showToast(t('copied'));
-  };
-  document.getElementById('emailResultBtn').onclick = function() {
-    window.location.href = 'mailto:?subject=Car%20Diagnosis&body=' + encodeURIComponent(title + '\n' + sol);
-  };
-  document.getElementById('saveResultBtn').onclick = function() {
-    localStorage.setItem('lastDiagnosis', JSON.stringify({ title: title, solution: sol }));
-    showToast('✅ تم حفظ التشخيص');
-  };
-};
-
-document.getElementById('startBtn').onclick = function() {
-  var total = admin ? 9999 : Math.max(0, 3 - freeUsed) + paid;
-  if (total <= 0 && !admin) {
-    showToast(t('no_credits'));
-    return;
-  }
-  document.getElementById('diagPanel').style.display = 'block';
-  resetSensorsUI();
-  document.getElementById('resultPanel').style.display = 'none';
-};
-
-document.getElementById('backBtn').onclick = function() {
-  document.getElementById('diagPanel').style.display = 'none';
-  if (cameraStream) { cameraStream.getTracks().forEach(function(t) { t.stop(); }); }
-  if (micStream) { micStream.getTracks().forEach(function(t) { t.stop(); }); }
-  if (audioCtx) audioCtx.close();
-  cameraStream = null; micStream = null; audioCtx = null;
-  measuring = false;
-};
-
-// ============================================================
-// 9. بناء قائمة اللغات (54 لغة)
-// ============================================================
-function buildLangSelect() {
-  var sel = document.getElementById('langSelect');
-  sel.innerHTML = '';
-  for (var i = 0; i < allLangs.length; i++) {
-    var lang = allLangs[i];
-    var opt = document.createElement('option');
-    opt.value = lang.code;
-    opt.textContent = lang.flag + ' ' + lang.name;
-    if (lang.code === currentLang) opt.selected = true;
+function buildLangSelect(){
+  var sel=document.getElementById('langSelect');
+  sel.innerHTML='';
+  for(var i=0;i<allLangs.length;i++){
+    var l=allLangs[i];
+    var opt=document.createElement('option');
+    opt.value=l.code;
+    opt.textContent=l.flag+' '+l.name;
+    if(l.code===currentLang) opt.selected=true;
     sel.appendChild(opt);
   }
-  sel.onchange = async function() {
-    currentLang = sel.value;
-    localStorage.setItem('appLang', currentLang);
-    var langInfo = allLangs.find(function(l) { return l.code === currentLang; });
-    if (langInfo && langInfo.dir === 'rtl') {
-      document.documentElement.dir = 'rtl';
-    } else {
-      document.documentElement.dir = 'ltr';
-    }
+  sel.onchange=async function(){
+    currentLang=sel.value;
+    localStorage.setItem('appLang',currentLang);
+    var li=allLangs.find(function(l){return l.code===currentLang;});
+    document.dir=(li&&li.dir==='rtl')?'rtl':'ltr';
     await applyTranslations();
+    // If location is denied or loading, re-try
+    var locEl = document.getElementById('currentLocation');
+    if(locEl.innerText === t('location_denied') || locEl.innerText === t('location_loading')) {
+      getLocation();
+    }
+    refreshSensorTexts();
   };
 }
 buildLangSelect();
-applyTranslations();
 
 // ============================================================
-// 10. المدير (بدون أيقونة الترس)
+// 6. SENSOR STATE & LOGIC
 // ============================================================
-var clickCount = 0, clickTimer = null;
-document.getElementById('secretAdminIcon').onclick = function() {
-  clickCount++;
-  if (clickTimer) clearTimeout(clickTimer);
-  clickTimer = setTimeout(function() { clickCount = 0; }, 1000);
-  if (clickCount >= 5) {
-    admin = true;
-    updateCreditsUI();
-    showToast('✅ وضع المطور مفعل (5 نقرات)');
-    document.getElementById('adminHint').innerHTML = '👑 وضع المطور نشط (5 نقرات)';
-    clickCount = 0;
-  }
+var sensorState = {
+  sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
+  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null },
+  camera: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null }
 };
 
-// ============================================================
-// 11. أزرار المشاركة
-// ============================================================
-var APP_URL = 'https://ai-car-diagnostics.netlify.app';
-document.getElementById('shareWhatsApp').onclick = function() {
-  window.open('https://wa.me/?text=' + encodeURIComponent(APP_URL), '_blank');
-};
-document.getElementById('shareEmail').onclick = function() {
-  window.location.href = 'mailto:?subject=' + encodeURIComponent('AI Car Diagnostics - تطبيق تشخيص أعطال السيارة') +
-    '&body=' + encodeURIComponent('جرب تطبيق تشخيص السيارة الذكي: ' + APP_URL);
-};
-document.getElementById('shareGeneral').onclick = function() {
-  if (navigator.share) {
-    navigator.share({ title: 'AI Car Diagnostics', text: 'تشخيص أعطال السيارة بالذكاء الاصطناعي', url: APP_URL })
-      .catch(function() { showToast('تم الإلغاء'); });
+function updateSensorUI(sensorId){
+  var s = sensorState[sensorId];
+  var statusEl = document.getElementById(sensorId+'Status');
+  var card = document.getElementById('sensor-'+sensorId);
+  var confirmBtn = document.getElementById(sensorId+'ConfirmBtn');
+  var retakeBtn = document.getElementById(sensorId+'RetakeBtn');
+  var startBtn = document.getElementById(sensorId+'StartBtn');
+  var stopBtn = document.getElementById(sensorId+'StopBtn');
+  if(s.isConfirmed){
+    statusEl.innerHTML = '✅ ' + t('status_done');
+    card.classList.add('confirmed');
+    confirmBtn.disabled = true;
+    retakeBtn.disabled = false;
+    startBtn.disabled = true;
+    stopBtn.disabled = true;
+  } else if(s.isRunning){
+    statusEl.innerHTML = '🔴 ' + t('status_recording');
+    card.classList.remove('confirmed');
+    confirmBtn.disabled = true;
+    retakeBtn.disabled = true;
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
   } else {
-    navigator.clipboard.writeText(APP_URL);
-    showToast('✅ تم نسخ الرابط للمشاركة');
+    statusEl.innerHTML = '⏸ ' + t('status_idle');
+    card.classList.remove('confirmed');
+    confirmBtn.disabled = true;
+    retakeBtn.disabled = true;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    if(s.data) confirmBtn.disabled = false;
+  }
+  checkAllConfirmed();
+}
+function refreshSensorTexts(){
+  document.querySelectorAll('.start-btn').forEach(function(b){ if(!b.disabled) b.innerHTML = '▶ ' + t('start_btn'); });
+  document.querySelectorAll('.stop-btn').forEach(function(b){ b.innerHTML = '⏹ ' + t('stop_btn'); });
+  document.querySelectorAll('.confirm-btn').forEach(function(b){ b.innerHTML = '✅ ' + t('confirm_btn'); });
+  document.querySelectorAll('.retake-btn').forEach(function(b){ b.innerHTML = '🔄 ' + t('retake_btn'); });
+  updateSensorUI('sound');
+  updateSensorUI('vibration');
+  updateSensorUI('camera');
+}
+
+function checkAllConfirmed(){
+  var all = sensorState.sound.isConfirmed && sensorState.vibration.isConfirmed && sensorState.camera.isConfirmed;
+  document.getElementById('finalizeBtn').disabled = !all;
+}
+
+// ===== SOUND =====
+document.getElementById('soundStartBtn').onclick = function(){
+  if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
+  navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    .then(function(stream){
+      sensorState.sound.stream = stream;
+      var recorder = new MediaRecorder(stream);
+      sensorState.sound.recorder = recorder;
+      sensorState.sound.chunks = [];
+      recorder.ondataavailable = function(e){ if(e.data.size>0) sensorState.sound.chunks.push(e.data); };
+      recorder.onstop = function(){
+        var blob = new Blob(sensorState.sound.chunks, { type: 'audio/wav' });
+        sensorState.sound.data = blob;
+        sensorState.sound.isRunning = false;
+        document.getElementById('soundPreview').innerHTML = '✅ تم التسجيل ('+Math.round(blob.size/1024)+' ك.ب)';
+        document.getElementById('soundResult').innerHTML = '⏳ جاري التحليل...';
+        analyzeSoundBlob(blob).then(function(result){
+          document.getElementById('soundResult').innerHTML = '🎤 '+result.freqs.join(' - ')+' Hz | النمط: '+result.pattern;
+          sensorState.sound.data = result;
+          updateSensorUI('sound');
+        });
+        if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
+        sensorState.sound.stream = null;
+      };
+      recorder.start();
+      sensorState.sound.isRunning = true;
+      document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... 8 ثوانٍ';
+      updateSensorUI('sound');
+      var countdown = 8;
+      var timer = setInterval(function(){
+        countdown--;
+        if(countdown>0) document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+countdown+' ثوانٍ';
+        else { clearInterval(timer); if(recorder.state === 'recording') recorder.stop(); }
+      }, 1000);
+      setTimeout(function(){ if(recorder.state === 'recording') recorder.stop(); }, 8500);
+    })
+    .catch(function(){ showToast('❌ الرجاء السماح بالميكروفون'); });
+};
+document.getElementById('soundStopBtn').onclick = function(){
+  if(sensorState.sound.recorder && sensorState.sound.recorder.state === 'recording') {
+    sensorState.sound.recorder.stop();
+    sensorState.sound.isRunning = false;
+    updateSensorUI('sound');
+    showToast('⏹ تم إيقاف التسجيل');
+  }
+};
+document.getElementById('soundConfirmBtn').onclick = function(){
+  if(sensorState.sound.data && !sensorState.sound.isConfirmed) {
+    sensorState.sound.isConfirmed = true;
+    updateSensorUI('sound');
+    showToast('✅ تم تأكيد الصوت');
+  }
+};
+document.getElementById('soundRetakeBtn').onclick = function(){
+  sensorState.sound.isConfirmed = false;
+  sensorState.sound.data = null;
+  sensorState.sound.isRunning = false;
+  document.getElementById('soundResult').innerHTML = '';
+  document.getElementById('soundPreview').innerHTML = t('waiting');
+  updateSensorUI('sound');
+  showToast('🔄 إعادة تسجيل الصوت');
+};
+
+function analyzeSoundBlob(blob){
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var actx = new (window.AudioContext || window.webkitAudioContext)();
+      actx.decodeAudioData(e.target.result, function(buffer){
+        var raw = buffer.getChannelData(0);
+        var sampleRate = buffer.sampleRate;
+        var offlineCtx = new OfflineAudioContext(1, buffer.length, sampleRate);
+        var source = offlineCtx.createBufferSource();
+        source.buffer = buffer;
+        var analyser = offlineCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+        analyser.connect(offlineCtx.destination);
+        source.start(0);
+        offlineCtx.startRendering().then(function(){
+          var dataArray = new Uint8Array(analyser.frequencyBinCount);
+          analyser.getByteFrequencyData(dataArray);
+          var peaks = [];
+          for(var i=1; i<dataArray.length-1; i++){
+            if(dataArray[i] > dataArray[i-1] && dataArray[i] > dataArray[i+1] && dataArray[i] > 20){
+              peaks.push({freq: i * sampleRate / analyser.fftSize, amp: dataArray[i]});
+            }
+          }
+          peaks.sort(function(a,b){ return b.amp - a.amp; });
+          var top = peaks.slice(0,4).map(function(p){ return Math.round(p.freq); });
+          if(top.length<2){
+            var zc=0; for(var j=1;j<raw.length;j++){ if(raw[j]*raw[j-1]<0) zc++; }
+            var est = (zc / raw.length) * sampleRate / 2;
+            top = [Math.round(est), Math.round(est*1.5), Math.round(est*2), Math.round(est*3)];
+          }
+          var pattern = 'regular';
+          if(top.length>0){
+            var dev=0; for(var k=1;k<Math.min(top.length,4);k++){ if(Math.abs(top[k]-top[0]*(k+1))>30) dev++; }
+            if(dev>1) pattern='irregular';
+            if(top[0]>350 && top.length<4) pattern='sharp';
+            if(top[0]<80) pattern='continuous';
+          }
+          resolve({ freqs: top, pattern: pattern });
+        });
+      }, function(){ reject(); });
+    };
+    reader.readAsArrayBuffer(blob);
+  });
+}
+
+// ===== VIBRATION =====
+document.getElementById('vibStartBtn').onclick = function(){
+  if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
+  if(!window.DeviceMotionEvent){ showToast('⚠️ الاهتزاز غير مدعوم'); return; }
+  sensorState.vibration.isRunning = true;
+  document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... 6 ثوانٍ';
+  updateSensorUI('vibration');
+  var vals = [];
+  var handler = function(e){
+    var a = e.accelerationIncludingGravity;
+    if(a) vals.push(Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z));
+  };
+  window.addEventListener('devicemotion', handler);
+  var countdown = 6;
+  var timer = setInterval(function(){
+    countdown--;
+    if(countdown>0) document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+countdown+' ثوانٍ';
+    else {
+      clearInterval(timer);
+      window.removeEventListener('devicemotion', handler);
+      sensorState.vibration.isRunning = false;
+      var avg = vals.reduce(function(a,b){ return a+b; }, 0) / (vals.length || 1);
+      var level = 'low';
+      if(avg > 12) level = 'very_high';
+      else if(avg > 7) level = 'high';
+      else if(avg > 3) level = 'medium';
+      sensorState.vibration.data = { avg: avg, level: level };
+      document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
+      document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
+      updateSensorUI('vibration');
+    }
+  }, 1000);
+};
+document.getElementById('vibStopBtn').onclick = function(){
+  if(sensorState.vibration.isRunning) {
+    sensorState.vibration.isRunning = false;
+    updateSensorUI('vibration');
+    showToast('⏹ تم إيقاف الاهتزاز');
+  }
+};
+document.getElementById('vibConfirmBtn').onclick = function(){
+  if(sensorState.vibration.data && !sensorState.vibration.isConfirmed) {
+    sensorState.vibration.isConfirmed = true;
+    updateSensorUI('vibration');
+    showToast('✅ تم تأكيد الاهتزاز');
+  }
+};
+document.getElementById('vibRetakeBtn').onclick = function(){
+  sensorState.vibration.isConfirmed = false;
+  sensorState.vibration.data = null;
+  sensorState.vibration.isRunning = false;
+  document.getElementById('vibResult').innerHTML = '';
+  document.getElementById('vibPreview').innerHTML = t('waiting');
+  updateSensorUI('vibration');
+  showToast('🔄 إعادة قياس الاهتزاز');
+};
+
+// ===== CAMERA =====
+document.getElementById('camStartBtn').onclick = function(){
+  if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(function(stream){
+      sensorState.camera.stream = stream;
+      var video = document.createElement('video');
+      video.srcObject = stream;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.width = '100%';
+      video.style.maxHeight = '150px';
+      var preview = document.getElementById('camPreview');
+      preview.innerHTML = '';
+      preview.appendChild(video);
+      sensorState.camera.isRunning = true;
+      document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... 5 ثوانٍ';
+      updateSensorUI('camera');
+      var countdown = 5;
+      var timer = setInterval(function(){
+        countdown--;
+        if(countdown>0) document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+countdown+' ثوانٍ';
+        else {
+          clearInterval(timer);
+          var canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth || 640;
+          canvas.height = video.videoHeight || 480;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          var r=0,g=0,b=0;
+          for(var i=0;i<imageData.length;i+=4){ r+=imageData[i]; g+=imageData[i+1]; b+=imageData[i+2]; }
+          var count=imageData.length/4; r/=count; g/=count; b/=count;
+          var smoke = 'none';
+          if(r>200 && g>200 && b>200) smoke = 'white';
+          else if(r<80 && g<80 && b<80) smoke = 'black';
+          else if(r<120 && g<120 && b>150) smoke = 'blue';
+          else if(r>150 && g>150 && b<100) smoke = 'gray';
+          sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
+          document.getElementById('camPreview').innerHTML = '✅ تم التقاط الصورة';
+          document.getElementById('camResult').innerHTML = '📸 لون الدخان: '+smoke;
+          sensorState.camera.isRunning = false;
+          if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+          sensorState.camera.stream = null;
+          updateSensorUI('camera');
+        }
+      }, 1000);
+    })
+    .catch(function(){ showToast('❌ الرجاء السماح بالكاميرا'); });
+};
+document.getElementById('camStopBtn').onclick = function(){
+  if(sensorState.camera.isRunning) {
+    sensorState.camera.isRunning = false;
+    if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+    sensorState.camera.stream = null;
+    updateSensorUI('camera');
+    showToast('⏹ تم إيقاف الكاميرا');
+  }
+};
+document.getElementById('camConfirmBtn').onclick = function(){
+  if(sensorState.camera.data && !sensorState.camera.isConfirmed) {
+    sensorState.camera.isConfirmed = true;
+    updateSensorUI('camera');
+    showToast('✅ تم تأكيد الدخان');
+  }
+};
+document.getElementById('camRetakeBtn').onclick = function(){
+  sensorState.camera.isConfirmed = false;
+  sensorState.camera.data = null;
+  sensorState.camera.isRunning = false;
+  if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+  sensorState.camera.stream = null;
+  document.getElementById('camResult').innerHTML = '';
+  document.getElementById('camPreview').innerHTML = t('waiting');
+  updateSensorUI('camera');
+  showToast('🔄 إعادة تصوير الدخان');
+};
+
+// ============================================================
+// 7. ENGINE FINGERPRINTS (15 بصمة)
+// ============================================================
+var ENGINE_FINGERPRINTS = [
+  { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low',
+    freq:[85,170,255,340], pattern:'regular', amp:'low', smoke:'none', vib:'low', heat:'moderate' },
+  { id:'knocking', nameKey:'fault_knocking', solutionKey:'solution_knocking', severity:'high',
+    freq:[60,120,180,240], pattern:'irregular', amp:'high', smoke:'black', vib:'high', heat:'high' },
+  { id:'squeal', nameKey:'fault_squeal', solutionKey:'solution_squeal', severity:'medium',
+    freq:[400,600,800,1000], pattern:'regular', amp:'high', smoke:'none', vib:'medium', heat:'normal' },
+  { id:'hiss', nameKey:'fault_hiss', solutionKey:'solution_hiss', severity:'high',
+    freq:[55,110,165,220], pattern:'continuous', amp:'low', smoke:'white', vib:'medium', heat:'very_high' },
+  { id:'ticking', nameKey:'fault_ticking', solutionKey:'solution_ticking', severity:'medium',
+    freq:[180,270,360,450], pattern:'regular', amp:'medium', smoke:'none', vib:'medium', heat:'moderate' },
+  { id:'rough', nameKey:'fault_rough', solutionKey:'solution_rough', severity:'medium',
+    freq:[120,180,240,300], pattern:'irregular', amp:'medium', smoke:'black', vib:'high', heat:'high' },
+  { id:'deep_knock', nameKey:'fault_deep_knock', solutionKey:'solution_deep_knock', severity:'high',
+    freq:[80,150,220,300], pattern:'regular', amp:'high', smoke:'none', vib:'very_high', heat:'high' },
+  { id:'preignition', nameKey:'fault_preignition', solutionKey:'solution_preignition', severity:'critical',
+    freq:[200,300,400,500], pattern:'sharp', amp:'high', smoke:'white', vib:'high', heat:'very_high' },
+  { id:'oil_burn', nameKey:'fault_oil_burn', solutionKey:'solution_oil_burn', severity:'high',
+    freq:[70,140,210,280], pattern:'irregular', amp:'medium', smoke:'blue', vib:'high', heat:'high' },
+  { id:'coolant_leak', nameKey:'fault_coolant_leak', solutionKey:'solution_coolant_leak', severity:'high',
+    freq:[50,100,150,200], pattern:'continuous', amp:'low', smoke:'white_thick', vib:'medium', heat:'very_high' },
+  { id:'air_filter', nameKey:'fault_air_filter', solutionKey:'solution_air_filter', severity:'medium',
+    freq:[70,140,210,280], pattern:'choking', amp:'high', smoke:'black', vib:'high', heat:'high' },
+  { id:'egr', nameKey:'fault_egr', solutionKey:'solution_egr', severity:'medium',
+    freq:[275,330,385,440], pattern:'irregular', amp:'medium', smoke:'gray', vib:'medium', heat:'moderate' },
+  { id:'belt_loose', nameKey:'fault_belt_loose', solutionKey:'solution_belt_loose', severity:'medium',
+    freq:[500,750,1000,1250], pattern:'regular', amp:'high', smoke:'none', vib:'low', heat:'normal' },
+  { id:'valve_tick', nameKey:'fault_valve_tick', solutionKey:'solution_valve_tick', severity:'medium',
+    freq:[220,330,440,550], pattern:'regular', amp:'medium', smoke:'none', vib:'medium', heat:'moderate' },
+  { id:'pump_whine', nameKey:'fault_pump_whine', solutionKey:'solution_pump_whine', severity:'medium',
+    freq:[300,450,600,750], pattern:'regular', amp:'medium', smoke:'none', vib:'medium', heat:'high' }
+];
+
+// ============================================================
+// 8. FINAL DIAGNOSIS
+// ============================================================
+document.getElementById('finalizeBtn').onclick = function(){
+  if(!consumeCredit()) return;
+  var soundData = sensorState.sound.data;
+  var vibData = sensorState.vibration.data;
+  var camData = sensorState.camera.data;
+  if(!soundData || !vibData || !camData){ showToast('⚠️ أكمل جميع الحساسات'); return; }
+  var results = [];
+  for(var i=0;i<ENGINE_FINGERPRINTS.length;i++){
+    var fp = ENGINE_FINGERPRINTS[i];
+    var score = 0;
+    var freqMatch = 0;
+    for(var j=0;j<Math.min(soundData.freqs.length, fp.freq.length);j++){
+      var diff = Math.abs(soundData.freqs[j] - fp.freq[j]);
+      if(diff < 20) freqMatch += 30;
+      else if(diff < 40) freqMatch += 15;
+    }
+    var patternMatch = (soundData.pattern === fp.pattern) ? 20 : 0;
+    var vibMatch = 0;
+    if(vibData.level === 'low' && fp.vib === 'low') vibMatch = 25;
+    else if(vibData.level === 'medium' && fp.vib === 'medium') vibMatch = 25;
+    else if(vibData.level === 'high' && fp.vib === 'high') vibMatch = 25;
+    else if(vibData.level === 'very_high' && fp.vib === 'very_high') vibMatch = 25;
+    else vibMatch = 5;
+    var smokeMatch = 0;
+    if(camData.smoke === fp.smoke || (fp.smoke === 'none' && camData.smoke === 'none')) smokeMatch = 15;
+    else smokeMatch = 3;
+    var total = freqMatch + patternMatch + vibMatch + smokeMatch;
+    results.push({ fingerprint: fp, score: total, freqMatch: freqMatch, patternMatch: patternMatch, vibMatch: vibMatch, smokeMatch: smokeMatch });
+  }
+  results.sort(function(a,b){ return b.score - a.score; });
+  var best = results[0];
+  var conf = Math.min(100, Math.round((best.score / 100) * 100));
+  var name = t(best.fingerprint.nameKey);
+  var sol = t(best.fingerprint.solutionKey);
+  var sev = t('severity_'+best.fingerprint.severity);
+  var sevClass = best.fingerprint.severity;
+  var panel = document.getElementById('resultPanel');
+  panel.innerHTML = `
+    <div style="border-right:6px solid ${sevClass==='critical'?'#7f1d1d':sevClass==='high'?'#ef4444':sevClass==='medium'?'#f59e0b':'#10b981'};padding:8px;">
+      <div style="font-size:1.2rem;font-weight:bold;color:#f5a623;">${t('diag_title')}</div>
+      <div style="font-size:1.4rem;font-weight:800;margin:6px 0;">${name}</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0;">
+        <span><strong>${t('confidence')}:</strong> ${conf}%</span>
+        <span class="danger-${sevClass}" style="padding:2px 12px;border-radius:30px;display:inline-block;background:${sevClass==='critical'?'#7f1d1d':sevClass==='high'?'#ef4444':sevClass==='medium'?'#f59e0b':'#10b981'};color:${sevClass==='high'||sevClass==='critical'?'#fff':'#000'};">${t('severity')}: ${sev}</span>
+      </div>
+      <div style="background:#0f172a;padding:8px;border-radius:8px;margin:8px 0;font-size:0.9rem;">
+        <div><strong>🎤 مساهمة الصوت:</strong> ${best.freqMatch}%</div>
+        <div><strong>📳 مساهمة الاهتزاز:</strong> ${best.vibMatch}%</div>
+        <div><strong>📸 مساهمة الدخان:</strong> ${best.smokeMatch}%</div>
+        <div class="conf-bar"><div class="fill" style="width:${conf}%;background:${conf>70?'#10b981':conf>40?'#f59e0b':'#ef4444'}"></div></div>
+      </div>
+      <div style="background:#0a1020;padding:10px;border-radius:8px;margin:10px 0;border:1px solid #f5a623;">
+        <strong>🔧 ${t('solution')}:</strong> ${sol}
+      </div>
+      <div class="action-buttons">
+        <button class="action-btn" onclick="speakResult()">🔊 ${t('listen')}</button>
+        <button class="action-btn" onclick="copyResult()">📋 ${t('copy')}</button>
+        <button class="action-btn" onclick="shareResult()">📤 ${t('share')}</button>
+      </div>
+    </div>
+  `;
+  panel.style.display = 'block';
+  STATE.diagnosisResult = { name, sol, conf, freq: soundData.freqs.join('-'), pattern: soundData.pattern };
+};
+
+function speakResult(){
+  var d = STATE.diagnosisResult;
+  if(!d) return;
+  var text = d.name + '. ' + d.sol;
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = BCP_MAP[currentLang] || 'en-US';
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+function copyResult(){
+  var d = STATE.diagnosisResult;
+  if(!d) return;
+  var text = `${d.name}\n${d.sol}\nConfidence: ${d.conf}%\nFreq: ${d.freq}\nPattern: ${d.pattern}`;
+  navigator.clipboard.writeText(text).then(function(){ showToast(t('copied')); });
+}
+function shareResult(){
+  var d = STATE.diagnosisResult;
+  if(!d) return;
+  var text = 'AI Mechanic Diagnosis:\n'+d.name+'\n'+d.sol;
+  if(navigator.share) navigator.share({title:'AI Mechanic', text:text, url:window.location.href});
+  else { navigator.clipboard.writeText(text+' '+window.location.href); showToast(t('shared')); }
+}
+
+// ============================================================
+// 9. START / RESET
+// ============================================================
+var diagnosisActive = false;
+document.getElementById('startDiagnosisBtn').onclick = function(){
+  if(diagnosisActive) return;
+  var total = totalCredits();
+  if(total<=0 && !admin){ showToast(t('no_credits')); return; }
+  diagnosisActive = true;
+  document.getElementById('sensorsArea').style.display = 'block';
+  document.getElementById('startDiagnosisBtn').style.display = 'none';
+  document.getElementById('resultPanel').style.display = 'none';
+  resetAllSensors();
+  showToast('🧠 ابدأ بجمع بيانات الحساسات');
+};
+
+function resetAllSensors(){
+  if(sensorState.sound.recorder && sensorState.sound.recorder.state === 'recording') sensorState.sound.recorder.stop();
+  if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
+  if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+  sensorState.sound = { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] };
+  sensorState.vibration = { isRunning: false, isConfirmed: false, data: null, timerId: null };
+  sensorState.camera = { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null };
+  document.getElementById('soundPreview').innerHTML = t('waiting');
+  document.getElementById('soundResult').innerHTML = '';
+  document.getElementById('vibPreview').innerHTML = t('waiting');
+  document.getElementById('vibResult').innerHTML = '';
+  document.getElementById('camPreview').innerHTML = t('waiting');
+  document.getElementById('camResult').innerHTML = '';
+  document.getElementById('resultPanel').style.display = 'none';
+  updateSensorUI('sound');
+  updateSensorUI('vibration');
+  updateSensorUI('camera');
+  document.getElementById('finalizeBtn').disabled = true;
+}
+
+document.getElementById('resetBtn').onclick = function(){
+  resetAllSensors();
+  document.getElementById('sensorsArea').style.display = 'none';
+  document.getElementById('startDiagnosisBtn').style.display = 'block';
+  diagnosisActive = false;
+  showToast('🔄 تمت إعادة الضبط');
+};
+
+// ============================================================
+// 10. SHARE BUTTONS
+// ============================================================
+document.getElementById('shareWhatsApp').onclick=function(){ window.open('https://wa.me/?text='+encodeURIComponent(window.location.href),'_blank'); };
+document.getElementById('shareEmail').onclick=function(){ window.location.href='mailto:?subject=AI%20Mechanic&body='+encodeURIComponent('جرب تطبيق تشخيص السيارة الذكي: '+window.location.href); };
+document.getElementById('shareGeneral').onclick=function(){ if(navigator.share) navigator.share({title:'AI Mechanic', text:'تشخيص أعطال السيارة بالذكاء الاصطناعي', url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); } };
+
+// ============================================================
+// 11. ADMIN (5 clicks on car icon)
+// ============================================================
+var clickCount=0, clickTimer=null;
+document.getElementById('secretAdminIcon').onclick=function(){
+  clickCount++;
+  if(clickTimer) clearTimeout(clickTimer);
+  clickTimer=setTimeout(function(){clickCount=0;},1000);
+  if(clickCount>=5){
+    admin=!admin;
+    updateCreditsUI();
+    showToast(admin?t('admin_on'):t('admin_off'));
+    clickCount=0;
   }
 };
 
-console.log('🚗 AI Car Diagnostics - نظام حواس الفيزياء');
-console.log('🌍 54 لغة مدعومة (ترجمة تلقائية عبر API)');
-console.log('🔒 Admin: 5 نقرات على أيقونة السيارة أو كود MOULOUD2026');
-console.log('⚡ الترجمة التلقائية مفعلة افتراضياً');
+// ============================================================
+// 12. INIT
+// ============================================================
+// First apply translations, then get location
+applyTranslations().then(function(){
+  getLocation();
+});
+
+console.log('🧠 AI Mechanic – Physics Lab with QR, Gold Lines, Full Translation');
+console.log('🔬 15 Fingerprints, 54 Languages.');
 </script>
 </body>
 </html>
