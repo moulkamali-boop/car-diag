@@ -41,7 +41,8 @@
     .sensor-title{font-weight:bold;font-size:0.95rem}
     .sensor-status{font-size:0.65rem;color:#94a3b8;margin-right:auto;min-width:80px;text-align:left}
     .sensor-instr{font-size:0.7rem;color:#ccc;margin-bottom:4px}
-    .sensor-preview{background:#000;border-radius:8px;padding:6px;min-height:30px;font-size:0.75rem;color:#94a3b8;margin-bottom:4px}
+    .sensor-preview{background:#000;border-radius:8px;padding:6px;min-height:50px;font-size:0.75rem;color:#94a3b8;margin-bottom:4px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+    .sensor-preview video{width:100%;max-height:150px;border-radius:8px;margin:0}
     .sensor-result{background:#03060c;border-radius:1rem;padding:6px;margin-top:4px;font-size:0.75rem;min-height:26px;border:1px dashed #f5a623}
     .btn-group{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
     .btn-group button{background:#f97316;border:none;border-radius:40px;padding:3px 10px;font-weight:bold;cursor:pointer;color:#fff;font-size:0.7rem}
@@ -62,7 +63,6 @@
     .share-btn{background:#1e293b;border:1px solid #f5a623;border-radius:40px;padding:4px 10px;cursor:pointer;font-size:0.65rem;display:inline-flex;align-items:center;gap:4px;color:#fff}
     footer{text-align:center;padding:8px;background:#060a12;border-top:1px solid #2a3a5a;font-size:0.6rem;margin-top:10px}
     .hidden{display:none}
-    video{width:100%;max-height:150px;border-radius:12px;margin-top:4px}
     .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
     .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
     #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
@@ -81,7 +81,6 @@
     <div class="car-icon" id="secretAdminIcon"><i class="fas fa-car-side"></i></div>
   </div>
 
-  <!-- ===== GOLD LINE ===== -->
   <hr class="gold-line">
 
   <!-- ===== INFO STRIP ===== -->
@@ -95,7 +94,6 @@
     </div>
   </div>
 
-  <!-- ===== GOLD LINE ===== -->
   <hr class="gold-line">
 
   <!-- ===== FREE BADGE ===== -->
@@ -117,7 +115,6 @@
     <div id="adminSection" class="admin-only"><i class="fas fa-code-branch"></i> رابط المشروع: <a href="https://github.com/moulkamali-boop/car-diag" target="_blank">github.com/moulkamali-boop/car-diag</a></div>
   </div>
 
-  <!-- ===== GOLD LINE ===== -->
   <hr class="gold-line">
 
   <!-- ===== START DIAGNOSIS BUTTON ===== -->
@@ -548,67 +545,29 @@ async function tt(text, lang){
 }
 async function applyTranslations(){
   var left=Math.max(0,3-freeUsed);
-  // Title
   document.getElementById('dynamicSubtitle').innerText = await tt(t('subtitle'), currentLang);
-  // Free badge
   document.getElementById('freeBadge').innerHTML = await tt(t('free_badge').replace('{0}', left), currentLang);
-  // Credit label
   document.getElementById('creditLabel').innerHTML = await tt(t('credit_label'), currentLang);
-  // Activate button
   document.getElementById('activateLicenseBtn').innerHTML = await tt(t('activate'), currentLang);
-  // Start diagnosis button
   document.getElementById('startDiagnosisBtn').innerHTML = await tt(t('start_diag'), currentLang);
-  // Pay buttons
   document.getElementById('singlePayBtn').innerHTML = await tt(t('single_btn'), currentLang);
   document.getElementById('pack5PayBtn').innerHTML = await tt(t('pack5_btn'), currentLang);
   document.getElementById('pack15PayBtn').innerHTML = await tt(t('pack15_btn'), currentLang);
-  // License placeholder
   document.getElementById('licenseCode').placeholder = await tt(t('license_placeholder'), currentLang);
-  // Sensor names & instructions
   document.getElementById('soundName').innerHTML = await tt(t('sound_name'), currentLang);
   document.getElementById('soundInstr').innerHTML = await tt(t('sound_instr'), currentLang);
   document.getElementById('vibName').innerHTML = await tt(t('vib_name'), currentLang);
   document.getElementById('vibInstr').innerHTML = await tt(t('vib_instr'), currentLang);
   document.getElementById('camName').innerHTML = await tt(t('cam_name'), currentLang);
   document.getElementById('camInstr').innerHTML = await tt(t('cam_instr'), currentLang);
-  // Buttons inside sensors – keep the emoji prefix, translate the text
-  document.querySelectorAll('.start-btn').forEach(function(b){ if(!b.disabled) b.innerHTML = '▶ ' + t('start_btn'); });
-  document.querySelectorAll('.stop-btn').forEach(function(b){ b.innerHTML = '⏹ ' + t('stop_btn'); });
-  document.querySelectorAll('.confirm-btn').forEach(function(b){ b.innerHTML = '✅ ' + t('confirm_btn'); });
-  document.querySelectorAll('.retake-btn').forEach(function(b){ b.innerHTML = '🔄 ' + t('retake_btn'); });
-  // Status texts – refresh from sensor state
-  updateSensorUI('sound');
-  updateSensorUI('vibration');
-  updateSensorUI('camera');
-  // Finalize & reset
+  refreshSensorTexts();
   document.getElementById('finalizeBtn').innerHTML = '📊 ' + t('finalize_btn');
   document.getElementById('resetBtn').innerHTML = '🔄 ' + t('reset_btn');
-  // Share buttons
   document.getElementById('shareWhatsAppText').innerHTML = t('share_whatsapp');
   document.getElementById('shareEmailText').innerHTML = t('share_email');
   document.getElementById('shareGeneralText').innerHTML = t('share_general');
-  // Admin hint
   if(admin) document.getElementById('adminHint').innerHTML = '👑 ' + t('admin_on');
   else document.getElementById('adminHint').innerHTML = '';
-  // Location – update if denied or loading
-  var locEl = document.getElementById('currentLocation');
-  var locText = locEl.innerText;
-  if(locText === 'غير مصرح' || locText === 'Denied' || locText === 'Refusé' || locText === 'جاري...' || locText === 'Loading...' || locText === 'Chargement...') {
-    // If it's a status message, translate it
-    if(locText === 'غير مصرح' || locText === 'Denied' || locText === 'Refusé') {
-      locEl.innerHTML = t('location_denied');
-    } else if(locText === 'جاري...' || locText === 'Loading...' || locText === 'Chargement...') {
-      locEl.innerHTML = t('location_loading');
-    } else {
-      // Otherwise check if it's coordinates or actual location
-      // If it has a comma, it's coordinates, keep as is
-      if(!locText.includes(',')) {
-        // Try to get location again or show loading
-        locEl.innerHTML = t('location_loading');
-        getLocation();
-      }
-    }
-  }
   updateCreditsUI();
 }
 
@@ -627,10 +586,7 @@ function updateCreditsUI(){
   document.getElementById('creditValue').innerText=total;
   var left=Math.max(0,3-freeUsed);
   document.getElementById('freeBadge').innerHTML=t('free_badge').replace('{0}', left);
-  var sec=document.getElementById('adminSection');
-  sec.style.display=admin?'block':'none';
-  if(admin) document.getElementById('adminHint').innerHTML='👑 '+t('admin_on');
-  else document.getElementById('adminHint').innerHTML='';
+  document.getElementById('adminSection').style.display=admin?'block':'none';
 }
 function consumeCredit(){
   if(admin) return true;
@@ -668,12 +624,8 @@ setInterval(updateDateTime,1000); updateDateTime();
 function getLocation(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
-      function(p){
-        document.getElementById('currentLocation').innerHTML = p.coords.latitude.toFixed(4) + ', ' + p.coords.longitude.toFixed(4);
-      },
-      function(){
-        document.getElementById('currentLocation').innerHTML = t('location_denied');
-      }
+      function(p){ document.getElementById('currentLocation').innerHTML = p.coords.latitude.toFixed(4) + ', ' + p.coords.longitude.toFixed(4); },
+      function(){ document.getElementById('currentLocation').innerHTML = t('location_denied'); }
     );
   } else {
     document.getElementById('currentLocation').innerHTML = t('location_denied');
@@ -710,11 +662,7 @@ function buildLangSelect(){
     var li=allLangs.find(function(l){return l.code===currentLang;});
     document.dir=(li&&li.dir==='rtl')?'rtl':'ltr';
     await applyTranslations();
-    // If location is denied or loading, re-try
-    var locEl = document.getElementById('currentLocation');
-    if(locEl.innerText === t('location_denied') || locEl.innerText === t('location_loading')) {
-      getLocation();
-    }
+    getLocation();
     refreshSensorTexts();
   };
 }
@@ -950,17 +898,20 @@ document.getElementById('camStartBtn').onclick = function(){
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
     .then(function(stream){
       sensorState.camera.stream = stream;
+      var preview = document.getElementById('camPreview');
+      preview.innerHTML = '';
       var video = document.createElement('video');
       video.srcObject = stream;
       video.autoplay = true;
       video.playsInline = true;
       video.style.width = '100%';
       video.style.maxHeight = '150px';
-      var preview = document.getElementById('camPreview');
-      preview.innerHTML = '';
+      video.style.borderRadius = '8px';
       preview.appendChild(video);
       sensorState.camera.isRunning = true;
       document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... 5 ثوانٍ';
+      // Keep video visible
+      preview.appendChild(video);
       updateSensorUI('camera');
       var countdown = 5;
       var timer = setInterval(function(){
@@ -968,6 +919,7 @@ document.getElementById('camStartBtn').onclick = function(){
         if(countdown>0) document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+countdown+' ثوانٍ';
         else {
           clearInterval(timer);
+          // Capture frame
           var canvas = document.createElement('canvas');
           canvas.width = video.videoWidth || 640;
           canvas.height = video.videoHeight || 480;
@@ -983,7 +935,14 @@ document.getElementById('camStartBtn').onclick = function(){
           else if(r<120 && g<120 && b>150) smoke = 'blue';
           else if(r>150 && g>150 && b<100) smoke = 'gray';
           sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
-          document.getElementById('camPreview').innerHTML = '✅ تم التقاط الصورة';
+          // Show captured image as thumbnail
+          var img = document.createElement('img');
+          img.src = canvas.toDataURL('image/jpeg');
+          img.style.width = '100%';
+          img.style.maxHeight = '150px';
+          img.style.borderRadius = '8px';
+          preview.innerHTML = '';
+          preview.appendChild(img);
           document.getElementById('camResult').innerHTML = '📸 لون الدخان: '+smoke;
           sensorState.camera.isRunning = false;
           if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
@@ -1219,7 +1178,6 @@ document.getElementById('secretAdminIcon').onclick=function(){
 // ============================================================
 // 12. INIT
 // ============================================================
-// First apply translations, then get location
 applyTranslations().then(function(){
   getLocation();
 });
