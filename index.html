@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
   <title>AI Mechanic – المخبر الفيزيائي الناطق</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
@@ -17,13 +15,13 @@
     .qr-code img{width:44px;height:44px}
     .title-section{text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
     .title-fixed{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,#ffe6b0,#f5a623);background-clip:text;-webkit-background-clip:text;color:transparent;line-height:1.3}
-    .title-translated{font-size:0.75rem;color:#b9c7d9;min-height:1.2rem;transition:all 0.2s}
+    .title-translated{font-size:0.75rem;color:#b9c7d9;min-height:1.2rem}
     .car-icon{font-size:1.8rem;color:#f5a623;cursor:pointer;flex-shrink:0;width:44px;text-align:center}
     .info-strip{display:flex;justify-content:space-between;align-items:center;background:#00000055;padding:4px 10px;font-size:0.65rem;flex-wrap:wrap;gap:4px;margin:4px 0}
     .lang-device{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
     .lang-select{background:#1e2a3a;border:1px solid #f5a623;border-radius:40px;padding:2px 6px;color:#fff;font-size:0.7rem;max-width:160px}
     .device-id{background:#1e2a3a;border-radius:40px;padding:2px 8px;font-family:monospace;font-size:0.65rem}
-    .free-badge{text-align:center;background:#f5a62320;margin:6px 0;padding:4px;border-radius:40px;font-weight:bold;color:#f5a623;font-size:0.9rem;transition:all 0.2s}
+    .free-badge{text-align:center;background:#f5a62320;margin:6px 0;padding:4px;border-radius:40px;font-weight:bold;color:#f5a623;font-size:0.9rem}
     .credit-card{background:#0f172a;border-radius:1.5rem;margin:8px 0;padding:10px;text-align:center;border:1px solid #3b82f6}
     .credit-amount{font-size:1.8rem;font-weight:800;color:#f5a623}
     .pay-buttons{display:flex;gap:6px;justify-content:center;margin:4px 0;flex-wrap:wrap}
@@ -43,6 +41,7 @@
     .sensor-instr{font-size:0.7rem;color:#ccc;margin-bottom:4px}
     .sensor-preview{background:#000;border-radius:8px;padding:6px;min-height:50px;font-size:0.75rem;color:#94a3b8;margin-bottom:4px;display:flex;align-items:center;justify-content:center;flex-direction:column}
     .sensor-preview video{width:100%;max-height:150px;border-radius:8px;margin:0}
+    .sensor-preview img{width:100%;max-height:150px;border-radius:8px;object-fit:contain}
     .sensor-result{background:#03060c;border-radius:1rem;padding:6px;margin-top:4px;font-size:0.75rem;min-height:26px;border:1px dashed #f5a623}
     .btn-group{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
     .btn-group button{background:#f97316;border:none;border-radius:40px;padding:3px 10px;font-weight:bold;cursor:pointer;color:#fff;font-size:0.7rem}
@@ -62,7 +61,6 @@
     .share-buttons{display:flex;justify-content:center;gap:8px;margin-top:6px;flex-wrap:wrap}
     .share-btn{background:#1e293b;border:1px solid #f5a623;border-radius:40px;padding:4px 10px;cursor:pointer;font-size:0.65rem;display:inline-flex;align-items:center;gap:4px;color:#fff}
     footer{text-align:center;padding:8px;background:#060a12;border-top:1px solid #2a3a5a;font-size:0.6rem;margin-top:10px}
-    .hidden{display:none}
     .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
     .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
     #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
@@ -120,10 +118,10 @@
   <!-- ===== START DIAGNOSIS BUTTON ===== -->
   <button id="startDiagnosisBtn" class="btn-primary">🧠 ابدأ التشخيص الذكي</button>
 
-  <!-- ===== SENSORS AREA (hidden initially) ===== -->
+  <!-- ===== SENSORS AREA ===== -->
   <div id="sensorsArea" style="display:none;">
 
-    <!-- Sound Sensor -->
+    <!-- Sound -->
     <div class="sensor-card" id="sensor-sound">
       <div class="sensor-header">
         <i class="fas fa-microphone sensor-icon"></i>
@@ -141,7 +139,7 @@
       </div>
     </div>
 
-    <!-- Vibration Sensor -->
+    <!-- Vibration -->
     <div class="sensor-card" id="sensor-vibration">
       <div class="sensor-header">
         <i class="fas fa-vibrate sensor-icon"></i>
@@ -159,7 +157,7 @@
       </div>
     </div>
 
-    <!-- Camera Sensor -->
+    <!-- Camera -->
     <div class="sensor-card" id="sensor-camera">
       <div class="sensor-header">
         <i class="fas fa-camera sensor-icon"></i>
@@ -177,7 +175,6 @@
       </div>
     </div>
 
-    <!-- Control buttons -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">
       <button id="finalizeBtn" class="btn-primary" disabled style="flex:2;">📊 الخلاصة النهائية</button>
       <button id="resetBtn" class="btn-primary" style="background:#555;flex:1;">🔄 بداية جديدة</button>
@@ -194,16 +191,14 @@
     <button class="share-btn" id="shareGeneral"><i class="fas fa-share-alt"></i> <span id="shareGeneralText">مشاركة</span></button>
   </div>
 
-  <footer>
-    <div style="margin-bottom:4px; word-break:break-all; font-size:0.65rem;">https://ai-car-diagnostics.netlify.app</div>
-  </footer>
+  <footer>https://ai-car-diagnostics.netlify.app</footer>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
 // ============================================================
-// 1. LANGUAGES (54 – نظام حواس الفيزياء)
+// LANGUAGES (54) – flat system
 // ============================================================
 var allLangs = [
   { code:"ar", name:"العربية", flag:"🇸🇦", dir:"rtl" },
@@ -264,7 +259,7 @@ var allLangs = [
 var BCP_MAP = { ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN" };
 
 // ============================================================
-// 2. TRANSLATIONS – كاملة (ar, en, fr) + باقي اللغات إنجليزية
+// TRANSLATIONS (ar, en, fr + fallback)
 // ============================================================
 var translations = {
   ar: {
@@ -511,21 +506,14 @@ var translations = {
     solution_pump_whine: "Vérifier pompe"
   }
 };
-// Fill all languages with English fallback
-for(var l of allLangs) {
-  if(!translations[l.code]) {
-    translations[l.code] = {};
-    for(var k in translations.en) translations[l.code][k] = translations.en[k];
-  }
-}
+for(var l of allLangs) if(!translations[l.code]) { translations[l.code] = {}; for(var k in translations.en) translations[l.code][k] = translations.en[k]; }
 
 // ============================================================
-// 3. HELPERS
+// HELPERS
 // ============================================================
 var currentLang = localStorage.getItem('appLang') || 'ar';
 var autoTranslate = true;
 var cache = JSON.parse(localStorage.getItem('transCache') || '{}');
-
 function t(key){ return translations[currentLang]?.[key] || translations.en?.[key] || key; }
 async function tt(text, lang){
   if(!autoTranslate || lang==='ar'||lang==='en'||lang==='fr') return text;
@@ -535,11 +523,7 @@ async function tt(text, lang){
     var r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=ar|'+lang);
     var d=await r.json();
     var tr=d.responseData.translatedText;
-    if(tr && tr!==text && !tr.includes('an error')){
-      cache[ck]=tr;
-      localStorage.setItem('transCache',JSON.stringify(cache));
-      return tr;
-    }
+    if(tr && tr!==text && !tr.includes('an error')){ cache[ck]=tr; localStorage.setItem('transCache',JSON.stringify(cache)); return tr; }
   }catch(e){}
   return text;
 }
@@ -560,7 +544,6 @@ async function applyTranslations(){
   document.getElementById('vibInstr').innerHTML = await tt(t('vib_instr'), currentLang);
   document.getElementById('camName').innerHTML = await tt(t('cam_name'), currentLang);
   document.getElementById('camInstr').innerHTML = await tt(t('cam_instr'), currentLang);
-  refreshSensorTexts();
   document.getElementById('finalizeBtn').innerHTML = '📊 ' + t('finalize_btn');
   document.getElementById('resetBtn').innerHTML = '🔄 ' + t('reset_btn');
   document.getElementById('shareWhatsAppText').innerHTML = t('share_whatsapp');
@@ -568,108 +551,42 @@ async function applyTranslations(){
   document.getElementById('shareGeneralText').innerHTML = t('share_general');
   if(admin) document.getElementById('adminHint').innerHTML = '👑 ' + t('admin_on');
   else document.getElementById('adminHint').innerHTML = '';
+  updateSensorUI('sound');
+  updateSensorUI('vibration');
+  updateSensorUI('camera');
   updateCreditsUI();
 }
-
 function showToast(msg){ var el=document.getElementById('toast'); el.innerText=msg; el.classList.add('show'); clearTimeout(el._h); el._h=setTimeout(function(){el.classList.remove('show');},2500); }
 
 // ============================================================
-// 4. CREDITS & ADMIN
+// CREDITS & ADMIN
 // ============================================================
-var freeUsed=parseInt(localStorage.getItem('cdFree')||'0');
-var paid=parseInt(localStorage.getItem('cdPaid')||'0');
-var admin=false;
-
+var freeUsed=parseInt(localStorage.getItem('cdFree')||'0'), paid=parseInt(localStorage.getItem('cdPaid')||'0'), admin=false;
 function totalCredits(){ return admin?9999:Math.max(0,3-freeUsed)+paid; }
-function updateCreditsUI(){
-  var total=totalCredits();
-  document.getElementById('creditValue').innerText=total;
-  var left=Math.max(0,3-freeUsed);
-  document.getElementById('freeBadge').innerHTML=t('free_badge').replace('{0}', left);
-  document.getElementById('adminSection').style.display=admin?'block':'none';
-}
-function consumeCredit(){
-  if(admin) return true;
-  var left=Math.max(0,3-freeUsed);
-  if(left>0){ freeUsed++; localStorage.setItem('cdFree',freeUsed); updateCreditsUI(); showToast(t('diag_ok')); return true; }
-  else if(paid>0){ paid--; localStorage.setItem('cdPaid',paid); updateCreditsUI(); showToast(t('diag_ok')); return true; }
-  else { showToast(t('no_credits')); return false; }
-}
-function buyPlan(p){
-  var urls={1:'https://mouloudkamali.gumroad.com/l/lqfaey',5:'https://mouloudkamali.gumroad.com/l/xovgm',15:'https://mouloudkamali.gumroad.com/l/tlbdm'};
-  window.open(urls[p],'_blank');
-  setTimeout(function(){ if(confirm('هل أكملت الدفع؟')){ paid+=p; localStorage.setItem('cdPaid',paid); updateCreditsUI(); showToast('✅ '+t('added')+' '+p); } },2000);
-}
+function updateCreditsUI(){ var total=totalCredits(); document.getElementById('creditValue').innerText=total; var left=Math.max(0,3-freeUsed); document.getElementById('freeBadge').innerHTML=t('free_badge').replace('{0}', left); document.getElementById('adminSection').style.display=admin?'block':'none'; }
+function consumeCredit(){ if(admin) return true; var left=Math.max(0,3-freeUsed); if(left>0){ freeUsed++; localStorage.setItem('cdFree',freeUsed); updateCreditsUI(); showToast(t('diag_ok')); return true; } else if(paid>0){ paid--; localStorage.setItem('cdPaid',paid); updateCreditsUI(); showToast(t('diag_ok')); return true; } else { showToast(t('no_credits')); return false; } }
+function buyPlan(p){ var urls={1:'https://mouloudkamali.gumroad.com/l/lqfaey',5:'https://mouloudkamali.gumroad.com/l/xovgm',15:'https://mouloudkamali.gumroad.com/l/tlbdm'}; window.open(urls[p],'_blank'); setTimeout(function(){ if(confirm('هل أكملت الدفع؟')){ paid+=p; localStorage.setItem('cdPaid',paid); updateCreditsUI(); showToast('✅ '+t('added')+' '+p); } },2000); }
 document.getElementById('singlePayBtn').onclick=function(){buyPlan(1);};
 document.getElementById('pack5PayBtn').onclick=function(){buyPlan(5);};
 document.getElementById('pack15PayBtn').onclick=function(){buyPlan(15);};
-document.getElementById('activateLicenseBtn').onclick=function(){
-  var code=document.getElementById('licenseCode').value.trim();
-  if(code==='MOULOUD2026'){ admin=true; updateCreditsUI(); showToast(t('admin_on')); }
-  else if(code==='FREE50'){ paid+=50; localStorage.setItem('cdPaid',paid); updateCreditsUI(); showToast('✅ تمت إضافة 50 تشخيص'); }
-  else showToast(t('invalid'));
-  document.getElementById('licenseCode').value='';
-};
+document.getElementById('activateLicenseBtn').onclick=function(){ var code=document.getElementById('licenseCode').value.trim(); if(code==='MOULOUD2026'){ admin=true; updateCreditsUI(); showToast(t('admin_on')); } else if(code==='FREE50'){ paid+=50; localStorage.setItem('cdPaid',paid); updateCreditsUI(); showToast('✅ تمت إضافة 50 تشخيص'); } else showToast(t('invalid')); document.getElementById('licenseCode').value=''; };
 
 // ============================================================
-// 5. UI HELPERS
+// UI HELPERS
 // ============================================================
-function updateDateTime(){
-  var d=new Date();
-  document.getElementById('currentDate').innerText=d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear();
-  document.getElementById('currentTime').innerText=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
-}
+function updateDateTime(){ var d=new Date(); document.getElementById('currentDate').innerText=d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear(); document.getElementById('currentTime').innerText=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0'); }
 setInterval(updateDateTime,1000); updateDateTime();
-
-function getLocation(){
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(
-      function(p){ document.getElementById('currentLocation').innerHTML = p.coords.latitude.toFixed(4) + ', ' + p.coords.longitude.toFixed(4); },
-      function(){ document.getElementById('currentLocation').innerHTML = t('location_denied'); }
-    );
-  } else {
-    document.getElementById('currentLocation').innerHTML = t('location_denied');
-  }
-}
-
-function getDeviceId(){
-  var id=localStorage.getItem('deviceId');
-  if(!id){ id='DEV'+Math.random().toString(36).substr(2,8).toUpperCase(); localStorage.setItem('deviceId',id); }
-  document.getElementById('deviceId').innerHTML='ID: '+id;
-}
+function getLocation(){ if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(function(p){ document.getElementById('currentLocation').innerHTML=p.coords.latitude.toFixed(4)+', '+p.coords.longitude.toFixed(4); }, function(){ document.getElementById('currentLocation').innerHTML=t('location_denied'); }); } else { document.getElementById('currentLocation').innerHTML=t('location_denied'); } }
+function getDeviceId(){ var id=localStorage.getItem('deviceId'); if(!id){ id='DEV'+Math.random().toString(36).substr(2,8).toUpperCase(); localStorage.setItem('deviceId',id); } document.getElementById('deviceId').innerHTML='ID: '+id; }
 getDeviceId();
-
-function updateQR(){
-  document.getElementById('qrImage').src='https://quickchart.io/qr?text='+encodeURIComponent(window.location.href)+'&size=120&margin=2';
-}
+function updateQR(){ document.getElementById('qrImage').src='https://quickchart.io/qr?text='+encodeURIComponent(window.location.href)+'&size=120&margin=2'; }
 updateQR(); setInterval(updateQR,5000);
 document.getElementById('qrContainer').onclick=function(){ navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); };
-
-function buildLangSelect(){
-  var sel=document.getElementById('langSelect');
-  sel.innerHTML='';
-  for(var i=0;i<allLangs.length;i++){
-    var l=allLangs[i];
-    var opt=document.createElement('option');
-    opt.value=l.code;
-    opt.textContent=l.flag+' '+l.name;
-    if(l.code===currentLang) opt.selected=true;
-    sel.appendChild(opt);
-  }
-  sel.onchange=async function(){
-    currentLang=sel.value;
-    localStorage.setItem('appLang',currentLang);
-    var li=allLangs.find(function(l){return l.code===currentLang;});
-    document.dir=(li&&li.dir==='rtl')?'rtl':'ltr';
-    await applyTranslations();
-    getLocation();
-    refreshSensorTexts();
-  };
-}
+function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.innerHTML=''; for(var i=0;i<allLangs.length;i++){ var l=allLangs[i]; var opt=document.createElement('option'); opt.value=l.code; opt.textContent=l.flag+' '+l.name; if(l.code===currentLang) opt.selected=true; sel.appendChild(opt); } sel.onchange=async function(){ currentLang=sel.value; localStorage.setItem('appLang',currentLang); var li=allLangs.find(function(l){return l.code===currentLang;}); document.dir=(li&&li.dir==='rtl')?'rtl':'ltr'; await applyTranslations(); getLocation(); }; }
 buildLangSelect();
 
 // ============================================================
-// 6. SENSOR STATE & LOGIC
+// SENSOR STATE & LOGIC – with fixed timers
 // ============================================================
 var sensorState = {
   sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
@@ -711,6 +628,7 @@ function updateSensorUI(sensorId){
   checkAllConfirmed();
 }
 function refreshSensorTexts(){
+  // Update button texts without resetting state
   document.querySelectorAll('.start-btn').forEach(function(b){ if(!b.disabled) b.innerHTML = '▶ ' + t('start_btn'); });
   document.querySelectorAll('.stop-btn').forEach(function(b){ b.innerHTML = '⏹ ' + t('stop_btn'); });
   document.querySelectorAll('.confirm-btn').forEach(function(b){ b.innerHTML = '✅ ' + t('confirm_btn'); });
@@ -719,7 +637,6 @@ function refreshSensorTexts(){
   updateSensorUI('vibration');
   updateSensorUI('camera');
 }
-
 function checkAllConfirmed(){
   var all = sensorState.sound.isConfirmed && sensorState.vibration.isConfirmed && sensorState.camera.isConfirmed;
   document.getElementById('finalizeBtn').disabled = !all;
@@ -757,7 +674,10 @@ document.getElementById('soundStartBtn').onclick = function(){
       var timer = setInterval(function(){
         countdown--;
         if(countdown>0) document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+countdown+' ثوانٍ';
-        else { clearInterval(timer); if(recorder.state === 'recording') recorder.stop(); }
+        else {
+          clearInterval(timer);
+          if(recorder.state === 'recording') recorder.stop();
+        }
       }, 1000);
       setTimeout(function(){ if(recorder.state === 'recording') recorder.stop(); }, 8500);
     })
@@ -782,6 +702,8 @@ document.getElementById('soundRetakeBtn').onclick = function(){
   sensorState.sound.isConfirmed = false;
   sensorState.sound.data = null;
   sensorState.sound.isRunning = false;
+  if(sensorState.sound.recorder) { try{ sensorState.sound.recorder.stop(); }catch(e){} }
+  if(sensorState.sound.stream) { sensorState.sound.stream.getTracks().forEach(t=>t.stop()); sensorState.sound.stream=null; }
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('soundPreview').innerHTML = t('waiting');
   updateSensorUI('sound');
@@ -835,7 +757,7 @@ function analyzeSoundBlob(blob){
   });
 }
 
-// ===== VIBRATION =====
+// ===== VIBRATION – fixed timer =====
 document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
   if(!window.DeviceMotionEvent){ showToast('⚠️ الاهتزاز غير مدعوم'); return; }
@@ -849,11 +771,15 @@ document.getElementById('vibStartBtn').onclick = function(){
   };
   window.addEventListener('devicemotion', handler);
   var countdown = 6;
-  var timer = setInterval(function(){
+  // Clear any previous timer
+  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+  sensorState.vibration.timerId = setInterval(function(){
     countdown--;
-    if(countdown>0) document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+countdown+' ثوانٍ';
-    else {
-      clearInterval(timer);
+    if(countdown>0){
+      document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+countdown+' ثوانٍ';
+    } else {
+      clearInterval(sensorState.vibration.timerId);
+      sensorState.vibration.timerId = null;
       window.removeEventListener('devicemotion', handler);
       sensorState.vibration.isRunning = false;
       var avg = vals.reduce(function(a,b){ return a+b; }, 0) / (vals.length || 1);
@@ -870,6 +796,7 @@ document.getElementById('vibStartBtn').onclick = function(){
 };
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
+    if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
     sensorState.vibration.isRunning = false;
     updateSensorUI('vibration');
     showToast('⏹ تم إيقاف الاهتزاز');
@@ -883,6 +810,7 @@ document.getElementById('vibConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('vibRetakeBtn').onclick = function(){
+  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
   sensorState.vibration.isConfirmed = false;
   sensorState.vibration.data = null;
   sensorState.vibration.isRunning = false;
@@ -892,7 +820,7 @@ document.getElementById('vibRetakeBtn').onclick = function(){
   showToast('🔄 إعادة قياس الاهتزاز');
 };
 
-// ===== CAMERA =====
+// ===== CAMERA – fixed timer =====
 document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
@@ -910,15 +838,18 @@ document.getElementById('camStartBtn').onclick = function(){
       preview.appendChild(video);
       sensorState.camera.isRunning = true;
       document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... 5 ثوانٍ';
-      // Keep video visible
       preview.appendChild(video);
       updateSensorUI('camera');
       var countdown = 5;
-      var timer = setInterval(function(){
+      // Clear previous timer
+      if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
+      sensorState.camera.timerId = setInterval(function(){
         countdown--;
-        if(countdown>0) document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+countdown+' ثوانٍ';
-        else {
-          clearInterval(timer);
+        if(countdown>0){
+          document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+countdown+' ثوانٍ';
+        } else {
+          clearInterval(sensorState.camera.timerId);
+          sensorState.camera.timerId = null;
           // Capture frame
           var canvas = document.createElement('canvas');
           canvas.width = video.videoWidth || 640;
@@ -955,6 +886,7 @@ document.getElementById('camStartBtn').onclick = function(){
 };
 document.getElementById('camStopBtn').onclick = function(){
   if(sensorState.camera.isRunning) {
+    if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
     sensorState.camera.isRunning = false;
     if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
     sensorState.camera.stream = null;
@@ -970,6 +902,7 @@ document.getElementById('camConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('camRetakeBtn').onclick = function(){
+  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
   sensorState.camera.isConfirmed = false;
   sensorState.camera.data = null;
   sensorState.camera.isRunning = false;
@@ -982,7 +915,7 @@ document.getElementById('camRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 7. ENGINE FINGERPRINTS (15 بصمة)
+// FINGERPRINTS (15)
 // ============================================================
 var ENGINE_FINGERPRINTS = [
   { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low',
@@ -1018,7 +951,7 @@ var ENGINE_FINGERPRINTS = [
 ];
 
 // ============================================================
-// 8. FINAL DIAGNOSIS
+// FINAL DIAGNOSIS
 // ============================================================
 document.getElementById('finalizeBtn').onclick = function(){
   if(!consumeCredit()) return;
@@ -1029,29 +962,26 @@ document.getElementById('finalizeBtn').onclick = function(){
   var results = [];
   for(var i=0;i<ENGINE_FINGERPRINTS.length;i++){
     var fp = ENGINE_FINGERPRINTS[i];
-    var score = 0;
-    var freqMatch = 0;
+    var score=0, freqMatch=0;
     for(var j=0;j<Math.min(soundData.freqs.length, fp.freq.length);j++){
-      var diff = Math.abs(soundData.freqs[j] - fp.freq[j]);
-      if(diff < 20) freqMatch += 30;
-      else if(diff < 40) freqMatch += 15;
+      var diff=Math.abs(soundData.freqs[j]-fp.freq[j]);
+      if(diff<20) freqMatch += 30;
+      else if(diff<40) freqMatch += 15;
     }
-    var patternMatch = (soundData.pattern === fp.pattern) ? 20 : 0;
-    var vibMatch = 0;
-    if(vibData.level === 'low' && fp.vib === 'low') vibMatch = 25;
-    else if(vibData.level === 'medium' && fp.vib === 'medium') vibMatch = 25;
-    else if(vibData.level === 'high' && fp.vib === 'high') vibMatch = 25;
-    else if(vibData.level === 'very_high' && fp.vib === 'very_high') vibMatch = 25;
-    else vibMatch = 5;
-    var smokeMatch = 0;
-    if(camData.smoke === fp.smoke || (fp.smoke === 'none' && camData.smoke === 'none')) smokeMatch = 15;
-    else smokeMatch = 3;
+    var patternMatch = (soundData.pattern === fp.pattern)?20:0;
+    var vibMatch=0;
+    if(vibData.level==='low' && fp.vib==='low') vibMatch=25;
+    else if(vibData.level==='medium' && fp.vib==='medium') vibMatch=25;
+    else if(vibData.level==='high' && fp.vib==='high') vibMatch=25;
+    else if(vibData.level==='very_high' && fp.vib==='very_high') vibMatch=25;
+    else vibMatch=5;
+    var smokeMatch= (camData.smoke===fp.smoke || (fp.smoke==='none' && camData.smoke==='none'))?15:3;
     var total = freqMatch + patternMatch + vibMatch + smokeMatch;
-    results.push({ fingerprint: fp, score: total, freqMatch: freqMatch, patternMatch: patternMatch, vibMatch: vibMatch, smokeMatch: smokeMatch });
+    results.push({ fingerprint: fp, score: total, freqMatch:freqMatch, patternMatch:patternMatch, vibMatch:vibMatch, smokeMatch:smokeMatch });
   }
   results.sort(function(a,b){ return b.score - a.score; });
   var best = results[0];
-  var conf = Math.min(100, Math.round((best.score / 100) * 100));
+  var conf = Math.min(100, Math.round((best.score/100)*100));
   var name = t(best.fingerprint.nameKey);
   var sol = t(best.fingerprint.solutionKey);
   var sev = t('severity_'+best.fingerprint.severity);
@@ -1082,55 +1012,36 @@ document.getElementById('finalizeBtn').onclick = function(){
     </div>
   `;
   panel.style.display = 'block';
-  STATE.diagnosisResult = { name, sol, conf, freq: soundData.freqs.join('-'), pattern: soundData.pattern };
+  window.diagnosisResult = { name, sol, conf, freq: soundData.freqs.join('-'), pattern: soundData.pattern };
 };
-
-function speakResult(){
-  var d = STATE.diagnosisResult;
-  if(!d) return;
-  var text = d.name + '. ' + d.sol;
-  var u = new SpeechSynthesisUtterance(text);
-  u.lang = BCP_MAP[currentLang] || 'en-US';
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(u);
-}
-function copyResult(){
-  var d = STATE.diagnosisResult;
-  if(!d) return;
-  var text = `${d.name}\n${d.sol}\nConfidence: ${d.conf}%\nFreq: ${d.freq}\nPattern: ${d.pattern}`;
-  navigator.clipboard.writeText(text).then(function(){ showToast(t('copied')); });
-}
-function shareResult(){
-  var d = STATE.diagnosisResult;
-  if(!d) return;
-  var text = 'AI Mechanic Diagnosis:\n'+d.name+'\n'+d.sol;
-  if(navigator.share) navigator.share({title:'AI Mechanic', text:text, url:window.location.href});
-  else { navigator.clipboard.writeText(text+' '+window.location.href); showToast(t('shared')); }
-}
+function speakResult(){ var d=window.diagnosisResult; if(!d) return; var text=d.name+'. '+d.sol; var u=new SpeechSynthesisUtterance(text); u.lang=BCP_MAP[currentLang]||'en-US'; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
+function copyResult(){ var d=window.diagnosisResult; if(!d) return; var text=d.name+'\n'+d.sol+'\nConfidence: '+d.conf+'%\nFreq: '+d.freq+'\nPattern: '+d.pattern; navigator.clipboard.writeText(text).then(function(){ showToast(t('copied')); }); }
+function shareResult(){ var d=window.diagnosisResult; if(!d) return; var text='AI Mechanic Diagnosis:\n'+d.name+'\n'+d.sol; if(navigator.share) navigator.share({title:'AI Mechanic', text:text, url:window.location.href}); else { navigator.clipboard.writeText(text+' '+window.location.href); showToast(t('shared')); } }
 
 // ============================================================
-// 9. START / RESET
+// START / RESET
 // ============================================================
-var diagnosisActive = false;
+var diagnosisActive=false;
 document.getElementById('startDiagnosisBtn').onclick = function(){
   if(diagnosisActive) return;
-  var total = totalCredits();
+  var total=totalCredits();
   if(total<=0 && !admin){ showToast(t('no_credits')); return; }
-  diagnosisActive = true;
-  document.getElementById('sensorsArea').style.display = 'block';
-  document.getElementById('startDiagnosisBtn').style.display = 'none';
-  document.getElementById('resultPanel').style.display = 'none';
+  diagnosisActive=true;
+  document.getElementById('sensorsArea').style.display='block';
+  document.getElementById('startDiagnosisBtn').style.display='none';
+  document.getElementById('resultPanel').style.display='none';
   resetAllSensors();
   showToast('🧠 ابدأ بجمع بيانات الحساسات');
 };
-
 function resetAllSensors(){
-  if(sensorState.sound.recorder && sensorState.sound.recorder.state === 'recording') sensorState.sound.recorder.stop();
+  if(sensorState.sound.recorder && sensorState.sound.recorder.state==='recording') sensorState.sound.recorder.stop();
   if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
   if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-  sensorState.sound = { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] };
-  sensorState.vibration = { isRunning: false, isConfirmed: false, data: null, timerId: null };
-  sensorState.camera = { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null };
+  if(sensorState.vibration.timerId) clearInterval(sensorState.vibration.timerId);
+  if(sensorState.camera.timerId) clearInterval(sensorState.camera.timerId);
+  sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[] };
+  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null };
+  sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null };
   document.getElementById('soundPreview').innerHTML = t('waiting');
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
@@ -1143,24 +1054,23 @@ function resetAllSensors(){
   updateSensorUI('camera');
   document.getElementById('finalizeBtn').disabled = true;
 }
-
 document.getElementById('resetBtn').onclick = function(){
   resetAllSensors();
-  document.getElementById('sensorsArea').style.display = 'none';
-  document.getElementById('startDiagnosisBtn').style.display = 'block';
-  diagnosisActive = false;
+  document.getElementById('sensorsArea').style.display='none';
+  document.getElementById('startDiagnosisBtn').style.display='block';
+  diagnosisActive=false;
   showToast('🔄 تمت إعادة الضبط');
 };
 
 // ============================================================
-// 10. SHARE BUTTONS
+// SHARE
 // ============================================================
 document.getElementById('shareWhatsApp').onclick=function(){ window.open('https://wa.me/?text='+encodeURIComponent(window.location.href),'_blank'); };
 document.getElementById('shareEmail').onclick=function(){ window.location.href='mailto:?subject=AI%20Mechanic&body='+encodeURIComponent('جرب تطبيق تشخيص السيارة الذكي: '+window.location.href); };
 document.getElementById('shareGeneral').onclick=function(){ if(navigator.share) navigator.share({title:'AI Mechanic', text:'تشخيص أعطال السيارة بالذكاء الاصطناعي', url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); } };
 
 // ============================================================
-// 11. ADMIN (5 clicks on car icon)
+// ADMIN (5 clicks on car icon)
 // ============================================================
 var clickCount=0, clickTimer=null;
 document.getElementById('secretAdminIcon').onclick=function(){
@@ -1176,13 +1086,10 @@ document.getElementById('secretAdminIcon').onclick=function(){
 };
 
 // ============================================================
-// 12. INIT
+// INIT
 // ============================================================
-applyTranslations().then(function(){
-  getLocation();
-});
-
-console.log('🧠 AI Mechanic – Physics Lab with QR, Gold Lines, Full Translation');
+applyTranslations().then(function(){ getLocation(); });
+console.log('🧠 AI Mechanic – Fully fixed: sound, vibration, camera timers work properly');
 console.log('🔬 15 Fingerprints, 54 Languages.');
 </script>
 </body>
