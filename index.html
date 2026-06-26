@@ -64,13 +64,6 @@
     .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
     .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
     #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
-    /* مربع طلب الإذن لكل حساس */
-    .perm-box{background:#0a2a5a;border-radius:1rem;padding:12px;margin:8px 0;border:2px solid #3b82f6;text-align:center}
-    .perm-box p{margin:4px 0;color:#b9c7d9;font-size:0.8rem}
-    .perm-box .perm-buttons{display:flex;gap:8px;justify-content:center;margin-top:6px}
-    .perm-box .perm-buttons button{padding:4px 16px;border-radius:30px;border:none;font-weight:bold;cursor:pointer}
-    .perm-box .perm-allow{background:#10b981;color:#000}
-    .perm-box .perm-deny{background:#ef4444;color:#fff}
   </style>
 </head>
 <body>
@@ -120,10 +113,9 @@
 
   <button id="startDiagnosisBtn" class="btn-primary">🧠 ابدأ التشخيص الذكي</button>
 
-  <!-- ===== SENSORS AREA ===== -->
   <div id="sensorsArea" style="display:none;">
 
-    <!-- Sound -->
+    <!-- SOUND -->
     <div class="sensor-card" id="sensor-sound">
       <div class="sensor-header">
         <i class="fas fa-microphone sensor-icon"></i>
@@ -139,17 +131,9 @@
         <button id="soundConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
         <button id="soundRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
       </div>
-      <!-- مربع طلب الإذن (يظهر عند الحاجة) -->
-      <div id="soundPermBox" class="perm-box" style="display:none;">
-        <p>🔊 يحتاج التطبيق إلى الوصول إلى الميكروفون لتسجيل صوت المحرك.</p>
-        <div class="perm-buttons">
-          <button class="perm-allow" data-sensor="sound">✅ سماح</button>
-          <button class="perm-deny" data-sensor="sound">🚫 رفض</button>
-        </div>
-      </div>
     </div>
 
-    <!-- Vibration -->
+    <!-- VIBRATION -->
     <div class="sensor-card" id="sensor-vibration">
       <div class="sensor-header">
         <i class="fas fa-vibrate sensor-icon"></i>
@@ -165,16 +149,9 @@
         <button id="vibConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
         <button id="vibRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
       </div>
-      <div id="vibPermBox" class="perm-box" style="display:none;">
-        <p>📳 يحتاج التطبيق إلى الوصول إلى مستشعر الحركة لقياس الاهتزاز.</p>
-        <div class="perm-buttons">
-          <button class="perm-allow" data-sensor="vibration">✅ سماح</button>
-          <button class="perm-deny" data-sensor="vibration">🚫 رفض</button>
-        </div>
-      </div>
     </div>
 
-    <!-- Camera -->
+    <!-- CAMERA -->
     <div class="sensor-card" id="sensor-camera">
       <div class="sensor-header">
         <i class="fas fa-camera sensor-icon"></i>
@@ -189,13 +166,6 @@
         <button id="camStopBtn" class="stop-btn" disabled>⏹ إيقاف</button>
         <button id="camConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
         <button id="camRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
-      </div>
-      <div id="camPermBox" class="perm-box" style="display:none;">
-        <p>📸 يحتاج التطبيق إلى الوصول إلى الكاميرا لتصوير عادم السيارة.</p>
-        <div class="perm-buttons">
-          <button class="perm-allow" data-sensor="camera">✅ سماح</button>
-          <button class="perm-deny" data-sensor="camera">🚫 رفض</button>
-        </div>
       </div>
     </div>
 
@@ -281,7 +251,7 @@ var allLangs = [
 var BCP_MAP = { ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN" };
 
 // ============================================================
-// 2. TRANSLATIONS (ar, en, fr + fallback)
+// 2. TRANSLATIONS
 // ============================================================
 var translations = {
   ar: {
@@ -334,11 +304,6 @@ var translations = {
     waiting: "⏳ انتظر...",
     location_denied: "غير مصرح",
     location_loading: "جاري...",
-    perm_sound: "🔊 يحتاج التطبيق إلى الوصول إلى الميكروفون لتسجيل صوت المحرك.",
-    perm_vib: "📳 يحتاج التطبيق إلى الوصول إلى مستشعر الحركة لقياس الاهتزاز.",
-    perm_cam: "📸 يحتاج التطبيق إلى الوصول إلى الكاميرا لتصوير عادم السيارة.",
-    allow: "✅ سماح",
-    deny: "🚫 رفض",
     fault_healthy: "محرك سليم",
     solution_healthy: "صيانة دورية فقط",
     fault_knocking: "طقطقة – وقود/إشعال",
@@ -420,11 +385,6 @@ var translations = {
     waiting: "⏳ Waiting...",
     location_denied: "Denied",
     location_loading: "Loading...",
-    perm_sound: "🔊 The app needs microphone access to record engine sound.",
-    perm_vib: "📳 The app needs motion sensor access to measure vibration.",
-    perm_cam: "📸 The app needs camera access to capture exhaust smoke.",
-    allow: "✅ Allow",
-    deny: "🚫 Deny",
     fault_healthy: "Healthy Engine",
     solution_healthy: "Routine maintenance only",
     fault_knocking: "Knocking – Fuel/Ignition",
@@ -506,11 +466,6 @@ var translations = {
     waiting: "⏳ Attente...",
     location_denied: "Refusé",
     location_loading: "Chargement...",
-    perm_sound: "🔊 L'application a besoin du microphone pour enregistrer le moteur.",
-    perm_vib: "📳 L'application a besoin du capteur de mouvement pour mesurer les vibrations.",
-    perm_cam: "📸 L'application a besoin de la caméra pour photographier l'échappement.",
-    allow: "✅ Autoriser",
-    deny: "🚫 Refuser",
     fault_healthy: "Moteur sain",
     solution_healthy: "Entretien régulier",
     fault_knocking: "Cliquetis – Carburant/Allumage",
@@ -586,12 +541,6 @@ async function applyTranslations(){
   document.getElementById('shareWhatsAppText').innerHTML = t('share_whatsapp');
   document.getElementById('shareEmailText').innerHTML = t('share_email');
   document.getElementById('shareGeneralText').innerHTML = t('share_general');
-  // تحديث نصوص الإذن في الصناديق (ستظهر عند الحاجة)
-  document.querySelector('#soundPermBox p').innerHTML = t('perm_sound');
-  document.querySelector('#vibPermBox p').innerHTML = t('perm_vib');
-  document.querySelector('#camPermBox p').innerHTML = t('perm_cam');
-  document.querySelectorAll('.perm-allow').forEach(function(b){ b.innerHTML = t('allow'); });
-  document.querySelectorAll('.perm-deny').forEach(function(b){ b.innerHTML = t('deny'); });
   if(admin) document.getElementById('adminHint').innerHTML = '👑 ' + t('admin_on');
   else document.getElementById('adminHint').innerHTML = '';
   updateSensorUI('sound');
@@ -629,36 +578,8 @@ function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.i
 buildLangSelect();
 
 // ============================================================
-// 6. PERMISSION LOGIC – لكل حساس على حدة
+// 6. SIMPLE PERMISSION – like microphone (one click, one prompt)
 // ============================================================
-var permState = { sound: null, vibration: null, camera: null }; // null = not asked, true = granted, false = denied
-
-function requestSensorPermission(sensorType) {
-  return new Promise(function(resolve, reject) {
-    var boxId = sensorType + 'PermBox';
-    var box = document.getElementById(boxId);
-    if (!box) { resolve(false); return; }
-    // إظهار المربع
-    box.style.display = 'block';
-    // الأزرار
-    var allowBtn = box.querySelector('.perm-allow');
-    var denyBtn = box.querySelector('.perm-deny');
-    // إزالة أي مستمع قديم
-    var newAllow = allowBtn.cloneNode(true);
-    var newDeny = denyBtn.cloneNode(true);
-    allowBtn.parentNode.replaceChild(newAllow, allowBtn);
-    denyBtn.parentNode.replaceChild(newDeny, denyBtn);
-    newAllow.addEventListener('click', function() {
-      box.style.display = 'none';
-      resolve(true);
-    });
-    newDeny.addEventListener('click', function() {
-      box.style.display = 'none';
-      resolve(false);
-    });
-  });
-}
-
 // ============================================================
 // 7. SENSOR STATE
 // ============================================================
@@ -707,7 +628,7 @@ function checkAllConfirmed(){
 }
 
 // ============================================================
-// 8. COUNTDOWN
+// 8. COUNTDOWN (safe with setInterval)
 // ============================================================
 function startCountdown(seconds, onTick, onComplete) {
   var remaining = seconds;
@@ -724,22 +645,10 @@ function startCountdown(seconds, onTick, onComplete) {
 }
 
 // ============================================================
-// 9. SOUND SENSOR
+// 9. SOUND SENSOR (already working)
 // ============================================================
-document.getElementById('soundStartBtn').onclick = async function(){
+document.getElementById('soundStartBtn').onclick = function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
-  // التحقق من الإذن
-  if(permState.sound === null) {
-    var granted = await requestSensorPermission('sound');
-    permState.sound = granted;
-    if(!granted) { showToast('❌ رفض الوصول إلى الميكروفون'); return; }
-  } else if(permState.sound === false) {
-    // أظهر المربع مرة أخرى (قد يغير المستخدم رأيه)
-    var grantedAgain = await requestSensorPermission('sound');
-    permState.sound = grantedAgain;
-    if(!grantedAgain) { showToast('❌ رفض الوصول إلى الميكروفون'); return; }
-  }
-  // الآن لدينا الإذن
   navigator.mediaDevices.getUserMedia({ audio: true, video: false })
     .then(function(stream){
       sensorState.sound.stream = stream;
@@ -855,42 +764,39 @@ function analyzeSoundBlob(blob){
 }
 
 // ============================================================
-// 10. VIBRATION SENSOR
+// 10. VIBRATION – SIMPLE like microphone
 // ============================================================
-document.getElementById('vibStartBtn').onclick = async function(){
+document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
-  if(!window.DeviceMotionEvent){ showToast('⚠️ الاهتزاز غير مدعوم'); return; }
-  // التحقق من الإذن (خاص بأجهزة iOS)
-  if(permState.vibration === null) {
-    var granted = await requestSensorPermission('vibration');
-    permState.vibration = granted;
-    if(!granted) { showToast('❌ رفض الوصول لمستشعر الحركة'); return; }
-  } else if(permState.vibration === false) {
-    var grantedAgain = await requestSensorPermission('vibration');
-    permState.vibration = grantedAgain;
-    if(!grantedAgain) { showToast('❌ رفض الوصول لمستشعر الحركة'); return; }
+  if(!window.DeviceMotionEvent){
+    showToast('⚠️ الاهتزاز غير مدعوم');
+    return;
   }
-  // طلب الإذن الصريح من API (iOS)
-  try {
-    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-      var motionPerm = await DeviceMotionEvent.requestPermission();
-      if (motionPerm !== 'granted') {
+  // Request permission directly (iOS 13+)
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission().then(function(state) {
+      if (state === 'granted') {
+        startVibrationMeasurement();
+      } else {
         showToast('❌ رفض الوصول لمستشعر الحركة');
-        return;
       }
-    }
-  } catch(e) { showToast('⚠️ خطأ في مستشعر الحركة'); return; }
-  
+    }).catch(function() { showToast('❌ فشل طلب الإذن'); });
+  } else {
+    startVibrationMeasurement();
+  }
+};
+
+function startVibrationMeasurement() {
   sensorState.vibration.isRunning = true;
   updateSensorUI('vibration');
-  
+
   var vals = [];
   var handler = function(e){
     var a = e.accelerationIncludingGravity;
     if(a) vals.push(Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z));
   };
   window.addEventListener('devicemotion', handler);
-  
+
   var remaining = 6;
   document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+remaining+' ثوانٍ';
   sensorState.vibration.timerId = startCountdown(6,
@@ -912,7 +818,7 @@ document.getElementById('vibStartBtn').onclick = async function(){
       showToast('✅ اكتمل قياس الاهتزاز');
     }
   );
-};
+}
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
     if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
@@ -940,20 +846,11 @@ document.getElementById('vibRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 11. CAMERA SENSOR
+// 11. CAMERA – SIMPLE like microphone
 // ============================================================
-document.getElementById('camStartBtn').onclick = async function(){
+document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
-  if(permState.camera === null) {
-    var granted = await requestSensorPermission('camera');
-    permState.camera = granted;
-    if(!granted) { showToast('❌ رفض الوصول للكاميرا'); return; }
-  } else if(permState.camera === false) {
-    var grantedAgain = await requestSensorPermission('camera');
-    permState.camera = grantedAgain;
-    if(!grantedAgain) { showToast('❌ رفض الوصول للكاميرا'); return; }
-  }
-  
+
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
     .then(function(stream){
       sensorState.camera.stream = stream;
@@ -969,7 +866,7 @@ document.getElementById('camStartBtn').onclick = async function(){
       preview.appendChild(video);
       sensorState.camera.isRunning = true;
       updateSensorUI('camera');
-      
+
       var remaining = 5;
       document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+remaining+' ثوانٍ';
       sensorState.camera.timerId = startCountdown(5,
@@ -991,7 +888,7 @@ document.getElementById('camStartBtn').onclick = async function(){
           else if(r<80 && g<80 && b<80) smoke = 'black';
           else if(r<120 && g<120 && b>150) smoke = 'blue';
           else if(r>150 && g>150 && b<100) smoke = 'gray';
-          
+
           sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
           var img = document.createElement('img');
           img.src = canvas.toDataURL('image/jpeg');
@@ -1172,7 +1069,6 @@ function resetAllSensors(){
   sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[] };
   sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null };
   sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null };
-  // لا نمسح حالة الأذونات، بل نتركها (يمكن للمستخدم تغييرها)
   document.getElementById('soundPreview').innerHTML = t('waiting');
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
@@ -1220,7 +1116,7 @@ document.getElementById('secretAdminIcon').onclick=function(){
 // 17. INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('✅ AI Mechanic – Simplified permissions per sensor, no global permission screen.');
+console.log('✅ AI Mechanic – Vibration and Camera now request permission just like Microphone (simple one-click).');
 console.log('🔬 15 Fingerprints, 54 Languages.');
 </script>
 </body>
