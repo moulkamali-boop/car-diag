@@ -64,9 +64,13 @@
     .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
     .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
     #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
-    #permissionRequest{display:none;background:#1e293b;border-radius:1.5rem;padding:12px;margin:10px 0;text-align:center;border:2px solid #f5a623}
-    #permissionRequest button{background:#f5a623;color:#000;font-weight:bold;border:none;border-radius:40px;padding:8px 20px;margin-top:8px;cursor:pointer}
-    #permStatus{font-size:0.8rem;margin-top:6px;color:#94a3b8}
+    /* مربع طلب الإذن لكل حساس */
+    .perm-box{background:#0a2a5a;border-radius:1rem;padding:12px;margin:8px 0;border:2px solid #3b82f6;text-align:center}
+    .perm-box p{margin:4px 0;color:#b9c7d9;font-size:0.8rem}
+    .perm-box .perm-buttons{display:flex;gap:8px;justify-content:center;margin-top:6px}
+    .perm-box .perm-buttons button{padding:4px 16px;border-radius:30px;border:none;font-weight:bold;cursor:pointer}
+    .perm-box .perm-allow{background:#10b981;color:#000}
+    .perm-box .perm-deny{background:#ef4444;color:#fff}
   </style>
 </head>
 <body>
@@ -116,14 +120,10 @@
 
   <button id="startDiagnosisBtn" class="btn-primary">🧠 ابدأ التشخيص الذكي</button>
 
-  <div id="permissionRequest">
-    <p id="permMessage">⚠️ لتشغيل التشخيص، نحتاج إلى أذونات الكاميرا والميكروفون ومستشعر الحركة.</p>
-    <button id="permAllowBtn">📱 منح الأذونات</button>
-    <div id="permStatus"></div>
-  </div>
-
+  <!-- ===== SENSORS AREA ===== -->
   <div id="sensorsArea" style="display:none;">
 
+    <!-- Sound -->
     <div class="sensor-card" id="sensor-sound">
       <div class="sensor-header">
         <i class="fas fa-microphone sensor-icon"></i>
@@ -139,8 +139,17 @@
         <button id="soundConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
         <button id="soundRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
       </div>
+      <!-- مربع طلب الإذن (يظهر عند الحاجة) -->
+      <div id="soundPermBox" class="perm-box" style="display:none;">
+        <p>🔊 يحتاج التطبيق إلى الوصول إلى الميكروفون لتسجيل صوت المحرك.</p>
+        <div class="perm-buttons">
+          <button class="perm-allow" data-sensor="sound">✅ سماح</button>
+          <button class="perm-deny" data-sensor="sound">🚫 رفض</button>
+        </div>
+      </div>
     </div>
 
+    <!-- Vibration -->
     <div class="sensor-card" id="sensor-vibration">
       <div class="sensor-header">
         <i class="fas fa-vibrate sensor-icon"></i>
@@ -156,8 +165,16 @@
         <button id="vibConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
         <button id="vibRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
       </div>
+      <div id="vibPermBox" class="perm-box" style="display:none;">
+        <p>📳 يحتاج التطبيق إلى الوصول إلى مستشعر الحركة لقياس الاهتزاز.</p>
+        <div class="perm-buttons">
+          <button class="perm-allow" data-sensor="vibration">✅ سماح</button>
+          <button class="perm-deny" data-sensor="vibration">🚫 رفض</button>
+        </div>
+      </div>
     </div>
 
+    <!-- Camera -->
     <div class="sensor-card" id="sensor-camera">
       <div class="sensor-header">
         <i class="fas fa-camera sensor-icon"></i>
@@ -172,6 +189,13 @@
         <button id="camStopBtn" class="stop-btn" disabled>⏹ إيقاف</button>
         <button id="camConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
         <button id="camRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
+      </div>
+      <div id="camPermBox" class="perm-box" style="display:none;">
+        <p>📸 يحتاج التطبيق إلى الوصول إلى الكاميرا لتصوير عادم السيارة.</p>
+        <div class="perm-buttons">
+          <button class="perm-allow" data-sensor="camera">✅ سماح</button>
+          <button class="perm-deny" data-sensor="camera">🚫 رفض</button>
+        </div>
       </div>
     </div>
 
@@ -310,16 +334,11 @@ var translations = {
     waiting: "⏳ انتظر...",
     location_denied: "غير مصرح",
     location_loading: "جاري...",
-    perm_message: "⚠️ لتشغيل التشخيص، نحتاج إلى أذونات الكاميرا والميكروفون ومستشعر الحركة.",
-    perm_allow: "📱 منح الأذونات",
-    perm_ok: "✅ تم منح جميع الأذونات",
-    perm_fail: "❌ لم تُمنح جميع الأذونات، حاول مرة أخرى",
-    perm_camera_ok: "✅ كاميرا",
-    perm_camera_fail: "❌ كاميرا",
-    perm_mic_ok: "✅ ميكروفون",
-    perm_mic_fail: "❌ ميكروفون",
-    perm_motion_ok: "✅ مستشعر الحركة",
-    perm_motion_fail: "❌ مستشعر الحركة",
+    perm_sound: "🔊 يحتاج التطبيق إلى الوصول إلى الميكروفون لتسجيل صوت المحرك.",
+    perm_vib: "📳 يحتاج التطبيق إلى الوصول إلى مستشعر الحركة لقياس الاهتزاز.",
+    perm_cam: "📸 يحتاج التطبيق إلى الوصول إلى الكاميرا لتصوير عادم السيارة.",
+    allow: "✅ سماح",
+    deny: "🚫 رفض",
     fault_healthy: "محرك سليم",
     solution_healthy: "صيانة دورية فقط",
     fault_knocking: "طقطقة – وقود/إشعال",
@@ -401,16 +420,11 @@ var translations = {
     waiting: "⏳ Waiting...",
     location_denied: "Denied",
     location_loading: "Loading...",
-    perm_message: "⚠️ To run diagnostics, we need camera, microphone and motion sensor permissions.",
-    perm_allow: "📱 Grant Permissions",
-    perm_ok: "✅ All permissions granted",
-    perm_fail: "❌ Not all permissions granted, try again",
-    perm_camera_ok: "✅ Camera",
-    perm_camera_fail: "❌ Camera",
-    perm_mic_ok: "✅ Microphone",
-    perm_mic_fail: "❌ Microphone",
-    perm_motion_ok: "✅ Motion sensor",
-    perm_motion_fail: "❌ Motion sensor",
+    perm_sound: "🔊 The app needs microphone access to record engine sound.",
+    perm_vib: "📳 The app needs motion sensor access to measure vibration.",
+    perm_cam: "📸 The app needs camera access to capture exhaust smoke.",
+    allow: "✅ Allow",
+    deny: "🚫 Deny",
     fault_healthy: "Healthy Engine",
     solution_healthy: "Routine maintenance only",
     fault_knocking: "Knocking – Fuel/Ignition",
@@ -492,16 +506,11 @@ var translations = {
     waiting: "⏳ Attente...",
     location_denied: "Refusé",
     location_loading: "Chargement...",
-    perm_message: "⚠️ Pour le diagnostic, nous avons besoin des autorisations caméra, microphone et capteur de mouvement.",
-    perm_allow: "📱 Accorder les autorisations",
-    perm_ok: "✅ Toutes les autorisations accordées",
-    perm_fail: "❌ Toutes les autorisations ne sont pas accordées, réessayez",
-    perm_camera_ok: "✅ Caméra",
-    perm_camera_fail: "❌ Caméra",
-    perm_mic_ok: "✅ Microphone",
-    perm_mic_fail: "❌ Microphone",
-    perm_motion_ok: "✅ Capteur de mouvement",
-    perm_motion_fail: "❌ Capteur de mouvement",
+    perm_sound: "🔊 L'application a besoin du microphone pour enregistrer le moteur.",
+    perm_vib: "📳 L'application a besoin du capteur de mouvement pour mesurer les vibrations.",
+    perm_cam: "📸 L'application a besoin de la caméra pour photographier l'échappement.",
+    allow: "✅ Autoriser",
+    deny: "🚫 Refuser",
     fault_healthy: "Moteur sain",
     solution_healthy: "Entretien régulier",
     fault_knocking: "Cliquetis – Carburant/Allumage",
@@ -577,8 +586,12 @@ async function applyTranslations(){
   document.getElementById('shareWhatsAppText').innerHTML = t('share_whatsapp');
   document.getElementById('shareEmailText').innerHTML = t('share_email');
   document.getElementById('shareGeneralText').innerHTML = t('share_general');
-  document.getElementById('permMessage').innerHTML = t('perm_message');
-  document.getElementById('permAllowBtn').innerHTML = t('perm_allow');
+  // تحديث نصوص الإذن في الصناديق (ستظهر عند الحاجة)
+  document.querySelector('#soundPermBox p').innerHTML = t('perm_sound');
+  document.querySelector('#vibPermBox p').innerHTML = t('perm_vib');
+  document.querySelector('#camPermBox p').innerHTML = t('perm_cam');
+  document.querySelectorAll('.perm-allow').forEach(function(b){ b.innerHTML = t('allow'); });
+  document.querySelectorAll('.perm-deny').forEach(function(b){ b.innerHTML = t('deny'); });
   if(admin) document.getElementById('adminHint').innerHTML = '👑 ' + t('admin_on');
   else document.getElementById('adminHint').innerHTML = '';
   updateSensorUI('sound');
@@ -616,86 +629,43 @@ function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.i
 buildLangSelect();
 
 // ============================================================
-// 6. PERMISSION MANAGEMENT – granular with status feedback
+// 6. PERMISSION LOGIC – لكل حساس على حدة
 // ============================================================
-var permissions = { camera: false, microphone: false, motion: false };
-var permRequestDiv = document.getElementById('permissionRequest');
-var permStatusEl = document.getElementById('permStatus');
+var permState = { sound: null, vibration: null, camera: null }; // null = not asked, true = granted, false = denied
 
-async function requestAllPermissions() {
-  permStatusEl.innerHTML = '⏳ جاري طلب الأذونات...';
-  var results = [];
-
-  // 1. Camera
-  try {
-    var camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-    camStream.getTracks().forEach(function(t){ t.stop(); });
-    permissions.camera = true;
-    results.push(t('perm_camera_ok'));
-  } catch(e) {
-    permissions.camera = false;
-    results.push(t('perm_camera_fail'));
-  }
-
-  // 2. Microphone
-  try {
-    var micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    micStream.getTracks().forEach(function(t){ t.stop(); });
-    permissions.microphone = true;
-    results.push(t('perm_mic_ok'));
-  } catch(e) {
-    permissions.microphone = false;
-    results.push(t('perm_mic_fail'));
-  }
-
-  // 3. Motion sensor (iOS 13+)
-  try {
-    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-      var motionPerm = await DeviceMotionEvent.requestPermission();
-      if (motionPerm === 'granted') {
-        permissions.motion = true;
-        results.push(t('perm_motion_ok'));
-      } else {
-        permissions.motion = false;
-        results.push(t('perm_motion_fail'));
-      }
-    } else {
-      // Desktop or older Android – assume motion is available without explicit permission
-      permissions.motion = true;
-      results.push(t('perm_motion_ok'));
-    }
-  } catch(e) {
-    permissions.motion = false;
-    results.push(t('perm_motion_fail'));
-  }
-
-  permStatusEl.innerHTML = results.join(' | ');
-
-  var allGranted = permissions.camera && permissions.microphone && permissions.motion;
-  if (allGranted) {
-    permRequestDiv.style.display = 'none';
-    document.getElementById('sensorsArea').style.display = 'block';
-    document.getElementById('startDiagnosisBtn').style.display = 'none';
-    resetAllSensors();
-    showToast(t('perm_ok'));
-    return true;
-  } else {
-    showToast(t('perm_fail'));
-    return false;
-  }
+function requestSensorPermission(sensorType) {
+  return new Promise(function(resolve, reject) {
+    var boxId = sensorType + 'PermBox';
+    var box = document.getElementById(boxId);
+    if (!box) { resolve(false); return; }
+    // إظهار المربع
+    box.style.display = 'block';
+    // الأزرار
+    var allowBtn = box.querySelector('.perm-allow');
+    var denyBtn = box.querySelector('.perm-deny');
+    // إزالة أي مستمع قديم
+    var newAllow = allowBtn.cloneNode(true);
+    var newDeny = denyBtn.cloneNode(true);
+    allowBtn.parentNode.replaceChild(newAllow, allowBtn);
+    denyBtn.parentNode.replaceChild(newDeny, denyBtn);
+    newAllow.addEventListener('click', function() {
+      box.style.display = 'none';
+      resolve(true);
+    });
+    newDeny.addEventListener('click', function() {
+      box.style.display = 'none';
+      resolve(false);
+    });
+  });
 }
 
-document.getElementById('permAllowBtn').onclick = function() {
-  requestAllPermissions();
-};
-
 // ============================================================
-// 7. SENSOR STATE with safe setTimeout chain
+// 7. SENSOR STATE
 // ============================================================
 var sensorState = {
-  sound: { isRunning: false, isConfirmed: false, data: null, stream: null, recorder: null, chunks: [] },
-  vibration: { isRunning: false, isConfirmed: false, data: null },
-  camera: { isRunning: false, isConfirmed: false, data: null, stream: null }
+  sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
+  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null },
+  camera: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null }
 };
 
 function updateSensorUI(sensorId){
@@ -736,26 +706,40 @@ function checkAllConfirmed(){
   document.getElementById('finalizeBtn').disabled = !all;
 }
 
+// ============================================================
+// 8. COUNTDOWN
+// ============================================================
 function startCountdown(seconds, onTick, onComplete) {
   var remaining = seconds;
-  function tick() {
+  var timerId = setInterval(function() {
     if (remaining <= 0) {
+      clearInterval(timerId);
       onComplete();
       return;
     }
     onTick(remaining);
     remaining--;
-    setTimeout(tick, 1000);
-  }
-  tick();
+  }, 1000);
+  return timerId;
 }
 
 // ============================================================
-// 8. SOUND SENSOR
+// 9. SOUND SENSOR
 // ============================================================
-document.getElementById('soundStartBtn').onclick = function(){
+document.getElementById('soundStartBtn').onclick = async function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
-  if(!permissions.microphone) { showToast('⚠️ الرجاء منح إذن الميكروفون'); return; }
+  // التحقق من الإذن
+  if(permState.sound === null) {
+    var granted = await requestSensorPermission('sound');
+    permState.sound = granted;
+    if(!granted) { showToast('❌ رفض الوصول إلى الميكروفون'); return; }
+  } else if(permState.sound === false) {
+    // أظهر المربع مرة أخرى (قد يغير المستخدم رأيه)
+    var grantedAgain = await requestSensorPermission('sound');
+    permState.sound = grantedAgain;
+    if(!grantedAgain) { showToast('❌ رفض الوصول إلى الميكروفون'); return; }
+  }
+  // الآن لدينا الإذن
   navigator.mediaDevices.getUserMedia({ audio: true, video: false })
     .then(function(stream){
       sensorState.sound.stream = stream;
@@ -779,14 +763,16 @@ document.getElementById('soundStartBtn').onclick = function(){
       };
       recorder.start();
       sensorState.sound.isRunning = true;
-      document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... 8 ثوانٍ';
       updateSensorUI('sound');
-      startCountdown(8,
+      var remaining = 8;
+      document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+remaining+' ثوانٍ';
+      sensorState.sound.timerId = startCountdown(8,
         function(sec) {
           document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+sec+' ثوانٍ';
         },
         function() {
           if(recorder.state === 'recording') recorder.stop();
+          sensorState.sound.isRunning = false;
         }
       );
     })
@@ -795,6 +781,7 @@ document.getElementById('soundStartBtn').onclick = function(){
 document.getElementById('soundStopBtn').onclick = function(){
   if(sensorState.sound.recorder && sensorState.sound.recorder.state === 'recording') {
     sensorState.sound.recorder.stop();
+    if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
     sensorState.sound.isRunning = false;
     updateSensorUI('sound');
     showToast('⏹ تم إيقاف التسجيل');
@@ -808,6 +795,7 @@ document.getElementById('soundConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('soundRetakeBtn').onclick = function(){
+  if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
   sensorState.sound.isConfirmed = false;
   sensorState.sound.data = null;
   sensorState.sound.isRunning = false;
@@ -867,16 +855,33 @@ function analyzeSoundBlob(blob){
 }
 
 // ============================================================
-// 9. VIBRATION SENSOR
+// 10. VIBRATION SENSOR
 // ============================================================
-document.getElementById('vibStartBtn').onclick = function(){
+document.getElementById('vibStartBtn').onclick = async function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
   if(!window.DeviceMotionEvent){ showToast('⚠️ الاهتزاز غير مدعوم'); return; }
-  if(!permissions.motion) { showToast('⚠️ الرجاء منح إذن مستشعر الحركة'); return; }
+  // التحقق من الإذن (خاص بأجهزة iOS)
+  if(permState.vibration === null) {
+    var granted = await requestSensorPermission('vibration');
+    permState.vibration = granted;
+    if(!granted) { showToast('❌ رفض الوصول لمستشعر الحركة'); return; }
+  } else if(permState.vibration === false) {
+    var grantedAgain = await requestSensorPermission('vibration');
+    permState.vibration = grantedAgain;
+    if(!grantedAgain) { showToast('❌ رفض الوصول لمستشعر الحركة'); return; }
+  }
+  // طلب الإذن الصريح من API (iOS)
+  try {
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      var motionPerm = await DeviceMotionEvent.requestPermission();
+      if (motionPerm !== 'granted') {
+        showToast('❌ رفض الوصول لمستشعر الحركة');
+        return;
+      }
+    }
+  } catch(e) { showToast('⚠️ خطأ في مستشعر الحركة'); return; }
   
   sensorState.vibration.isRunning = true;
-  var remaining = 6;
-  document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+remaining+' ثوانٍ';
   updateSensorUI('vibration');
   
   var vals = [];
@@ -886,7 +891,9 @@ document.getElementById('vibStartBtn').onclick = function(){
   };
   window.addEventListener('devicemotion', handler);
   
-  startCountdown(6,
+  var remaining = 6;
+  document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+remaining+' ثوانٍ';
+  sensorState.vibration.timerId = startCountdown(6,
     function(sec) {
       document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ';
     },
@@ -908,6 +915,7 @@ document.getElementById('vibStartBtn').onclick = function(){
 };
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
+    if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
     sensorState.vibration.isRunning = false;
     updateSensorUI('vibration');
     showToast('⏹ تم إيقاف الاهتزاز');
@@ -921,6 +929,7 @@ document.getElementById('vibConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('vibRetakeBtn').onclick = function(){
+  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
   sensorState.vibration.isConfirmed = false;
   sensorState.vibration.data = null;
   sensorState.vibration.isRunning = false;
@@ -931,11 +940,19 @@ document.getElementById('vibRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 10. CAMERA SENSOR
+// 11. CAMERA SENSOR
 // ============================================================
-document.getElementById('camStartBtn').onclick = function(){
+document.getElementById('camStartBtn').onclick = async function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
-  if(!permissions.camera) { showToast('⚠️ الرجاء منح إذن الكاميرا'); return; }
+  if(permState.camera === null) {
+    var granted = await requestSensorPermission('camera');
+    permState.camera = granted;
+    if(!granted) { showToast('❌ رفض الوصول للكاميرا'); return; }
+  } else if(permState.camera === false) {
+    var grantedAgain = await requestSensorPermission('camera');
+    permState.camera = grantedAgain;
+    if(!grantedAgain) { showToast('❌ رفض الوصول للكاميرا'); return; }
+  }
   
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
     .then(function(stream){
@@ -951,12 +968,11 @@ document.getElementById('camStartBtn').onclick = function(){
       video.style.borderRadius = '8px';
       preview.appendChild(video);
       sensorState.camera.isRunning = true;
-      var remaining = 5;
-      document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+remaining+' ثوانٍ';
-      preview.appendChild(video);
       updateSensorUI('camera');
       
-      startCountdown(5,
+      var remaining = 5;
+      document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+remaining+' ثوانٍ';
+      sensorState.camera.timerId = startCountdown(5,
         function(sec) {
           document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+sec+' ثوانٍ';
         },
@@ -999,6 +1015,7 @@ document.getElementById('camStartBtn').onclick = function(){
 };
 document.getElementById('camStopBtn').onclick = function(){
   if(sensorState.camera.isRunning) {
+    if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
     sensorState.camera.isRunning = false;
     if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
     sensorState.camera.stream = null;
@@ -1014,6 +1031,7 @@ document.getElementById('camConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('camRetakeBtn').onclick = function(){
+  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
   sensorState.camera.isConfirmed = false;
   sensorState.camera.data = null;
   sensorState.camera.isRunning = false;
@@ -1026,7 +1044,7 @@ document.getElementById('camRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 11. FINGERPRINTS (15)
+// 12. FINGERPRINTS (15)
 // ============================================================
 var ENGINE_FINGERPRINTS = [
   { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low',
@@ -1062,7 +1080,7 @@ var ENGINE_FINGERPRINTS = [
 ];
 
 // ============================================================
-// 12. FINAL DIAGNOSIS
+// 13. FINAL DIAGNOSIS
 // ============================================================
 document.getElementById('finalizeBtn').onclick = function(){
   if(!consumeCredit()) return;
@@ -1130,7 +1148,7 @@ function copyResult(){ var d=window.diagnosisResult; if(!d) return; var text=d.n
 function shareResult(){ var d=window.diagnosisResult; if(!d) return; var text='AI Mechanic Diagnosis:\n'+d.name+'\n'+d.sol; if(navigator.share) navigator.share({title:'AI Mechanic', text:text, url:window.location.href}); else { navigator.clipboard.writeText(text+' '+window.location.href); showToast(t('shared')); } }
 
 // ============================================================
-// 13. START / RESET
+// 14. START / RESET
 // ============================================================
 var diagnosisActive=false;
 document.getElementById('startDiagnosisBtn').onclick = function(){
@@ -1138,13 +1156,6 @@ document.getElementById('startDiagnosisBtn').onclick = function(){
   var total=totalCredits();
   if(total<=0 && !admin){ showToast(t('no_credits')); return; }
   diagnosisActive=true;
-  // Show permission request first
-  if (!permissions.camera || !permissions.microphone || !permissions.motion) {
-    permRequestDiv.style.display = 'block';
-    document.getElementById('startDiagnosisBtn').style.display = 'none';
-    return;
-  }
-  // If permissions already granted
   document.getElementById('sensorsArea').style.display = 'block';
   document.getElementById('startDiagnosisBtn').style.display = 'none';
   resetAllSensors();
@@ -1152,12 +1163,16 @@ document.getElementById('startDiagnosisBtn').onclick = function(){
 };
 
 function resetAllSensors(){
+  if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
+  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
   if(sensorState.sound.recorder && sensorState.sound.recorder.state==='recording') sensorState.sound.recorder.stop();
   if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
   if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-  sensorState.sound = { isRunning:false, isConfirmed:false, data:null, stream:null, recorder:null, chunks:[] };
-  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null };
-  sensorState.camera = { isRunning:false, isConfirmed:false, data:null, stream:null };
+  sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[] };
+  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null };
+  sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null };
+  // لا نمسح حالة الأذونات، بل نتركها (يمكن للمستخدم تغييرها)
   document.getElementById('soundPreview').innerHTML = t('waiting');
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
@@ -1179,14 +1194,14 @@ document.getElementById('resetBtn').onclick = function(){
 };
 
 // ============================================================
-// 14. SHARE
+// 15. SHARE
 // ============================================================
 document.getElementById('shareWhatsApp').onclick=function(){ window.open('https://wa.me/?text='+encodeURIComponent(window.location.href),'_blank'); };
 document.getElementById('shareEmail').onclick=function(){ window.location.href='mailto:?subject=AI%20Mechanic&body='+encodeURIComponent('جرب تطبيق تشخيص السيارة الذكي: '+window.location.href); };
 document.getElementById('shareGeneral').onclick=function(){ if(navigator.share) navigator.share({title:'AI Mechanic', text:'تشخيص أعطال السيارة بالذكاء الاصطناعي', url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); } };
 
 // ============================================================
-// 15. ADMIN (5 clicks on car icon)
+// 16. ADMIN (5 clicks on car icon)
 // ============================================================
 var clickCount=0, clickTimer=null;
 document.getElementById('secretAdminIcon').onclick=function(){
@@ -1202,10 +1217,10 @@ document.getElementById('secretAdminIcon').onclick=function(){
 };
 
 // ============================================================
-// 16. INIT
+// 17. INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('✅ AI Mechanic – Granular permissions with detailed status feedback.');
+console.log('✅ AI Mechanic – Simplified permissions per sensor, no global permission screen.');
 console.log('🔬 15 Fingerprints, 54 Languages.');
 </script>
 </body>
