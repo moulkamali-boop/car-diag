@@ -69,7 +69,7 @@
 <body>
 <div class="container">
 
-  <!-- ===== HEADER with QR ===== -->
+  <!-- ===== HEADER ===== -->
   <div class="header">
     <div class="qr-code" id="qrContainer"><img id="qrImage" alt="QR"></div>
     <div class="title-section">
@@ -115,7 +115,7 @@
 
   <hr class="gold-line">
 
-  <!-- ===== START DIAGNOSIS BUTTON ===== -->
+  <!-- ===== START DIAGNOSIS ===== -->
   <button id="startDiagnosisBtn" class="btn-primary">🧠 ابدأ التشخيص الذكي</button>
 
   <!-- ===== SENSORS AREA ===== -->
@@ -181,10 +181,10 @@
     </div>
   </div>
 
-  <!-- ===== RESULT PANEL ===== -->
+  <!-- ===== RESULT ===== -->
   <div id="resultPanel" class="result-area"></div>
 
-  <!-- ===== SHARE BUTTONS ===== -->
+  <!-- ===== SHARE ===== -->
   <div class="share-buttons">
     <button class="share-btn" id="shareWhatsApp"><i class="fab fa-whatsapp"></i> <span id="shareWhatsAppText">واتساب</span></button>
     <button class="share-btn" id="shareEmail"><i class="fas fa-envelope"></i> <span id="shareEmailText">إيميل</span></button>
@@ -586,7 +586,7 @@ function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.i
 buildLangSelect();
 
 // ============================================================
-// SENSOR STATE & LOGIC – with fixed timers
+// SENSOR STATE & LOGIC – with robust timers and error handling
 // ============================================================
 var sensorState = {
   sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
@@ -628,7 +628,6 @@ function updateSensorUI(sensorId){
   checkAllConfirmed();
 }
 function refreshSensorTexts(){
-  // Update button texts without resetting state
   document.querySelectorAll('.start-btn').forEach(function(b){ if(!b.disabled) b.innerHTML = '▶ ' + t('start_btn'); });
   document.querySelectorAll('.stop-btn').forEach(function(b){ b.innerHTML = '⏹ ' + t('stop_btn'); });
   document.querySelectorAll('.confirm-btn').forEach(function(b){ b.innerHTML = '✅ ' + t('confirm_btn'); });
@@ -642,7 +641,7 @@ function checkAllConfirmed(){
   document.getElementById('finalizeBtn').disabled = !all;
 }
 
-// ===== SOUND =====
+// ===== SOUND (already working) =====
 document.getElementById('soundStartBtn').onclick = function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
   navigator.mediaDevices.getUserMedia({ audio: true, video: false })
@@ -757,40 +756,57 @@ function analyzeSoundBlob(blob){
   });
 }
 
-// ===== VIBRATION – fixed timer =====
+// ===== VIBRATION – fixed with try-catch and validation =====
 document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
   if(!window.DeviceMotionEvent){ showToast('⚠️ الاهتزاز غير مدعوم'); return; }
+  // Clear any previous timer
+  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+  
   sensorState.vibration.isRunning = true;
   document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... 6 ثوانٍ';
   updateSensorUI('vibration');
+  
   var vals = [];
   var handler = function(e){
     var a = e.accelerationIncludingGravity;
     if(a) vals.push(Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z));
   };
   window.addEventListener('devicemotion', handler);
+  
   var countdown = 6;
-  // Clear any previous timer
-  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
   sensorState.vibration.timerId = setInterval(function(){
-    countdown--;
-    if(countdown>0){
-      document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+countdown+' ثوانٍ';
-    } else {
+    try {
+      countdown--;
+      if(countdown > 0){
+        document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+countdown+' ثوانٍ';
+      } else {
+        clearInterval(sensorState.vibration.timerId);
+        sensorState.vibration.timerId = null;
+        window.removeEventListener('devicemotion', handler);
+        sensorState.vibration.isRunning = false;
+        
+        // Calculate average
+        var avg = (vals.length > 0) ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 0;
+        var level = 'low';
+        if(avg > 12) level = 'very_high';
+        else if(avg > 7) level = 'high';
+        else if(avg > 3) level = 'medium';
+        
+        sensorState.vibration.data = { avg: avg, level: level };
+        document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
+        document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
+        updateSensorUI('vibration');
+      }
+    } catch(e) {
+      // If any error occurs, still clean up
       clearInterval(sensorState.vibration.timerId);
       sensorState.vibration.timerId = null;
       window.removeEventListener('devicemotion', handler);
       sensorState.vibration.isRunning = false;
-      var avg = vals.reduce(function(a,b){ return a+b; }, 0) / (vals.length || 1);
-      var level = 'low';
-      if(avg > 12) level = 'very_high';
-      else if(avg > 7) level = 'high';
-      else if(avg > 3) level = 'medium';
-      sensorState.vibration.data = { avg: avg, level: level };
-      document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
-      document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
+      document.getElementById('vibPreview').innerHTML = '⚠️ خطأ في القياس، حاول مرة أخرى';
       updateSensorUI('vibration');
+      console.warn('Vibration measurement error:', e);
     }
   }, 1000);
 };
@@ -820,9 +836,11 @@ document.getElementById('vibRetakeBtn').onclick = function(){
   showToast('🔄 إعادة قياس الاهتزاز');
 };
 
-// ===== CAMERA – fixed timer =====
+// ===== CAMERA – fixed with try-catch and proper stream handling =====
 document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
+  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
+  
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
     .then(function(stream){
       sensorState.camera.stream = stream;
@@ -838,47 +856,58 @@ document.getElementById('camStartBtn').onclick = function(){
       preview.appendChild(video);
       sensorState.camera.isRunning = true;
       document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... 5 ثوانٍ';
-      preview.appendChild(video);
+      // Keep video visible
       updateSensorUI('camera');
+      
       var countdown = 5;
-      // Clear previous timer
-      if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
       sensorState.camera.timerId = setInterval(function(){
-        countdown--;
-        if(countdown>0){
-          document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+countdown+' ثوانٍ';
-        } else {
+        try {
+          countdown--;
+          if(countdown > 0){
+            document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+countdown+' ثوانٍ';
+          } else {
+            clearInterval(sensorState.camera.timerId);
+            sensorState.camera.timerId = null;
+            // Capture frame
+            var canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            var r=0,g=0,b=0;
+            for(var i=0;i<imageData.length;i+=4){ r+=imageData[i]; g+=imageData[i+1]; b+=imageData[i+2]; }
+            var count=imageData.length/4; r/=count; g/=count; b/=count;
+            var smoke = 'none';
+            if(r>200 && g>200 && b>200) smoke = 'white';
+            else if(r<80 && g<80 && b<80) smoke = 'black';
+            else if(r<120 && g<120 && b>150) smoke = 'blue';
+            else if(r>150 && g>150 && b<100) smoke = 'gray';
+            
+            sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
+            // Show captured image as thumbnail
+            var img = document.createElement('img');
+            img.src = canvas.toDataURL('image/jpeg');
+            img.style.width = '100%';
+            img.style.maxHeight = '150px';
+            img.style.borderRadius = '8px';
+            preview.innerHTML = '';
+            preview.appendChild(img);
+            document.getElementById('camResult').innerHTML = '📸 لون الدخان: '+smoke;
+            sensorState.camera.isRunning = false;
+            if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+            sensorState.camera.stream = null;
+            updateSensorUI('camera');
+          }
+        } catch(e) {
           clearInterval(sensorState.camera.timerId);
           sensorState.camera.timerId = null;
-          // Capture frame
-          var canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth || 640;
-          canvas.height = video.videoHeight || 480;
-          var ctx = canvas.getContext('2d');
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-          var r=0,g=0,b=0;
-          for(var i=0;i<imageData.length;i+=4){ r+=imageData[i]; g+=imageData[i+1]; b+=imageData[i+2]; }
-          var count=imageData.length/4; r/=count; g/=count; b/=count;
-          var smoke = 'none';
-          if(r>200 && g>200 && b>200) smoke = 'white';
-          else if(r<80 && g<80 && b<80) smoke = 'black';
-          else if(r<120 && g<120 && b>150) smoke = 'blue';
-          else if(r>150 && g>150 && b<100) smoke = 'gray';
-          sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
-          // Show captured image as thumbnail
-          var img = document.createElement('img');
-          img.src = canvas.toDataURL('image/jpeg');
-          img.style.width = '100%';
-          img.style.maxHeight = '150px';
-          img.style.borderRadius = '8px';
-          preview.innerHTML = '';
-          preview.appendChild(img);
-          document.getElementById('camResult').innerHTML = '📸 لون الدخان: '+smoke;
-          sensorState.camera.isRunning = false;
           if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
           sensorState.camera.stream = null;
+          sensorState.camera.isRunning = false;
+          document.getElementById('camPreview').innerHTML = '⚠️ خطأ في الكاميرا، حاول مرة أخرى';
           updateSensorUI('camera');
+          console.warn('Camera capture error:', e);
         }
       }, 1000);
     })
@@ -1089,7 +1118,7 @@ document.getElementById('secretAdminIcon').onclick=function(){
 // INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('🧠 AI Mechanic – Fully fixed: sound, vibration, camera timers work properly');
+console.log('🧠 AI Mechanic – Fully fixed: sound, vibration, camera timers now work reliably with error handling.');
 console.log('🔬 15 Fingerprints, 54 Languages.');
 </script>
 </body>
