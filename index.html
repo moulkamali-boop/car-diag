@@ -64,12 +64,14 @@
     .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
     .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
     #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
+    #permissionRequest{display:none;background:#1e293b;border-radius:1.5rem;padding:12px;margin:10px 0;text-align:center;border:2px solid #f5a623}
+    #permissionRequest button{background:#f5a623;color:#000;font-weight:bold;border:none;border-radius:40px;padding:8px 20px;margin-top:8px;cursor:pointer}
+    #permStatus{font-size:0.8rem;margin-top:6px;color:#94a3b8}
   </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- ===== HEADER ===== -->
   <div class="header">
     <div class="qr-code" id="qrContainer"><img id="qrImage" alt="QR"></div>
     <div class="title-section">
@@ -81,7 +83,6 @@
 
   <hr class="gold-line">
 
-  <!-- ===== INFO STRIP ===== -->
   <div class="info-strip">
     <span>📍 <span id="currentLocation">جاري...</span></span>
     <span>🕐 <span id="currentTime">--:--:--</span></span>
@@ -94,10 +95,8 @@
 
   <hr class="gold-line">
 
-  <!-- ===== FREE BADGE ===== -->
   <div class="free-badge" id="freeBadge">🔓 3 تشخيصات مجانية متبقية</div>
 
-  <!-- ===== CREDIT CARD ===== -->
   <div class="credit-card">
     <div><i class="fas fa-coins"></i> <span id="creditLabel">الرصيد المتبقي:</span> <span class="credit-amount" id="creditValue">0</span></div>
     <div class="pay-buttons">
@@ -115,13 +114,16 @@
 
   <hr class="gold-line">
 
-  <!-- ===== START DIAGNOSIS ===== -->
   <button id="startDiagnosisBtn" class="btn-primary">🧠 ابدأ التشخيص الذكي</button>
 
-  <!-- ===== SENSORS AREA ===== -->
+  <div id="permissionRequest">
+    <p id="permMessage">⚠️ لتشغيل التشخيص، نحتاج إلى أذونات الكاميرا والميكروفون ومستشعر الحركة.</p>
+    <button id="permAllowBtn">📱 منح الأذونات</button>
+    <div id="permStatus"></div>
+  </div>
+
   <div id="sensorsArea" style="display:none;">
 
-    <!-- Sound -->
     <div class="sensor-card" id="sensor-sound">
       <div class="sensor-header">
         <i class="fas fa-microphone sensor-icon"></i>
@@ -139,7 +141,6 @@
       </div>
     </div>
 
-    <!-- Vibration -->
     <div class="sensor-card" id="sensor-vibration">
       <div class="sensor-header">
         <i class="fas fa-vibrate sensor-icon"></i>
@@ -157,7 +158,6 @@
       </div>
     </div>
 
-    <!-- Camera -->
     <div class="sensor-card" id="sensor-camera">
       <div class="sensor-header">
         <i class="fas fa-camera sensor-icon"></i>
@@ -181,10 +181,8 @@
     </div>
   </div>
 
-  <!-- ===== RESULT ===== -->
   <div id="resultPanel" class="result-area"></div>
 
-  <!-- ===== SHARE ===== -->
   <div class="share-buttons">
     <button class="share-btn" id="shareWhatsApp"><i class="fab fa-whatsapp"></i> <span id="shareWhatsAppText">واتساب</span></button>
     <button class="share-btn" id="shareEmail"><i class="fas fa-envelope"></i> <span id="shareEmailText">إيميل</span></button>
@@ -312,6 +310,16 @@ var translations = {
     waiting: "⏳ انتظر...",
     location_denied: "غير مصرح",
     location_loading: "جاري...",
+    perm_message: "⚠️ لتشغيل التشخيص، نحتاج إلى أذونات الكاميرا والميكروفون ومستشعر الحركة.",
+    perm_allow: "📱 منح الأذونات",
+    perm_ok: "✅ تم منح جميع الأذونات",
+    perm_fail: "❌ لم تُمنح جميع الأذونات، حاول مرة أخرى",
+    perm_camera_ok: "✅ كاميرا",
+    perm_camera_fail: "❌ كاميرا",
+    perm_mic_ok: "✅ ميكروفون",
+    perm_mic_fail: "❌ ميكروفون",
+    perm_motion_ok: "✅ مستشعر الحركة",
+    perm_motion_fail: "❌ مستشعر الحركة",
     fault_healthy: "محرك سليم",
     solution_healthy: "صيانة دورية فقط",
     fault_knocking: "طقطقة – وقود/إشعال",
@@ -393,6 +401,16 @@ var translations = {
     waiting: "⏳ Waiting...",
     location_denied: "Denied",
     location_loading: "Loading...",
+    perm_message: "⚠️ To run diagnostics, we need camera, microphone and motion sensor permissions.",
+    perm_allow: "📱 Grant Permissions",
+    perm_ok: "✅ All permissions granted",
+    perm_fail: "❌ Not all permissions granted, try again",
+    perm_camera_ok: "✅ Camera",
+    perm_camera_fail: "❌ Camera",
+    perm_mic_ok: "✅ Microphone",
+    perm_mic_fail: "❌ Microphone",
+    perm_motion_ok: "✅ Motion sensor",
+    perm_motion_fail: "❌ Motion sensor",
     fault_healthy: "Healthy Engine",
     solution_healthy: "Routine maintenance only",
     fault_knocking: "Knocking – Fuel/Ignition",
@@ -474,6 +492,16 @@ var translations = {
     waiting: "⏳ Attente...",
     location_denied: "Refusé",
     location_loading: "Chargement...",
+    perm_message: "⚠️ Pour le diagnostic, nous avons besoin des autorisations caméra, microphone et capteur de mouvement.",
+    perm_allow: "📱 Accorder les autorisations",
+    perm_ok: "✅ Toutes les autorisations accordées",
+    perm_fail: "❌ Toutes les autorisations ne sont pas accordées, réessayez",
+    perm_camera_ok: "✅ Caméra",
+    perm_camera_fail: "❌ Caméra",
+    perm_mic_ok: "✅ Microphone",
+    perm_mic_fail: "❌ Microphone",
+    perm_motion_ok: "✅ Capteur de mouvement",
+    perm_motion_fail: "❌ Capteur de mouvement",
     fault_healthy: "Moteur sain",
     solution_healthy: "Entretien régulier",
     fault_knocking: "Cliquetis – Carburant/Allumage",
@@ -549,6 +577,8 @@ async function applyTranslations(){
   document.getElementById('shareWhatsAppText').innerHTML = t('share_whatsapp');
   document.getElementById('shareEmailText').innerHTML = t('share_email');
   document.getElementById('shareGeneralText').innerHTML = t('share_general');
+  document.getElementById('permMessage').innerHTML = t('perm_message');
+  document.getElementById('permAllowBtn').innerHTML = t('perm_allow');
   if(admin) document.getElementById('adminHint').innerHTML = '👑 ' + t('admin_on');
   else document.getElementById('adminHint').innerHTML = '';
   updateSensorUI('sound');
@@ -586,12 +616,86 @@ function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.i
 buildLangSelect();
 
 // ============================================================
-// 6. SENSOR STATE & LOGIC – FIXED TIMERS WITH PROPER setInterval
+// 6. PERMISSION MANAGEMENT – granular with status feedback
+// ============================================================
+var permissions = { camera: false, microphone: false, motion: false };
+var permRequestDiv = document.getElementById('permissionRequest');
+var permStatusEl = document.getElementById('permStatus');
+
+async function requestAllPermissions() {
+  permStatusEl.innerHTML = '⏳ جاري طلب الأذونات...';
+  var results = [];
+
+  // 1. Camera
+  try {
+    var camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    camStream.getTracks().forEach(function(t){ t.stop(); });
+    permissions.camera = true;
+    results.push(t('perm_camera_ok'));
+  } catch(e) {
+    permissions.camera = false;
+    results.push(t('perm_camera_fail'));
+  }
+
+  // 2. Microphone
+  try {
+    var micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micStream.getTracks().forEach(function(t){ t.stop(); });
+    permissions.microphone = true;
+    results.push(t('perm_mic_ok'));
+  } catch(e) {
+    permissions.microphone = false;
+    results.push(t('perm_mic_fail'));
+  }
+
+  // 3. Motion sensor (iOS 13+)
+  try {
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      var motionPerm = await DeviceMotionEvent.requestPermission();
+      if (motionPerm === 'granted') {
+        permissions.motion = true;
+        results.push(t('perm_motion_ok'));
+      } else {
+        permissions.motion = false;
+        results.push(t('perm_motion_fail'));
+      }
+    } else {
+      // Desktop or older Android – assume motion is available without explicit permission
+      permissions.motion = true;
+      results.push(t('perm_motion_ok'));
+    }
+  } catch(e) {
+    permissions.motion = false;
+    results.push(t('perm_motion_fail'));
+  }
+
+  permStatusEl.innerHTML = results.join(' | ');
+
+  var allGranted = permissions.camera && permissions.microphone && permissions.motion;
+  if (allGranted) {
+    permRequestDiv.style.display = 'none';
+    document.getElementById('sensorsArea').style.display = 'block';
+    document.getElementById('startDiagnosisBtn').style.display = 'none';
+    resetAllSensors();
+    showToast(t('perm_ok'));
+    return true;
+  } else {
+    showToast(t('perm_fail'));
+    return false;
+  }
+}
+
+document.getElementById('permAllowBtn').onclick = function() {
+  requestAllPermissions();
+};
+
+// ============================================================
+// 7. SENSOR STATE with safe setTimeout chain
 // ============================================================
 var sensorState = {
-  sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
-  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null },
-  camera: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, permissionGranted: false }
+  sound: { isRunning: false, isConfirmed: false, data: null, stream: null, recorder: null, chunks: [] },
+  vibration: { isRunning: false, isConfirmed: false, data: null },
+  camera: { isRunning: false, isConfirmed: false, data: null, stream: null }
 };
 
 function updateSensorUI(sensorId){
@@ -627,23 +731,31 @@ function updateSensorUI(sensorId){
   }
   checkAllConfirmed();
 }
-function refreshSensorTexts(){
-  document.querySelectorAll('.start-btn').forEach(function(b){ if(!b.disabled) b.innerHTML = '▶ ' + t('start_btn'); });
-  document.querySelectorAll('.stop-btn').forEach(function(b){ b.innerHTML = '⏹ ' + t('stop_btn'); });
-  document.querySelectorAll('.confirm-btn').forEach(function(b){ b.innerHTML = '✅ ' + t('confirm_btn'); });
-  document.querySelectorAll('.retake-btn').forEach(function(b){ b.innerHTML = '🔄 ' + t('retake_btn'); });
-  updateSensorUI('sound');
-  updateSensorUI('vibration');
-  updateSensorUI('camera');
-}
 function checkAllConfirmed(){
   var all = sensorState.sound.isConfirmed && sensorState.vibration.isConfirmed && sensorState.camera.isConfirmed;
   document.getElementById('finalizeBtn').disabled = !all;
 }
 
-// ===== SOUND (already working) =====
+function startCountdown(seconds, onTick, onComplete) {
+  var remaining = seconds;
+  function tick() {
+    if (remaining <= 0) {
+      onComplete();
+      return;
+    }
+    onTick(remaining);
+    remaining--;
+    setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+// ============================================================
+// 8. SOUND SENSOR
+// ============================================================
 document.getElementById('soundStartBtn').onclick = function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
+  if(!permissions.microphone) { showToast('⚠️ الرجاء منح إذن الميكروفون'); return; }
   navigator.mediaDevices.getUserMedia({ audio: true, video: false })
     .then(function(stream){
       sensorState.sound.stream = stream;
@@ -669,18 +781,16 @@ document.getElementById('soundStartBtn').onclick = function(){
       sensorState.sound.isRunning = true;
       document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... 8 ثوانٍ';
       updateSensorUI('sound');
-      var countdown = 8;
-      var timer = setInterval(function(){
-        countdown--;
-        if(countdown>0) document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+countdown+' ثوانٍ';
-        else {
-          clearInterval(timer);
+      startCountdown(8,
+        function(sec) {
+          document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+sec+' ثوانٍ';
+        },
+        function() {
           if(recorder.state === 'recording') recorder.stop();
         }
-      }, 1000);
-      setTimeout(function(){ if(recorder.state === 'recording') recorder.stop(); }, 8500);
+      );
     })
-    .catch(function(){ showToast('❌ الرجاء السماح بالميكروفون'); });
+    .catch(function(){ showToast('❌ فشل الوصول للميكروفون'); });
 };
 document.getElementById('soundStopBtn').onclick = function(){
   if(sensorState.sound.recorder && sensorState.sound.recorder.state === 'recording') {
@@ -756,12 +866,13 @@ function analyzeSoundBlob(blob){
   });
 }
 
-// ===== VIBRATION – FIXED: countdown decrements every second =====
+// ============================================================
+// 9. VIBRATION SENSOR
+// ============================================================
 document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
   if(!window.DeviceMotionEvent){ showToast('⚠️ الاهتزاز غير مدعوم'); return; }
-  // Clear any previous timer
-  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+  if(!permissions.motion) { showToast('⚠️ الرجاء منح إذن مستشعر الحركة'); return; }
   
   sensorState.vibration.isRunning = true;
   var remaining = 6;
@@ -775,45 +886,28 @@ document.getElementById('vibStartBtn').onclick = function(){
   };
   window.addEventListener('devicemotion', handler);
   
-  sensorState.vibration.timerId = setInterval(function(){
-    try {
-      remaining--;
-      if(remaining > 0){
-        document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+remaining+' ثوانٍ';
-      } else {
-        // Stop measurement
-        clearInterval(sensorState.vibration.timerId);
-        sensorState.vibration.timerId = null;
-        window.removeEventListener('devicemotion', handler);
-        sensorState.vibration.isRunning = false;
-        
-        // Calculate average
-        var avg = (vals.length > 0) ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 0;
-        var level = 'low';
-        if(avg > 12) level = 'very_high';
-        else if(avg > 7) level = 'high';
-        else if(avg > 3) level = 'medium';
-        
-        sensorState.vibration.data = { avg: avg, level: level };
-        document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
-        document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
-        updateSensorUI('vibration');
-        showToast('✅ اكتمل قياس الاهتزاز');
-      }
-    } catch(e) {
-      clearInterval(sensorState.vibration.timerId);
-      sensorState.vibration.timerId = null;
+  startCountdown(6,
+    function(sec) {
+      document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ';
+    },
+    function() {
       window.removeEventListener('devicemotion', handler);
       sensorState.vibration.isRunning = false;
-      document.getElementById('vibPreview').innerHTML = '⚠️ خطأ في القياس، حاول مرة أخرى';
+      var avg = (vals.length > 0) ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 0;
+      var level = 'low';
+      if(avg > 12) level = 'very_high';
+      else if(avg > 7) level = 'high';
+      else if(avg > 3) level = 'medium';
+      sensorState.vibration.data = { avg: avg, level: level };
+      document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
+      document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
       updateSensorUI('vibration');
-      console.warn('Vibration measurement error:', e);
+      showToast('✅ اكتمل قياس الاهتزاز');
     }
-  }, 1000);
+  );
 };
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
-    if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
     sensorState.vibration.isRunning = false;
     updateSensorUI('vibration');
     showToast('⏹ تم إيقاف الاهتزاز');
@@ -827,7 +921,6 @@ document.getElementById('vibConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('vibRetakeBtn').onclick = function(){
-  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
   sensorState.vibration.isConfirmed = false;
   sensorState.vibration.data = null;
   sensorState.vibration.isRunning = false;
@@ -837,31 +930,12 @@ document.getElementById('vibRetakeBtn').onclick = function(){
   showToast('🔄 إعادة قياس الاهتزاز');
 };
 
-// ===== CAMERA – FIXED: countdown decrements every second, request permission once =====
-// Request camera permission once on load
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-    .then(function(stream) {
-      // Permission granted, stop stream immediately
-      stream.getTracks().forEach(t => t.stop());
-      sensorState.camera.permissionGranted = true;
-      console.log('Camera permission granted.');
-    })
-    .catch(function() {
-      sensorState.camera.permissionGranted = false;
-      console.warn('Camera permission denied.');
-    });
-}
-
+// ============================================================
+// 10. CAMERA SENSOR
+// ============================================================
 document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
-  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
-  
-  // Check permission first
-  if (!sensorState.camera.permissionGranted) {
-    showToast('⚠️ الرجاء السماح بالكاميرا في إعدادات المتصفح');
-    return;
-  }
+  if(!permissions.camera) { showToast('⚠️ الرجاء منح إذن الكاميرا'); return; }
   
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
     .then(function(stream){
@@ -882,66 +956,49 @@ document.getElementById('camStartBtn').onclick = function(){
       preview.appendChild(video);
       updateSensorUI('camera');
       
-      sensorState.camera.timerId = setInterval(function(){
-        try {
-          remaining--;
-          if(remaining > 0){
-            document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+remaining+' ثوانٍ';
-          } else {
-            clearInterval(sensorState.camera.timerId);
-            sensorState.camera.timerId = null;
-            // Capture frame
-            var canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-            var r=0,g=0,b=0;
-            for(var i=0;i<imageData.length;i+=4){ r+=imageData[i]; g+=imageData[i+1]; b+=imageData[i+2]; }
-            var count=imageData.length/4; r/=count; g/=count; b/=count;
-            var smoke = 'none';
-            if(r>200 && g>200 && b>200) smoke = 'white';
-            else if(r<80 && g<80 && b<80) smoke = 'black';
-            else if(r<120 && g<120 && b>150) smoke = 'blue';
-            else if(r>150 && g>150 && b<100) smoke = 'gray';
-            
-            sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
-            // Show captured image as thumbnail
-            var img = document.createElement('img');
-            img.src = canvas.toDataURL('image/jpeg');
-            img.style.width = '100%';
-            img.style.maxHeight = '150px';
-            img.style.borderRadius = '8px';
-            preview.innerHTML = '';
-            preview.appendChild(img);
-            document.getElementById('camResult').innerHTML = '📸 لون الدخان: '+smoke;
-            sensorState.camera.isRunning = false;
-            if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-            sensorState.camera.stream = null;
-            updateSensorUI('camera');
-            showToast('✅ اكتمل تصوير الدخان');
-          }
-        } catch(e) {
-          clearInterval(sensorState.camera.timerId);
-          sensorState.camera.timerId = null;
+      startCountdown(5,
+        function(sec) {
+          document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+sec+' ثوانٍ';
+        },
+        function() {
+          var canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth || 640;
+          canvas.height = video.videoHeight || 480;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          var r=0,g=0,b=0;
+          for(var i=0;i<imageData.length;i+=4){ r+=imageData[i]; g+=imageData[i+1]; b+=imageData[i+2]; }
+          var count=imageData.length/4; r/=count; g/=count; b/=count;
+          var smoke = 'none';
+          if(r>200 && g>200 && b>200) smoke = 'white';
+          else if(r<80 && g<80 && b<80) smoke = 'black';
+          else if(r<120 && g<120 && b>150) smoke = 'blue';
+          else if(r>150 && g>150 && b<100) smoke = 'gray';
+          
+          sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
+          var img = document.createElement('img');
+          img.src = canvas.toDataURL('image/jpeg');
+          img.style.width = '100%';
+          img.style.maxHeight = '150px';
+          img.style.borderRadius = '8px';
+          preview.innerHTML = '';
+          preview.appendChild(img);
+          document.getElementById('camResult').innerHTML = '📸 لون الدخان: '+smoke;
+          sensorState.camera.isRunning = false;
           if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
           sensorState.camera.stream = null;
-          sensorState.camera.isRunning = false;
-          document.getElementById('camPreview').innerHTML = '⚠️ خطأ في الكاميرا، حاول مرة أخرى';
           updateSensorUI('camera');
-          console.warn('Camera capture error:', e);
+          showToast('✅ اكتمل تصوير الدخان');
         }
-      }, 1000);
+      );
     })
     .catch(function(){
-      showToast('❌ الرجاء السماح بالكاميرا');
-      sensorState.camera.permissionGranted = false;
+      showToast('❌ فشل الوصول للكاميرا');
     });
 };
 document.getElementById('camStopBtn').onclick = function(){
   if(sensorState.camera.isRunning) {
-    if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
     sensorState.camera.isRunning = false;
     if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
     sensorState.camera.stream = null;
@@ -957,7 +1014,6 @@ document.getElementById('camConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('camRetakeBtn').onclick = function(){
-  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
   sensorState.camera.isConfirmed = false;
   sensorState.camera.data = null;
   sensorState.camera.isRunning = false;
@@ -970,7 +1026,7 @@ document.getElementById('camRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 7. FINGERPRINTS (15)
+// 11. FINGERPRINTS (15)
 // ============================================================
 var ENGINE_FINGERPRINTS = [
   { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low',
@@ -1006,7 +1062,7 @@ var ENGINE_FINGERPRINTS = [
 ];
 
 // ============================================================
-// 8. FINAL DIAGNOSIS
+// 12. FINAL DIAGNOSIS
 // ============================================================
 document.getElementById('finalizeBtn').onclick = function(){
   if(!consumeCredit()) return;
@@ -1074,7 +1130,7 @@ function copyResult(){ var d=window.diagnosisResult; if(!d) return; var text=d.n
 function shareResult(){ var d=window.diagnosisResult; if(!d) return; var text='AI Mechanic Diagnosis:\n'+d.name+'\n'+d.sol; if(navigator.share) navigator.share({title:'AI Mechanic', text:text, url:window.location.href}); else { navigator.clipboard.writeText(text+' '+window.location.href); showToast(t('shared')); } }
 
 // ============================================================
-// 9. START / RESET
+// 13. START / RESET
 // ============================================================
 var diagnosisActive=false;
 document.getElementById('startDiagnosisBtn').onclick = function(){
@@ -1082,21 +1138,26 @@ document.getElementById('startDiagnosisBtn').onclick = function(){
   var total=totalCredits();
   if(total<=0 && !admin){ showToast(t('no_credits')); return; }
   diagnosisActive=true;
-  document.getElementById('sensorsArea').style.display='block';
-  document.getElementById('startDiagnosisBtn').style.display='none';
-  document.getElementById('resultPanel').style.display='none';
+  // Show permission request first
+  if (!permissions.camera || !permissions.microphone || !permissions.motion) {
+    permRequestDiv.style.display = 'block';
+    document.getElementById('startDiagnosisBtn').style.display = 'none';
+    return;
+  }
+  // If permissions already granted
+  document.getElementById('sensorsArea').style.display = 'block';
+  document.getElementById('startDiagnosisBtn').style.display = 'none';
   resetAllSensors();
   showToast('🧠 ابدأ بجمع بيانات الحساسات');
 };
+
 function resetAllSensors(){
   if(sensorState.sound.recorder && sensorState.sound.recorder.state==='recording') sensorState.sound.recorder.stop();
   if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
   if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-  if(sensorState.vibration.timerId) clearInterval(sensorState.vibration.timerId);
-  if(sensorState.camera.timerId) clearInterval(sensorState.camera.timerId);
-  sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[] };
-  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null };
-  sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, permissionGranted:sensorState.camera.permissionGranted };
+  sensorState.sound = { isRunning:false, isConfirmed:false, data:null, stream:null, recorder:null, chunks:[] };
+  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null };
+  sensorState.camera = { isRunning:false, isConfirmed:false, data:null, stream:null };
   document.getElementById('soundPreview').innerHTML = t('waiting');
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
@@ -1118,14 +1179,14 @@ document.getElementById('resetBtn').onclick = function(){
 };
 
 // ============================================================
-// 10. SHARE
+// 14. SHARE
 // ============================================================
 document.getElementById('shareWhatsApp').onclick=function(){ window.open('https://wa.me/?text='+encodeURIComponent(window.location.href),'_blank'); };
 document.getElementById('shareEmail').onclick=function(){ window.location.href='mailto:?subject=AI%20Mechanic&body='+encodeURIComponent('جرب تطبيق تشخيص السيارة الذكي: '+window.location.href); };
 document.getElementById('shareGeneral').onclick=function(){ if(navigator.share) navigator.share({title:'AI Mechanic', text:'تشخيص أعطال السيارة بالذكاء الاصطناعي', url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); } };
 
 // ============================================================
-// 11. ADMIN (5 clicks on car icon)
+// 15. ADMIN (5 clicks on car icon)
 // ============================================================
 var clickCount=0, clickTimer=null;
 document.getElementById('secretAdminIcon').onclick=function(){
@@ -1141,10 +1202,10 @@ document.getElementById('secretAdminIcon').onclick=function(){
 };
 
 // ============================================================
-// 12. INIT
+// 16. INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('✅ AI Mechanic – All sensors fixed: vibration and camera timers now decrement correctly.');
+console.log('✅ AI Mechanic – Granular permissions with detailed status feedback.');
 console.log('🔬 15 Fingerprints, 54 Languages.');
 </script>
 </body>
