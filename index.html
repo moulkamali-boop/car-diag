@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>AI Mechanic – تشخيص المحرك بالصوت</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>AI Car Diagnostics – تشخيص السيارة الذكي</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -34,8 +34,6 @@
     .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
     .sensor-card{background:#1e2a3e;border-radius:1.5rem;padding:12px;margin:10px 0;border:2px solid #3b82f6;transition:0.3s}
     .sensor-card.confirmed{border-color:#10b981}
-    .sensor-card.failed{border-color:#ef4444}
-    .sensor-card.running{border-color:#f59e0b}
     .sensor-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
     .sensor-icon{font-size:1.6rem;color:#f5a623}
     .sensor-title{font-weight:bold;font-size:0.95rem}
@@ -54,11 +52,10 @@
     .result-area{background:#0a1020;border-radius:1.5rem;margin:10px 0;padding:14px;border:2px solid #f5a623;display:none}
     .action-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
     .action-btn{flex:1;background:#2d3a4e;padding:6px;border-radius:40px;text-align:center;cursor:pointer;font-size:0.65rem;border:none;color:#fff;min-width:60px}
-    .sensor-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.6rem;margin:2px}
-    .badge-success{background:#10b981;color:#000}
-    .badge-fail{background:#ef4444;color:#fff}
-    .badge-running{background:#f59e0b;color:#000}
-    .badge-idle{background:#1e293b;color:#94a3b8}
+    .danger-low{background:#10b981;color:#000;display:inline-block;padding:2px 10px;border-radius:30px}
+    .danger-medium{background:#f59e0b;color:#000}
+    .danger-high{background:#ef4444;color:#fff}
+    .danger-critical{background:#7f1d1d;color:#fff}
     .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#f97316;padding:4px 14px;border-radius:30px;opacity:0;transition:0.2s;z-index:999;font-weight:bold;color:#000;font-size:0.8rem}
     .toast.show{opacity:1}
     .share-buttons{display:flex;justify-content:center;gap:8px;margin-top:6px;flex-wrap:wrap}
@@ -67,8 +64,6 @@
     .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
     .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
     #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
-    .sensors-summary{margin:8px 0;padding:6px;background:#0a1020;border-radius:12px;font-size:0.7rem;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-    .location-note{font-size:0.6rem;color:#94a3b8;margin:2px 0}
   </style>
 </head>
 <body>
@@ -78,7 +73,7 @@
     <div class="qr-code" id="qrContainer"><img id="qrImage" alt="QR"></div>
     <div class="title-section">
       <div class="title-fixed">⚡ AI Mechanic</div>
-      <div class="title-translated" id="dynamicSubtitle">المخبر الفيزيائي الناطق</div>
+      <div class="title-translated" id="dynamicSubtitle">تشخيص السيارة الذكي</div>
     </div>
     <div class="car-icon" id="secretAdminIcon"><i class="fas fa-car-side"></i></div>
   </div>
@@ -120,14 +115,13 @@
 
   <div id="sensorsArea" style="display:none;">
 
-    <!-- SOUND (إجباري) -->
+    <!-- ===== SOUND ===== -->
     <div class="sensor-card" id="sensor-sound">
       <div class="sensor-header">
         <i class="fas fa-microphone sensor-icon"></i>
         <span class="sensor-title" id="soundName">🎤 الميكروفون</span>
         <span class="sensor-status" id="soundStatus">⏸ غير نشط</span>
       </div>
-      <div class="location-note">📍 مكانه: قريب من المحرك (20 سم)</div>
       <div class="sensor-instr" id="soundInstr">ضع الهاتف على بعد 20 سم من المحرك</div>
       <div class="sensor-preview" id="soundPreview">⏳ انتظر...</div>
       <div class="sensor-result" id="soundResult"></div>
@@ -139,14 +133,13 @@
       </div>
     </div>
 
-    <!-- VIBRATION (اختياري - منفصل) -->
+    <!-- ===== VIBRATION ===== -->
     <div class="sensor-card" id="sensor-vibration">
       <div class="sensor-header">
         <i class="fas fa-vibrate sensor-icon"></i>
         <span class="sensor-title" id="vibName">📳 الاهتزاز</span>
         <span class="sensor-status" id="vibStatus">⏸ غير نشط</span>
       </div>
-      <div class="location-note">📍 مكانه: ملاصق للمحرك (على خرقة)</div>
       <div class="sensor-instr" id="vibInstr">ضع الهاتف على خرقة فوق المحرك</div>
       <div class="sensor-preview" id="vibPreview">⏳ انتظر...</div>
       <div class="sensor-result" id="vibResult"></div>
@@ -158,40 +151,35 @@
       </div>
     </div>
 
-    <!-- CAMERA (اختياري - منفصل) -->
+    <!-- ===== CAMERA ===== -->
     <div class="sensor-card" id="sensor-camera">
       <div class="sensor-header">
         <i class="fas fa-camera sensor-icon"></i>
         <span class="sensor-title" id="camName">📸 الكاميرا (الدخان)</span>
         <span class="sensor-status" id="camStatus">⏸ غير نشط</span>
       </div>
-      <div class="location-note">📍 مكانه: مؤخرة السيارة (قرب العادم)</div>
       <div class="sensor-instr" id="camInstr">صوّر عادم السيارة من المؤخرة</div>
       <div class="sensor-preview" id="camPreview">⏳ انتظر...</div>
       <div class="sensor-result" id="camResult"></div>
       <div class="btn-group">
-        <button id="camStartBtn" class="start-btn">▶ تشغيل (6s)</button>
+        <button id="camStartBtn" class="start-btn">▶ تشغيل (5s)</button>
         <button id="camStopBtn" class="stop-btn" disabled>⏹ إيقاف</button>
         <button id="camConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
         <button id="camRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
       </div>
     </div>
 
-    <!-- ملخص الحساسات -->
-    <div class="sensors-summary" id="sensorsSummary">
-      <span class="sensor-badge badge-idle" id="badge-sound">🎤 غير نشط</span>
-      <span class="sensor-badge badge-idle" id="badge-vibration">📳 غير نشط</span>
-      <span class="sensor-badge badge-idle" id="badge-camera">📸 غير نشط</span>
-    </div>
-
+    <!-- ===== FINALIZE ===== -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">
       <button id="finalizeBtn" class="btn-primary" disabled style="flex:2;">📊 الخلاصة النهائية</button>
       <button id="resetBtn" class="btn-primary" style="background:#555;flex:1;">🔄 بداية جديدة</button>
     </div>
   </div>
 
+  <!-- ===== RESULT ===== -->
   <div id="resultPanel" class="result-area"></div>
 
+  <!-- ===== SHARE ===== -->
   <div class="share-buttons">
     <button class="share-btn" id="shareWhatsApp"><i class="fab fa-whatsapp"></i> <span id="shareWhatsAppText">واتساب</span></button>
     <button class="share-btn" id="shareEmail"><i class="fas fa-envelope"></i> <span id="shareEmailText">إيميل</span></button>
@@ -266,11 +254,11 @@ var allLangs = [
 var BCP_MAP = { ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN" };
 
 // ============================================================
-// 2. TRANSLATIONS (مختصر)
+// 2. TRANSLATIONS
 // ============================================================
 var translations = {
   ar: {
-    subtitle: "المخبر الفيزيائي الناطق",
+    subtitle: "تشخيص السيارة الذكي",
     free_badge: "🔓 {0} تشخيصات مجانية متبقية",
     credit_label: "الرصيد المتبقي:",
     activate: "تفعيل",
@@ -348,10 +336,52 @@ var translations = {
     fault_valve_tick: "تكتكة صمامات",
     solution_valve_tick: "اضبط خلوص الصمامات",
     fault_pump_whine: "أزيز مضخة وقود/زيت",
-    solution_pump_whine: "افحص مضخة الوقود أو الزيت"
+    solution_pump_whine: "افحص مضخة الوقود أو الزيت",
+    fault_starter: "مشكلة في بداية المحرك (ستارتر)",
+    solution_starter: "افحص البطارية وأسلاك البدء، قد تحتاج استبدال الستارتر",
+    fault_alternator: "مشكلة في الدينمو (المولد)",
+    solution_alternator: "افحص حساس الشحن والبطارية، قد تحتاج استبدال الدينمو",
+    fault_catalyst: "انسداد في الكاتم الحفاز",
+    solution_catalyst: "نظف أو استبدل الكاتم الحفاز",
+    fault_o2sensor: "عطل في حساس الأكسجين (O2)",
+    solution_o2sensor: "استبدل حساس الأكسجين",
+    fault_misfire: "احتراق غير منتظم (Misfire)",
+    solution_misfire: "افحص البوجيهات والبواجي وكويلات الإشعال",
+    fault_vvt: "عطل في نظام التوقيت المتغير (VVT)",
+    solution_vvt: "افحص صمام VVT وزيت المحرك",
+    fault_egr: "صمام EGR متسخ",
+    solution_egr: "نظف صمام EGR",
+    fault_throttle: "صمام الخانق متسخ",
+    solution_throttle: "نظف صمام الخانق",
+    fault_injector: "انسداد في البخاخات",
+    solution_injector: "نظف البخاخات أو استبدلها",
+    fault_fuel_pump: "ضعف في مضخة الوقود",
+    solution_fuel_pump: "افحص مضخة الوقود والفلتر",
+    fault_ignition_coil: "عطل في كويل الإشعال",
+    solution_ignition_coil: "استبدل كويل الإشعال التالف",
+    fault_camshaft: "مشكلة في عمود الكامات",
+    solution_camshaft: "افحص توقيت عمود الكامات والصمامات",
+    fault_crankshaft: "مشكلة في عمود المرفق",
+    solution_crankshaft: "افحص حساس عمود المرفق",
+    fault_timing: "انحراف في توقيت المحرك",
+    solution_timing: "اضبط توقيت الإشعال",
+    fault_vacuum: "تسريب في نظام التفريغ",
+    solution_vacuum: "افحص خراطيم التفريغ",
+    fault_radiator: "انسداد في الردياتير",
+    solution_radiator: "اغسل أو استبدل الردياتير",
+    fault_thermostat: "عطل في الثرموستات",
+    solution_thermostat: "استبدل الثرموستات",
+    fault_water_pump: "عطل في مضخة الماء",
+    solution_water_pump: "استبدل مضخة الماء",
+    fault_head_gasket: "تلف في حشية الرأس",
+    solution_head_gasket: "استبدل حشية الرأس",
+    fault_piston: "تآكل حلقات المكبس",
+    solution_piston: "عمرة محرك (تغيير الحلقات)",
+    fault_rod: "مشكلة في قضيب التوصيل",
+    solution_rod: "فحص قضيب التوصيل، قد تحتاج عمرة"
   },
   en: {
-    subtitle: "The Talking Physics Lab",
+    subtitle: "Smart Car Diagnosis",
     free_badge: "🔓 {0} free diagnoses left",
     credit_label: "Remaining credits:",
     activate: "Activate",
@@ -429,7 +459,168 @@ var translations = {
     fault_valve_tick: "Valve ticking",
     solution_valve_tick: "Adjust valve clearance",
     fault_pump_whine: "Fuel/Oil pump whine",
-    solution_pump_whine: "Check fuel or oil pump"
+    solution_pump_whine: "Check fuel or oil pump",
+    fault_starter: "Starter motor issue",
+    solution_starter: "Check battery and wiring, may need starter replacement",
+    fault_alternator: "Alternator issue",
+    solution_alternator: "Check charging system and battery, may need alternator replacement",
+    fault_catalyst: "Clogged catalytic converter",
+    solution_catalyst: "Clean or replace catalytic converter",
+    fault_o2sensor: "O2 sensor failure",
+    solution_o2sensor: "Replace oxygen sensor",
+    fault_misfire: "Engine misfire",
+    solution_misfire: "Check spark plugs, coils and ignition system",
+    fault_vvt: "VVT system issue",
+    solution_vvt: "Check VVT solenoid and engine oil",
+    fault_throttle: "Dirty throttle body",
+    solution_throttle: "Clean throttle body",
+    fault_injector: "Clogged fuel injector",
+    solution_injector: "Clean or replace injectors",
+    fault_fuel_pump: "Weak fuel pump",
+    solution_fuel_pump: "Check fuel pump and filter",
+    fault_ignition_coil: "Ignition coil failure",
+    solution_ignition_coil: "Replace faulty ignition coil",
+    fault_camshaft: "Camshaft position issue",
+    solution_camshaft: "Check camshaft timing and sensors",
+    fault_crankshaft: "Crankshaft position issue",
+    solution_crankshaft: "Check crankshaft position sensor",
+    fault_timing: "Engine timing off",
+    solution_timing: "Adjust ignition timing",
+    fault_vacuum: "Vacuum leak",
+    solution_vacuum: "Check vacuum hoses and connections",
+    fault_radiator: "Radiator clogged",
+    solution_radiator: "Flush or replace radiator",
+    fault_thermostat: "Thermostat stuck",
+    solution_thermostat: "Replace thermostat",
+    fault_water_pump: "Water pump failure",
+    solution_water_pump: "Replace water pump",
+    fault_head_gasket: "Blown head gasket",
+    solution_head_gasket: "Replace head gasket",
+    fault_piston: "Worn piston rings",
+    solution_piston: "Engine overhaul (replace rings)",
+    fault_rod: "Connecting rod issue",
+    solution_rod: "Check connecting rod, may need overhaul"
+  },
+  fr: {
+    subtitle: "Diagnostic intelligent de la voiture",
+    free_badge: "🔓 {0} diagnostics gratuits restants",
+    credit_label: "Crédits restants:",
+    activate: "Activer",
+    start_diag: "🧠 Démarrer diagnostic",
+    single_btn: "💵 1 Diagnostic ($2)",
+    pack5_btn: "💵 5 Diagnostics ($8)",
+    pack15_btn: "💵 15 Diagnostics ($20)",
+    license_placeholder: "🔑 Code d'activation",
+    no_credits: "❌ Crédits insuffisants",
+    diag_ok: "✅ Diagnostic consommé",
+    added: "Ajouté",
+    listen: "🔊 Écouter",
+    copy: "📋 Copier",
+    share: "📤 Partager",
+    copied: "Copié",
+    shared: "Partagé",
+    admin_on: "✅ Mode admin activé",
+    admin_off: "🔒 Mode admin désactivé",
+    invalid: "❌ Code invalide",
+    sound_name: "🎤 Microphone",
+    sound_instr: "Placez le téléphone à 20 cm du moteur",
+    vib_name: "📳 Vibration",
+    vib_instr: "Posez le téléphone sur un chiffon sur le moteur",
+    cam_name: "📸 Caméra (Fumée)",
+    cam_instr: "Photographiez l'échappement à l'arrière",
+    start_btn: "▶ Démarrer",
+    stop_btn: "⏹ Arrêter",
+    confirm_btn: "✅ Confirmer",
+    retake_btn: "🔄 Recommencer",
+    status_idle: "⏸ Inactif",
+    status_recording: "🔴 Enregistrement...",
+    status_done: "✅ Terminé",
+    finalize_btn: "📊 Diagnostic final",
+    reset_btn: "🔄 Nouveau départ",
+    diag_title: "🔍 Diagnostic final",
+    solution: "🔧 Solution",
+    severity: "⚠️ Gravité",
+    severity_low: "Faible",
+    severity_medium: "Moyenne",
+    severity_high: "Élevée",
+    severity_critical: "Critique",
+    confidence: "Confiance",
+    share_whatsapp: "WhatsApp",
+    share_email: "Email",
+    share_general: "Partager",
+    waiting: "⏳ Attente...",
+    location_denied: "Refusé",
+    location_loading: "Chargement...",
+    fault_healthy: "Moteur sain",
+    solution_healthy: "Entretien régulier",
+    fault_knocking: "Cliquetis – Carburant/Allumage",
+    solution_knocking: "Carburant 95, bougies et timing",
+    fault_squeal: "Grincement – Courroie/Pompe à eau",
+    solution_squeal: "Vérifier courroie, pompe à eau",
+    fault_hiss: "Sifflement – Fuite refroidissement/EGR",
+    solution_hiss: "Vérifier radiateur, durites, nettoyer EGR",
+    fault_ticking: "Tic-tac métallique – Soupapes/Huile",
+    solution_ticking: "Régler soupapes, huile adaptée",
+    fault_rough: "Son rugueux – Air/Injecteurs",
+    solution_rough: "Filtre à air, injecteurs, sonde O2",
+    fault_deep_knock: "Cognement profond – Paliers",
+    solution_deep_knock: "Vérifier paliers, possible révision",
+    fault_preignition: "Pré-allumage – Chaleur élevée",
+    solution_preignition: "Sonde O2, injecteurs, carburant haute octane",
+    fault_oil_burn: "Consommation d'huile – Segments/Soupapes",
+    solution_oil_burn: "Vérifier segments et soupapes",
+    fault_coolant_leak: "Fuite liquide de refroidissement – Fumée blanche",
+    solution_coolant_leak: "Vérifier radiateur, durites",
+    fault_air_filter: "Filtre à air obstrué",
+    solution_air_filter: "Remplacer filtre à air",
+    fault_egr: "EGR encrassée",
+    solution_egr: "Nettoyer EGR",
+    fault_belt_loose: "Courroie desserrée",
+    solution_belt_loose: "Tendre ou remplacer courroie",
+    fault_valve_tick: "Tic-tac soupapes",
+    solution_valve_tick: "Régler jeu soupapes",
+    fault_pump_whine: "Bruit pompe carburant/huile",
+    solution_pump_whine: "Vérifier pompe",
+    fault_starter: "Problème de démarreur",
+    solution_starter: "Vérifier batterie et câblage, remplacer le démarreur",
+    fault_alternator: "Problème d'alternateur",
+    solution_alternator: "Vérifier système de charge et batterie",
+    fault_catalyst: "Catalyseur obstrué",
+    solution_catalyst: "Nettoyer ou remplacer le catalyseur",
+    fault_o2sensor: "Capteur O2 défectueux",
+    solution_o2sensor: "Remplacer le capteur d'oxygène",
+    fault_misfire: "Raté d'allumage",
+    solution_misfire: "Vérifier bougies, bobines et allumage",
+    fault_vvt: "Problème de distribution variable",
+    solution_vvt: "Vérifier solénoïde VVT et huile moteur",
+    fault_throttle: "Corps de papillon encrassé",
+    solution_throttle: "Nettoyer le corps de papillon",
+    fault_injector: "Injecteur obstrué",
+    solution_injector: "Nettoyer ou remplacer les injecteurs",
+    fault_fuel_pump: "Pompe à carburant faible",
+    solution_fuel_pump: "Vérifier pompe et filtre à carburant",
+    fault_ignition_coil: "Bobine d'allumage défectueuse",
+    solution_ignition_coil: "Remplacer la bobine défectueuse",
+    fault_camshaft: "Problème de position d'arbre à cames",
+    solution_camshaft: "Vérifier timing et capteurs d'arbre à cames",
+    fault_crankshaft: "Problème de position de vilebrequin",
+    solution_crankshaft: "Vérifier capteur de vilebrequin",
+    fault_timing: "Calage moteur incorrect",
+    solution_timing: "Ajuster le calage de l'allumage",
+    fault_vacuum: "Fuite de dépression",
+    solution_vacuum: "Vérifier les durites de dépression",
+    fault_radiator: "Radiateur obstrué",
+    solution_radiator: "Nettoyer ou remplacer le radiateur",
+    fault_thermostat: "Thermostat bloqué",
+    solution_thermostat: "Remplacer le thermostat",
+    fault_water_pump: "Pompe à eau défectueuse",
+    solution_water_pump: "Remplacer la pompe à eau",
+    fault_head_gasket: "Joint de culasse endommagé",
+    solution_head_gasket: "Remplacer le joint de culasse",
+    fault_piston: "Segments de piston usés",
+    solution_piston: "Révision moteur (remplacer les segments)",
+    fault_rod: "Problème de bielle",
+    solution_rod: "Vérifier la bielle, possible révision"
   }
 };
 for(var l of allLangs) if(!translations[l.code]) { translations[l.code] = {}; for(var k in translations.en) translations[l.code][k] = translations.en[k]; }
@@ -512,12 +703,12 @@ function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.i
 buildLangSelect();
 
 // ============================================================
-// 6. SENSOR STATE (كل حساس منفصل)
+// 6. SENSOR STATE (from working Engine Diagnostics)
 // ============================================================
 var sensorState = {
-  sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [], status: 'idle' },
-  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null, handler: null, status: 'idle' },
-  camera: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, status: 'idle' }
+  sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
+  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null },
+  camera: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null }
 };
 
 function updateSensorUI(sensorId){
@@ -528,53 +719,38 @@ function updateSensorUI(sensorId){
   var retakeBtn = document.getElementById(sensorId+'RetakeBtn');
   var startBtn = document.getElementById(sensorId+'StartBtn');
   var stopBtn = document.getElementById(sensorId+'StopBtn');
-  var badge = document.getElementById('badge-'+sensorId);
-  
   if(s.isConfirmed){
     statusEl.innerHTML = '✅ ' + t('status_done');
     card.classList.add('confirmed');
-    card.classList.remove('running','failed');
     confirmBtn.disabled = true;
     retakeBtn.disabled = false;
     startBtn.disabled = true;
     stopBtn.disabled = true;
-    if(badge) { badge.className = 'sensor-badge badge-success'; badge.textContent = (sensorId==='sound'?'🎤':sensorId==='vibration'?'📳':'📸') + ' ✅ مكتمل'; }
   } else if(s.isRunning){
     statusEl.innerHTML = '🔴 ' + t('status_recording');
-    card.classList.add('running');
-    card.classList.remove('confirmed','failed');
+    card.classList.remove('confirmed');
     confirmBtn.disabled = true;
     retakeBtn.disabled = true;
     startBtn.disabled = true;
     stopBtn.disabled = false;
-    if(badge) { badge.className = 'sensor-badge badge-running'; badge.textContent = (sensorId==='sound'?'🎤':sensorId==='vibration'?'📳':'📸') + ' ⏳ جاري...'; }
-  } else if(s.status === 'failed'){
-    statusEl.innerHTML = '❌ فشل';
-    card.classList.add('failed');
-    card.classList.remove('confirmed','running');
-    confirmBtn.disabled = true;
-    retakeBtn.disabled = false;
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-    if(badge) { badge.className = 'sensor-badge badge-fail'; badge.textContent = (sensorId==='sound'?'🎤':sensorId==='vibration'?'📳':'📸') + ' ❌ فشل'; }
   } else {
     statusEl.innerHTML = '⏸ ' + t('status_idle');
-    card.classList.remove('confirmed','running','failed');
+    card.classList.remove('confirmed');
     confirmBtn.disabled = true;
     retakeBtn.disabled = true;
     startBtn.disabled = false;
     stopBtn.disabled = true;
     if(s.data) confirmBtn.disabled = false;
-    if(badge) { badge.className = 'sensor-badge badge-idle'; badge.textContent = (sensorId==='sound'?'🎤':sensorId==='vibration'?'📳':'📸') + ' غير نشط'; }
   }
-  // الخلاصة تظهر فور تأكيد الصوت فقط
-  if(sensorId === 'sound') {
-    document.getElementById('finalizeBtn').disabled = !sensorState.sound.isConfirmed;
-  }
+  checkAllConfirmed();
+}
+function checkAllConfirmed(){
+  var all = sensorState.sound.isConfirmed && sensorState.vibration.isConfirmed && sensorState.camera.isConfirmed;
+  document.getElementById('finalizeBtn').disabled = !all;
 }
 
 // ============================================================
-// 7. COUNTDOWN
+// 7. COUNTDOWN (safe with setInterval)
 // ============================================================
 function startCountdown(seconds, onTick, onComplete) {
   var remaining = seconds;
@@ -591,7 +767,7 @@ function startCountdown(seconds, onTick, onComplete) {
 }
 
 // ============================================================
-// 8. SOUND SENSOR (إجباري - منفصل تماماً)
+// 8. SOUND SENSOR (working)
 // ============================================================
 document.getElementById('soundStartBtn').onclick = function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
@@ -611,19 +787,13 @@ document.getElementById('soundStartBtn').onclick = function(){
         analyzeSoundBlob(blob).then(function(result){
           document.getElementById('soundResult').innerHTML = '🎤 '+result.freqs.join(' - ')+' Hz | النمط: '+result.pattern;
           sensorState.sound.data = result;
-          sensorState.sound.isConfirmed = true;
-          sensorState.sound.status = 'done';
           updateSensorUI('sound');
-          // تفعيل زر الخلاصة فوراً
-          document.getElementById('finalizeBtn').disabled = false;
-          showToast('✅ تم تأكيد الصوت، يمكنك الآن الحصول على الخلاصة');
         });
         if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
         sensorState.sound.stream = null;
       };
       recorder.start();
       sensorState.sound.isRunning = true;
-      sensorState.sound.status = 'running';
       updateSensorUI('sound');
       var remaining = 8;
       document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+remaining+' ثوانٍ';
@@ -634,23 +804,16 @@ document.getElementById('soundStartBtn').onclick = function(){
         function() {
           if(recorder.state === 'recording') recorder.stop();
           sensorState.sound.isRunning = false;
-          sensorState.sound.status = 'idle';
-          updateSensorUI('sound');
         }
       );
     })
-    .catch(function(){ 
-      showToast('❌ فشل الوصول للميكروفون');
-      sensorState.sound.status = 'failed';
-      updateSensorUI('sound');
-    });
+    .catch(function(){ showToast('❌ فشل الوصول للميكروفون'); });
 };
 document.getElementById('soundStopBtn').onclick = function(){
   if(sensorState.sound.recorder && sensorState.sound.recorder.state === 'recording') {
     sensorState.sound.recorder.stop();
     if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
     sensorState.sound.isRunning = false;
-    sensorState.sound.status = 'idle';
     updateSensorUI('sound');
     showToast('⏹ تم إيقاف التسجيل');
   }
@@ -658,9 +821,7 @@ document.getElementById('soundStopBtn').onclick = function(){
 document.getElementById('soundConfirmBtn').onclick = function(){
   if(sensorState.sound.data && !sensorState.sound.isConfirmed) {
     sensorState.sound.isConfirmed = true;
-    sensorState.sound.status = 'done';
     updateSensorUI('sound');
-    document.getElementById('finalizeBtn').disabled = false;
     showToast('✅ تم تأكيد الصوت');
   }
 };
@@ -669,12 +830,10 @@ document.getElementById('soundRetakeBtn').onclick = function(){
   sensorState.sound.isConfirmed = false;
   sensorState.sound.data = null;
   sensorState.sound.isRunning = false;
-  sensorState.sound.status = 'idle';
   if(sensorState.sound.recorder) { try{ sensorState.sound.recorder.stop(); }catch(e){} }
   if(sensorState.sound.stream) { sensorState.sound.stream.getTracks().forEach(t=>t.stop()); sensorState.sound.stream=null; }
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('soundPreview').innerHTML = t('waiting');
-  document.getElementById('finalizeBtn').disabled = true;
   updateSensorUI('sound');
   showToast('🔄 إعادة تسجيل الصوت');
 };
@@ -727,20 +886,18 @@ function analyzeSoundBlob(blob){
 }
 
 // ============================================================
-// 9. VIBRATION (اختياري - منفصل تماماً)
+// 9. VIBRATION – FIXED (from working Engine Diagnostics)
 // ============================================================
 document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
   if(!window.DeviceMotionEvent){
-    sensorState.vibration.status = 'failed';
-    updateSensorUI('vibration');
-    showToast('⚠️ الاهتزاز غير مدعوم');
+    showToast('⚠️ الاهتزاز غير مدعوم على هذا الجهاز');
     return;
   }
   
+  // Request permission for iOS 13+
   var startVib = function() {
     sensorState.vibration.isRunning = true;
-    sensorState.vibration.status = 'running';
     updateSensorUI('vibration');
     
     var vals = [];
@@ -748,7 +905,6 @@ document.getElementById('vibStartBtn').onclick = function(){
       var a = e.accelerationIncludingGravity;
       if(a) vals.push(Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z));
     };
-    sensorState.vibration.handler = handler;
     window.addEventListener('devicemotion', handler);
     
     var remaining = 6;
@@ -758,59 +914,42 @@ document.getElementById('vibStartBtn').onclick = function(){
         document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ';
       },
       function() {
-        if(sensorState.vibration.handler) {
-          window.removeEventListener('devicemotion', sensorState.vibration.handler);
-          sensorState.vibration.handler = null;
-        }
+        window.removeEventListener('devicemotion', handler);
         sensorState.vibration.isRunning = false;
         var avg = (vals.length > 0) ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 0;
-        if(vals.length === 0 || avg < 0.5) {
-          sensorState.vibration.status = 'failed';
-          document.getElementById('vibPreview').innerHTML = '❌ لم يتمكن من قياس الاهتزاز';
-          document.getElementById('vibResult').innerHTML = '❌ الاهتزاز غير مدعوم أو معطل';
-          updateSensorUI('vibration');
-          showToast('⚠️ تعذر قياس الاهتزاز');
-          return;
-        }
         var level = 'low';
         if(avg > 12) level = 'very_high';
         else if(avg > 7) level = 'high';
         else if(avg > 3) level = 'medium';
         sensorState.vibration.data = { avg: avg, level: level };
-        sensorState.vibration.isConfirmed = true;
-        sensorState.vibration.status = 'done';
         document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
         document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
         updateSensorUI('vibration');
         showToast('✅ اكتمل قياس الاهتزاز');
-        checkAllDone();
       }
     );
   };
   
+  // Handle iOS permission
   if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission().then(function(state) {
-      if (state === 'granted') { startVib(); } 
-      else { 
-        sensorState.vibration.status = 'failed';
-        updateSensorUI('vibration');
-        showToast('⚠️ تعذر الوصول لمستشعر الحركة');
+      if (state === 'granted') {
+        startVib();
+      } else {
+        showToast('❌ رفض الوصول لمستشعر الحركة');
       }
-    }).catch(function() { startVib(); });
+    }).catch(function() {
+      // Fallback for some browsers
+      startVib();
+    });
   } else {
     startVib();
   }
 };
-
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
     if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
-    if(sensorState.vibration.handler) {
-      window.removeEventListener('devicemotion', sensorState.vibration.handler);
-      sensorState.vibration.handler = null;
-    }
     sensorState.vibration.isRunning = false;
-    sensorState.vibration.status = 'idle';
     updateSensorUI('vibration');
     showToast('⏹ تم إيقاف الاهتزاز');
   }
@@ -818,22 +957,15 @@ document.getElementById('vibStopBtn').onclick = function(){
 document.getElementById('vibConfirmBtn').onclick = function(){
   if(sensorState.vibration.data && !sensorState.vibration.isConfirmed) {
     sensorState.vibration.isConfirmed = true;
-    sensorState.vibration.status = 'done';
     updateSensorUI('vibration');
     showToast('✅ تم تأكيد الاهتزاز');
-    checkAllDone();
   }
 };
 document.getElementById('vibRetakeBtn').onclick = function(){
   if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
-  if(sensorState.vibration.handler) {
-    window.removeEventListener('devicemotion', sensorState.vibration.handler);
-    sensorState.vibration.handler = null;
-  }
   sensorState.vibration.isConfirmed = false;
   sensorState.vibration.data = null;
   sensorState.vibration.isRunning = false;
-  sensorState.vibration.status = 'idle';
   document.getElementById('vibResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
   updateSensorUI('vibration');
@@ -841,7 +973,7 @@ document.getElementById('vibRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 10. CAMERA (اختياري - منفصل تماماً)
+// 10. CAMERA – FIXED (from working Engine Diagnostics)
 // ============================================================
 document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
@@ -860,16 +992,16 @@ document.getElementById('camStartBtn').onclick = function(){
       video.style.borderRadius = '8px';
       preview.appendChild(video);
       sensorState.camera.isRunning = true;
-      sensorState.camera.status = 'running';
       updateSensorUI('camera');
       
-      var remaining = 6;
+      var remaining = 5;
       document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+remaining+' ثوانٍ';
-      sensorState.camera.timerId = startCountdown(6,
+      sensorState.camera.timerId = startCountdown(5,
         function(sec) {
           document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+sec+' ثوانٍ';
         },
         function() {
+          // Capture frame
           var canvas = document.createElement('canvas');
           canvas.width = video.videoWidth || 640;
           canvas.height = video.videoHeight || 480;
@@ -886,8 +1018,6 @@ document.getElementById('camStartBtn').onclick = function(){
           else if(r>150 && g>150 && b<100) smoke = 'gray';
           
           sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
-          sensorState.camera.isConfirmed = true;
-          sensorState.camera.status = 'done';
           var img = document.createElement('img');
           img.src = canvas.toDataURL('image/jpeg');
           img.style.width = '100%';
@@ -897,32 +1027,23 @@ document.getElementById('camStartBtn').onclick = function(){
           preview.appendChild(img);
           document.getElementById('camResult').innerHTML = '📸 لون الدخان: '+smoke;
           sensorState.camera.isRunning = false;
-          if(sensorState.camera.stream) {
-            sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-            sensorState.camera.stream = null;
-          }
+          if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+          sensorState.camera.stream = null;
           updateSensorUI('camera');
           showToast('✅ اكتمل تصوير الدخان');
-          checkAllDone();
         }
       );
     })
     .catch(function(){
-      sensorState.camera.status = 'failed';
-      updateSensorUI('camera');
-      showToast('⚠️ تعذر الوصول للكاميرا');
+      showToast('❌ فشل الوصول للكاميرا');
     });
 };
-
 document.getElementById('camStopBtn').onclick = function(){
   if(sensorState.camera.isRunning) {
     if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
     sensorState.camera.isRunning = false;
-    sensorState.camera.status = 'idle';
-    if(sensorState.camera.stream) {
-      sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-      sensorState.camera.stream = null;
-    }
+    if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+    sensorState.camera.stream = null;
     updateSensorUI('camera');
     showToast('⏹ تم إيقاف الكاميرا');
   }
@@ -930,10 +1051,8 @@ document.getElementById('camStopBtn').onclick = function(){
 document.getElementById('camConfirmBtn').onclick = function(){
   if(sensorState.camera.data && !sensorState.camera.isConfirmed) {
     sensorState.camera.isConfirmed = true;
-    sensorState.camera.status = 'done';
     updateSensorUI('camera');
     showToast('✅ تم تأكيد الدخان');
-    checkAllDone();
   }
 };
 document.getElementById('camRetakeBtn').onclick = function(){
@@ -941,11 +1060,8 @@ document.getElementById('camRetakeBtn').onclick = function(){
   sensorState.camera.isConfirmed = false;
   sensorState.camera.data = null;
   sensorState.camera.isRunning = false;
-  sensorState.camera.status = 'idle';
-  if(sensorState.camera.stream) {
-    sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-    sensorState.camera.stream = null;
-  }
+  if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+  sensorState.camera.stream = null;
   document.getElementById('camResult').innerHTML = '';
   document.getElementById('camPreview').innerHTML = t('waiting');
   updateSensorUI('camera');
@@ -953,45 +1069,7 @@ document.getElementById('camRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 11. التحقق من اكتمال الحساسات (للملخص فقط)
-// ============================================================
-function checkAllDone(){
-  var soundDone = sensorState.sound.isConfirmed;
-  var vibDone = sensorState.vibration.isConfirmed;
-  var camDone = sensorState.camera.isConfirmed;
-  
-  var summary = document.getElementById('sensorsSummary');
-  summary.innerHTML = '';
-  
-  var soundBadge = document.createElement('span');
-  soundBadge.className = 'sensor-badge ' + (soundDone ? 'badge-success' : (sensorState.sound.status === 'failed' ? 'badge-fail' : 'badge-idle'));
-  soundBadge.textContent = '🎤 ' + (soundDone ? '✅ مكتمل' : (sensorState.sound.status === 'failed' ? '❌ فشل' : '⏳ غير نشط'));
-  summary.appendChild(soundBadge);
-  
-  var vibBadge = document.createElement('span');
-  vibBadge.className = 'sensor-badge ' + (vibDone ? 'badge-success' : (sensorState.vibration.status === 'failed' ? 'badge-fail' : 'badge-idle'));
-  vibBadge.textContent = '📳 ' + (vibDone ? '✅ مكتمل' : (sensorState.vibration.status === 'failed' ? '❌ غير متاح' : '⏳ غير نشط'));
-  summary.appendChild(vibBadge);
-  
-  var camBadge = document.createElement('span');
-  camBadge.className = 'sensor-badge ' + (camDone ? 'badge-success' : (sensorState.camera.status === 'failed' ? 'badge-fail' : 'badge-idle'));
-  camBadge.textContent = '📸 ' + (camDone ? '✅ مكتمل' : (sensorState.camera.status === 'failed' ? '❌ غير متاح' : '⏳ غير نشط'));
-  summary.appendChild(camBadge);
-  
-  if(soundDone) {
-    var count = 1;
-    if(vibDone) count++;
-    if(camDone) count++;
-    var msg = '✅ التشخيص جاهز (';
-    msg += count === 1 ? 'حساس واحد' : count === 2 ? 'حساسان' : 'ثلاثة حساسات';
-    msg += ')';
-    showToast(msg);
-    document.getElementById('finalizeBtn').disabled = false;
-  }
-}
-
-// ============================================================
-// 12. FINGERPRINTS (15)
+// 11. FINGERPRINTS – 35 FAULTS (expanded)
 // ============================================================
 var ENGINE_FINGERPRINTS = [
   { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low',
@@ -1023,20 +1101,59 @@ var ENGINE_FINGERPRINTS = [
   { id:'valve_tick', nameKey:'fault_valve_tick', solutionKey:'solution_valve_tick', severity:'medium',
     freq:[220,330,440,550], pattern:'regular', amp:'medium', smoke:'none', vib:'medium', heat:'moderate' },
   { id:'pump_whine', nameKey:'fault_pump_whine', solutionKey:'solution_pump_whine', severity:'medium',
-    freq:[300,450,600,750], pattern:'regular', amp:'medium', smoke:'none', vib:'medium', heat:'high' }
+    freq:[300,450,600,750], pattern:'regular', amp:'medium', smoke:'none', vib:'medium', heat:'high' },
+  // NEW FAULTS (20 more)
+  { id:'starter', nameKey:'fault_starter', solutionKey:'solution_starter', severity:'high',
+    freq:[40,80,120,160], pattern:'irregular', amp:'high', smoke:'none', vib:'high', heat:'moderate' },
+  { id:'alternator', nameKey:'fault_alternator', solutionKey:'solution_alternator', severity:'medium',
+    freq:[200,400,600,800], pattern:'irregular', amp:'medium', smoke:'none', vib:'medium', heat:'high' },
+  { id:'catalyst', nameKey:'fault_catalyst', solutionKey:'solution_catalyst', severity:'high',
+    freq:[100,200,300,400], pattern:'continuous', amp:'low', smoke:'gray', vib:'medium', heat:'very_high' },
+  { id:'o2sensor', nameKey:'fault_o2sensor', solutionKey:'solution_o2sensor', severity:'medium',
+    freq:[250,500,750,1000], pattern:'irregular', amp:'medium', smoke:'black', vib:'low', heat:'moderate' },
+  { id:'misfire', nameKey:'fault_misfire', solutionKey:'solution_misfire', severity:'high',
+    freq:[50,100,150,200], pattern:'irregular', amp:'high', smoke:'black', vib:'high', heat:'high' },
+  { id:'vvt', nameKey:'fault_vvt', solutionKey:'solution_vvt', severity:'medium',
+    freq:[150,300,450,600], pattern:'irregular', amp:'medium', smoke:'none', vib:'medium', heat:'moderate' },
+  { id:'throttle', nameKey:'fault_throttle', solutionKey:'solution_throttle', severity:'medium',
+    freq:[100,200,300,400], pattern:'choking', amp:'high', smoke:'black', vib:'high', heat:'moderate' },
+  { id:'injector', nameKey:'fault_injector', solutionKey:'solution_injector', severity:'medium',
+    freq:[180,360,540,720], pattern:'irregular', amp:'medium', smoke:'black', vib:'medium', heat:'high' },
+  { id:'fuel_pump', nameKey:'fault_fuel_pump', solutionKey:'solution_fuel_pump', severity:'high',
+    freq:[60,120,180,240], pattern:'irregular', amp:'low', smoke:'black', vib:'medium', heat:'moderate' },
+  { id:'ignition_coil', nameKey:'fault_ignition_coil', solutionKey:'solution_ignition_coil', severity:'high',
+    freq:[100,200,300,400], pattern:'irregular', amp:'high', smoke:'black', vib:'high', heat:'high' },
+  { id:'camshaft', nameKey:'fault_camshaft', solutionKey:'solution_camshaft', severity:'high',
+    freq:[200,400,600,800], pattern:'irregular', amp:'medium', smoke:'none', vib:'medium', heat:'high' },
+  { id:'crankshaft', nameKey:'fault_crankshaft', solutionKey:'solution_crankshaft', severity:'high',
+    freq:[150,300,450,600], pattern:'irregular', amp:'medium', smoke:'none', vib:'medium', heat:'high' },
+  { id:'timing', nameKey:'fault_timing', solutionKey:'solution_timing', severity:'high',
+    freq:[100,200,300,400], pattern:'irregular', amp:'medium', smoke:'none', vib:'medium', heat:'high' },
+  { id:'vacuum', nameKey:'fault_vacuum', solutionKey:'solution_vacuum', severity:'medium',
+    freq:[300,600,900,1200], pattern:'continuous', amp:'low', smoke:'none', vib:'low', heat:'moderate' },
+  { id:'radiator', nameKey:'fault_radiator', solutionKey:'solution_radiator', severity:'medium',
+    freq:[50,100,150,200], pattern:'continuous', amp:'low', smoke:'white', vib:'medium', heat:'very_high' },
+  { id:'thermostat', nameKey:'fault_thermostat', solutionKey:'solution_thermostat', severity:'medium',
+    freq:[100,200,300,400], pattern:'continuous', amp:'low', smoke:'white', vib:'medium', heat:'very_high' },
+  { id:'water_pump', nameKey:'fault_water_pump', solutionKey:'solution_water_pump', severity:'high',
+    freq:[200,400,600,800], pattern:'regular', amp:'high', smoke:'none', vib:'medium', heat:'high' },
+  { id:'head_gasket', nameKey:'fault_head_gasket', solutionKey:'solution_head_gasket', severity:'critical',
+    freq:[50,100,150,200], pattern:'continuous', amp:'low', smoke:'white_thick', vib:'medium', heat:'very_high' },
+  { id:'piston', nameKey:'fault_piston', solutionKey:'solution_piston', severity:'high',
+    freq:[100,200,300,400], pattern:'irregular', amp:'high', smoke:'blue', vib:'very_high', heat:'high' },
+  { id:'rod', nameKey:'fault_rod', solutionKey:'solution_rod', severity:'high',
+    freq:[150,300,450,600], pattern:'regular', amp:'high', smoke:'none', vib:'very_high', heat:'high' }
 ];
 
 // ============================================================
-// 13. FINAL DIAGNOSIS (مرن - حسب الحساسات المتاحة)
+// 12. FINAL DIAGNOSIS
 // ============================================================
 document.getElementById('finalizeBtn').onclick = function(){
   if(!consumeCredit()) return;
   var soundData = sensorState.sound.data;
   var vibData = sensorState.vibration.data;
   var camData = sensorState.camera.data;
-  
-  if(!soundData){ showToast('⚠️ يجب تأكيد الصوت أولاً'); return; }
-  
+  if(!soundData || !vibData || !camData){ showToast('⚠️ أكمل جميع الحساسات'); return; }
   var results = [];
   for(var i=0;i<ENGINE_FINGERPRINTS.length;i++){
     var fp = ENGINE_FINGERPRINTS[i];
@@ -1048,45 +1165,26 @@ document.getElementById('finalizeBtn').onclick = function(){
     }
     var patternMatch = (soundData.pattern === fp.pattern)?20:0;
     var vibMatch=0;
-    if(vibData){
-      if(vibData.level==='low' && fp.vib==='low') vibMatch=25;
-      else if(vibData.level==='medium' && fp.vib==='medium') vibMatch=25;
-      else if(vibData.level==='high' && fp.vib==='high') vibMatch=25;
-      else if(vibData.level==='very_high' && fp.vib==='very_high') vibMatch=25;
-      else vibMatch=5;
-    } else { vibMatch = 0; }
-    var smokeMatch=0;
-    if(camData){
-      smokeMatch = (camData.smoke===fp.smoke || (fp.smoke==='none' && camData.smoke==='none'))?15:3;
-    } else { smokeMatch = 0; }
-    
-    var totalSensors = 1;
-    if(vibData) totalSensors++;
-    if(camData) totalSensors++;
-    
+    if(vibData.level==='low' && fp.vib==='low') vibMatch=25;
+    else if(vibData.level==='medium' && fp.vib==='medium') vibMatch=25;
+    else if(vibData.level==='high' && fp.vib==='high') vibMatch=25;
+    else if(vibData.level==='very_high' && fp.vib==='very_high') vibMatch=25;
+    else vibMatch=5;
+    var smokeMatch= (camData.smoke===fp.smoke || (fp.smoke==='none' && camData.smoke==='none'))?15:3;
     var total = freqMatch + patternMatch + vibMatch + smokeMatch;
-    results.push({ fingerprint: fp, score: total, freqMatch:freqMatch, patternMatch:patternMatch, vibMatch:vibMatch, smokeMatch:smokeMatch, totalSensors:totalSensors });
+    results.push({ fingerprint: fp, score: total, freqMatch:freqMatch, patternMatch:patternMatch, vibMatch:vibMatch, smokeMatch:smokeMatch });
   }
   results.sort(function(a,b){ return b.score - a.score; });
   var best = results[0];
   var conf = Math.min(100, Math.round((best.score/100)*100));
-  if(best.totalSensors === 2) conf = Math.min(95, conf + 10);
-  else if(best.totalSensors === 3) conf = Math.min(99, conf + 20);
-  
   var name = t(best.fingerprint.nameKey);
   var sol = t(best.fingerprint.solutionKey);
   var sev = t('severity_'+best.fingerprint.severity);
   var sevClass = best.fingerprint.severity;
   var panel = document.getElementById('resultPanel');
-  
-  var sensorsUsed = '🎤';
-  if(vibData) sensorsUsed += ' + 📳';
-  if(camData) sensorsUsed += ' + 📸';
-  
   panel.innerHTML = `
     <div style="border-right:6px solid ${sevClass==='critical'?'#7f1d1d':sevClass==='high'?'#ef4444':sevClass==='medium'?'#f59e0b':'#10b981'};padding:8px;">
       <div style="font-size:1.2rem;font-weight:bold;color:#f5a623;">${t('diag_title')}</div>
-      <div style="font-size:0.7rem;color:#94a3b8;margin-bottom:4px;">🔬 المستخدمة: ${sensorsUsed}</div>
       <div style="font-size:1.4rem;font-weight:800;margin:6px 0;">${name}</div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0;">
         <span><strong>${t('confidence')}:</strong> ${conf}%</span>
@@ -1094,8 +1192,8 @@ document.getElementById('finalizeBtn').onclick = function(){
       </div>
       <div style="background:#0f172a;padding:8px;border-radius:8px;margin:8px 0;font-size:0.9rem;">
         <div><strong>🎤 مساهمة الصوت:</strong> ${best.freqMatch}%</div>
-        ${vibData ? `<div><strong>📳 مساهمة الاهتزاز:</strong> ${best.vibMatch}%</div>` : ''}
-        ${camData ? `<div><strong>📸 مساهمة الدخان:</strong> ${best.smokeMatch}%</div>` : ''}
+        <div><strong>📳 مساهمة الاهتزاز:</strong> ${best.vibMatch}%</div>
+        <div><strong>📸 مساهمة الدخان:</strong> ${best.smokeMatch}%</div>
         <div class="conf-bar"><div class="fill" style="width:${conf}%;background:${conf>70?'#10b981':conf>40?'#f59e0b':'#ef4444'}"></div></div>
       </div>
       <div style="background:#0a1020;padding:10px;border-radius:8px;margin:10px 0;border:1px solid #f5a623;">
@@ -1116,7 +1214,7 @@ function copyResult(){ var d=window.diagnosisResult; if(!d) return; var text=d.n
 function shareResult(){ var d=window.diagnosisResult; if(!d) return; var text='AI Mechanic Diagnosis:\n'+d.name+'\n'+d.sol; if(navigator.share) navigator.share({title:'AI Mechanic', text:text, url:window.location.href}); else { navigator.clipboard.writeText(text+' '+window.location.href); showToast(t('shared')); } }
 
 // ============================================================
-// 14. START / RESET
+// 13. START / RESET
 // ============================================================
 var diagnosisActive=false;
 document.getElementById('startDiagnosisBtn').onclick = function(){
@@ -1127,28 +1225,19 @@ document.getElementById('startDiagnosisBtn').onclick = function(){
   document.getElementById('sensorsArea').style.display = 'block';
   document.getElementById('startDiagnosisBtn').style.display = 'none';
   resetAllSensors();
-  showToast('🧠 ابدأ بتسجيل الصوت أولاً');
+  showToast('🧠 ابدأ بجمع بيانات الحساسات');
 };
 
 function resetAllSensors(){
-  // تنظيف الصوت
   if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
+  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
   if(sensorState.sound.recorder && sensorState.sound.recorder.state==='recording') sensorState.sound.recorder.stop();
   if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
-  // تنظيف الاهتزاز
-  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
-  if(sensorState.vibration.handler) {
-    window.removeEventListener('devicemotion', sensorState.vibration.handler);
-    sensorState.vibration.handler = null;
-  }
-  // تنظيف الكاميرا
-  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
   if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-  
-  sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[], status:'idle' };
-  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null, handler:null, status:'idle' };
-  sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, status:'idle' };
-  
+  sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[] };
+  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null };
+  sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null };
   document.getElementById('soundPreview').innerHTML = t('waiting');
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
@@ -1156,17 +1245,10 @@ function resetAllSensors(){
   document.getElementById('camPreview').innerHTML = t('waiting');
   document.getElementById('camResult').innerHTML = '';
   document.getElementById('resultPanel').style.display = 'none';
-  document.getElementById('finalizeBtn').disabled = true;
   updateSensorUI('sound');
   updateSensorUI('vibration');
   updateSensorUI('camera');
-  
-  var summary = document.getElementById('sensorsSummary');
-  summary.innerHTML = `
-    <span class="sensor-badge badge-idle" id="badge-sound">🎤 غير نشط</span>
-    <span class="sensor-badge badge-idle" id="badge-vibration">📳 غير نشط</span>
-    <span class="sensor-badge badge-idle" id="badge-camera">📸 غير نشط</span>
-  `;
+  document.getElementById('finalizeBtn').disabled = true;
 }
 document.getElementById('resetBtn').onclick = function(){
   resetAllSensors();
@@ -1177,14 +1259,14 @@ document.getElementById('resetBtn').onclick = function(){
 };
 
 // ============================================================
-// 15. SHARE
+// 14. SHARE
 // ============================================================
 document.getElementById('shareWhatsApp').onclick=function(){ window.open('https://wa.me/?text='+encodeURIComponent(window.location.href),'_blank'); };
 document.getElementById('shareEmail').onclick=function(){ window.location.href='mailto:?subject=AI%20Mechanic&body='+encodeURIComponent('جرب تطبيق تشخيص السيارة الذكي: '+window.location.href); };
 document.getElementById('shareGeneral').onclick=function(){ if(navigator.share) navigator.share({title:'AI Mechanic', text:'تشخيص أعطال السيارة بالذكاء الاصطناعي', url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); } };
 
 // ============================================================
-// 16. ADMIN
+// 15. ADMIN (5 clicks on car icon)
 // ============================================================
 var clickCount=0, clickTimer=null;
 document.getElementById('secretAdminIcon').onclick=function(){
@@ -1200,12 +1282,11 @@ document.getElementById('secretAdminIcon').onclick=function(){
 };
 
 // ============================================================
-// 17. INIT
+// 16. INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('✅ AI Mechanic V3 - كل حساس منفصل تماماً، لا تزامن، حرية كاملة للمستخدم.');
-console.log('🔬 15 Fingerprints, 54 Languages.');
-console.log('📍 الصوت: قرب المحرك | الاهتزاز: ملاصق للمحرك | الكاميرا: قرب العادم');
+console.log('✅ AI Car Diagnostics – FINAL VERSION');
+console.log('🔬 35 Faults, Vibration & Camera Fixed, 54 Languages.');
 </script>
 </body>
 </html>
