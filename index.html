@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>AI Mechanic – المخبر الفيزيائي الناطق</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AI Mechanic – تشخيص المحرك بالصوت</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -34,6 +34,8 @@
     .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
     .sensor-card{background:#1e2a3e;border-radius:1.5rem;padding:12px;margin:10px 0;border:2px solid #3b82f6;transition:0.3s}
     .sensor-card.confirmed{border-color:#10b981}
+    .sensor-card.failed{border-color:#ef4444}
+    .sensor-card.running{border-color:#f59e0b}
     .sensor-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
     .sensor-icon{font-size:1.6rem;color:#f5a623}
     .sensor-title{font-weight:bold;font-size:0.95rem}
@@ -52,10 +54,11 @@
     .result-area{background:#0a1020;border-radius:1.5rem;margin:10px 0;padding:14px;border:2px solid #f5a623;display:none}
     .action-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
     .action-btn{flex:1;background:#2d3a4e;padding:6px;border-radius:40px;text-align:center;cursor:pointer;font-size:0.65rem;border:none;color:#fff;min-width:60px}
-    .danger-low{background:#10b981;color:#000;display:inline-block;padding:2px 10px;border-radius:30px}
-    .danger-medium{background:#f59e0b;color:#000}
-    .danger-high{background:#ef4444;color:#fff}
-    .danger-critical{background:#7f1d1d;color:#fff}
+    .sensor-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.6rem;margin:2px}
+    .badge-success{background:#10b981;color:#000}
+    .badge-fail{background:#ef4444;color:#fff}
+    .badge-running{background:#f59e0b;color:#000}
+    .badge-idle{background:#1e293b;color:#94a3b8}
     .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#f97316;padding:4px 14px;border-radius:30px;opacity:0;transition:0.2s;z-index:999;font-weight:bold;color:#000;font-size:0.8rem}
     .toast.show{opacity:1}
     .share-buttons{display:flex;justify-content:center;gap:8px;margin-top:6px;flex-wrap:wrap}
@@ -64,8 +67,8 @@
     .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
     .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
     #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
-    .sensor-preview .recording-indicator{color:#ef4444;font-weight:bold;animation:blink 0.8s infinite}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+    .sensors-summary{margin:8px 0;padding:6px;background:#0a1020;border-radius:12px;font-size:0.7rem;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .location-note{font-size:0.6rem;color:#94a3b8;margin:2px 0}
   </style>
 </head>
 <body>
@@ -117,13 +120,14 @@
 
   <div id="sensorsArea" style="display:none;">
 
-    <!-- SOUND -->
+    <!-- SOUND (إجباري) -->
     <div class="sensor-card" id="sensor-sound">
       <div class="sensor-header">
         <i class="fas fa-microphone sensor-icon"></i>
         <span class="sensor-title" id="soundName">🎤 الميكروفون</span>
         <span class="sensor-status" id="soundStatus">⏸ غير نشط</span>
       </div>
+      <div class="location-note">📍 مكانه: قريب من المحرك (20 سم)</div>
       <div class="sensor-instr" id="soundInstr">ضع الهاتف على بعد 20 سم من المحرك</div>
       <div class="sensor-preview" id="soundPreview">⏳ انتظر...</div>
       <div class="sensor-result" id="soundResult"></div>
@@ -135,13 +139,14 @@
       </div>
     </div>
 
-    <!-- VIBRATION -->
+    <!-- VIBRATION (اختياري - منفصل) -->
     <div class="sensor-card" id="sensor-vibration">
       <div class="sensor-header">
         <i class="fas fa-vibrate sensor-icon"></i>
         <span class="sensor-title" id="vibName">📳 الاهتزاز</span>
         <span class="sensor-status" id="vibStatus">⏸ غير نشط</span>
       </div>
+      <div class="location-note">📍 مكانه: ملاصق للمحرك (على خرقة)</div>
       <div class="sensor-instr" id="vibInstr">ضع الهاتف على خرقة فوق المحرك</div>
       <div class="sensor-preview" id="vibPreview">⏳ انتظر...</div>
       <div class="sensor-result" id="vibResult"></div>
@@ -153,13 +158,14 @@
       </div>
     </div>
 
-    <!-- CAMERA -->
+    <!-- CAMERA (اختياري - منفصل) -->
     <div class="sensor-card" id="sensor-camera">
       <div class="sensor-header">
         <i class="fas fa-camera sensor-icon"></i>
         <span class="sensor-title" id="camName">📸 الكاميرا (الدخان)</span>
         <span class="sensor-status" id="camStatus">⏸ غير نشط</span>
       </div>
+      <div class="location-note">📍 مكانه: مؤخرة السيارة (قرب العادم)</div>
       <div class="sensor-instr" id="camInstr">صوّر عادم السيارة من المؤخرة</div>
       <div class="sensor-preview" id="camPreview">⏳ انتظر...</div>
       <div class="sensor-result" id="camResult"></div>
@@ -169,6 +175,13 @@
         <button id="camConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
         <button id="camRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
       </div>
+    </div>
+
+    <!-- ملخص الحساسات -->
+    <div class="sensors-summary" id="sensorsSummary">
+      <span class="sensor-badge badge-idle" id="badge-sound">🎤 غير نشط</span>
+      <span class="sensor-badge badge-idle" id="badge-vibration">📳 غير نشط</span>
+      <span class="sensor-badge badge-idle" id="badge-camera">📸 غير نشط</span>
     </div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">
@@ -253,7 +266,7 @@ var allLangs = [
 var BCP_MAP = { ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN" };
 
 // ============================================================
-// 2. TRANSLATIONS (مختصر للعربية والإنجليزية)
+// 2. TRANSLATIONS (مختصر)
 // ============================================================
 var translations = {
   ar: {
@@ -499,12 +512,12 @@ function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.i
 buildLangSelect();
 
 // ============================================================
-// 6. SENSOR STATE
+// 6. SENSOR STATE (كل حساس منفصل)
 // ============================================================
 var sensorState = {
-  sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
-  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null, handler: null },
-  camera: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null }
+  sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [], status: 'idle' },
+  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null, handler: null, status: 'idle' },
+  camera: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, status: 'idle' }
 };
 
 function updateSensorUI(sensorId){
@@ -515,38 +528,53 @@ function updateSensorUI(sensorId){
   var retakeBtn = document.getElementById(sensorId+'RetakeBtn');
   var startBtn = document.getElementById(sensorId+'StartBtn');
   var stopBtn = document.getElementById(sensorId+'StopBtn');
+  var badge = document.getElementById('badge-'+sensorId);
+  
   if(s.isConfirmed){
     statusEl.innerHTML = '✅ ' + t('status_done');
     card.classList.add('confirmed');
+    card.classList.remove('running','failed');
     confirmBtn.disabled = true;
     retakeBtn.disabled = false;
     startBtn.disabled = true;
     stopBtn.disabled = true;
+    if(badge) { badge.className = 'sensor-badge badge-success'; badge.textContent = (sensorId==='sound'?'🎤':sensorId==='vibration'?'📳':'📸') + ' ✅ مكتمل'; }
   } else if(s.isRunning){
     statusEl.innerHTML = '🔴 ' + t('status_recording');
-    card.classList.remove('confirmed');
+    card.classList.add('running');
+    card.classList.remove('confirmed','failed');
     confirmBtn.disabled = true;
     retakeBtn.disabled = true;
     startBtn.disabled = true;
     stopBtn.disabled = false;
+    if(badge) { badge.className = 'sensor-badge badge-running'; badge.textContent = (sensorId==='sound'?'🎤':sensorId==='vibration'?'📳':'📸') + ' ⏳ جاري...'; }
+  } else if(s.status === 'failed'){
+    statusEl.innerHTML = '❌ فشل';
+    card.classList.add('failed');
+    card.classList.remove('confirmed','running');
+    confirmBtn.disabled = true;
+    retakeBtn.disabled = false;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    if(badge) { badge.className = 'sensor-badge badge-fail'; badge.textContent = (sensorId==='sound'?'🎤':sensorId==='vibration'?'📳':'📸') + ' ❌ فشل'; }
   } else {
     statusEl.innerHTML = '⏸ ' + t('status_idle');
-    card.classList.remove('confirmed');
+    card.classList.remove('confirmed','running','failed');
     confirmBtn.disabled = true;
     retakeBtn.disabled = true;
     startBtn.disabled = false;
     stopBtn.disabled = true;
     if(s.data) confirmBtn.disabled = false;
+    if(badge) { badge.className = 'sensor-badge badge-idle'; badge.textContent = (sensorId==='sound'?'🎤':sensorId==='vibration'?'📳':'📸') + ' غير نشط'; }
   }
-  checkAllConfirmed();
-}
-function checkAllConfirmed(){
-  var all = sensorState.sound.isConfirmed && sensorState.vibration.isConfirmed && sensorState.camera.isConfirmed;
-  document.getElementById('finalizeBtn').disabled = !all;
+  // الخلاصة تظهر فور تأكيد الصوت فقط
+  if(sensorId === 'sound') {
+    document.getElementById('finalizeBtn').disabled = !sensorState.sound.isConfirmed;
+  }
 }
 
 // ============================================================
-// 7. COUNTDOWN (safe with setInterval)
+// 7. COUNTDOWN
 // ============================================================
 function startCountdown(seconds, onTick, onComplete) {
   var remaining = seconds;
@@ -563,7 +591,7 @@ function startCountdown(seconds, onTick, onComplete) {
 }
 
 // ============================================================
-// 8. SOUND SENSOR
+// 8. SOUND SENSOR (إجباري - منفصل تماماً)
 // ============================================================
 document.getElementById('soundStartBtn').onclick = function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
@@ -583,13 +611,19 @@ document.getElementById('soundStartBtn').onclick = function(){
         analyzeSoundBlob(blob).then(function(result){
           document.getElementById('soundResult').innerHTML = '🎤 '+result.freqs.join(' - ')+' Hz | النمط: '+result.pattern;
           sensorState.sound.data = result;
+          sensorState.sound.isConfirmed = true;
+          sensorState.sound.status = 'done';
           updateSensorUI('sound');
+          // تفعيل زر الخلاصة فوراً
+          document.getElementById('finalizeBtn').disabled = false;
+          showToast('✅ تم تأكيد الصوت، يمكنك الآن الحصول على الخلاصة');
         });
         if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
         sensorState.sound.stream = null;
       };
       recorder.start();
       sensorState.sound.isRunning = true;
+      sensorState.sound.status = 'running';
       updateSensorUI('sound');
       var remaining = 8;
       document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+remaining+' ثوانٍ';
@@ -600,16 +634,23 @@ document.getElementById('soundStartBtn').onclick = function(){
         function() {
           if(recorder.state === 'recording') recorder.stop();
           sensorState.sound.isRunning = false;
+          sensorState.sound.status = 'idle';
+          updateSensorUI('sound');
         }
       );
     })
-    .catch(function(){ showToast('❌ فشل الوصول للميكروفون'); });
+    .catch(function(){ 
+      showToast('❌ فشل الوصول للميكروفون');
+      sensorState.sound.status = 'failed';
+      updateSensorUI('sound');
+    });
 };
 document.getElementById('soundStopBtn').onclick = function(){
   if(sensorState.sound.recorder && sensorState.sound.recorder.state === 'recording') {
     sensorState.sound.recorder.stop();
     if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
     sensorState.sound.isRunning = false;
+    sensorState.sound.status = 'idle';
     updateSensorUI('sound');
     showToast('⏹ تم إيقاف التسجيل');
   }
@@ -617,7 +658,9 @@ document.getElementById('soundStopBtn').onclick = function(){
 document.getElementById('soundConfirmBtn').onclick = function(){
   if(sensorState.sound.data && !sensorState.sound.isConfirmed) {
     sensorState.sound.isConfirmed = true;
+    sensorState.sound.status = 'done';
     updateSensorUI('sound');
+    document.getElementById('finalizeBtn').disabled = false;
     showToast('✅ تم تأكيد الصوت');
   }
 };
@@ -626,10 +669,12 @@ document.getElementById('soundRetakeBtn').onclick = function(){
   sensorState.sound.isConfirmed = false;
   sensorState.sound.data = null;
   sensorState.sound.isRunning = false;
+  sensorState.sound.status = 'idle';
   if(sensorState.sound.recorder) { try{ sensorState.sound.recorder.stop(); }catch(e){} }
   if(sensorState.sound.stream) { sensorState.sound.stream.getTracks().forEach(t=>t.stop()); sensorState.sound.stream=null; }
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('soundPreview').innerHTML = t('waiting');
+  document.getElementById('finalizeBtn').disabled = true;
   updateSensorUI('sound');
   showToast('🔄 إعادة تسجيل الصوت');
 };
@@ -682,17 +727,20 @@ function analyzeSoundBlob(blob){
 }
 
 // ============================================================
-// 9. VIBRATION – FIXED: now works reliably with proper cleanup
+// 9. VIBRATION (اختياري - منفصل تماماً)
 // ============================================================
 document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
   if(!window.DeviceMotionEvent){
-    showToast('⚠️ الاهتزاز غير مدعوم على هذا الجهاز');
+    sensorState.vibration.status = 'failed';
+    updateSensorUI('vibration');
+    showToast('⚠️ الاهتزاز غير مدعوم');
     return;
   }
   
   var startVib = function() {
     sensorState.vibration.isRunning = true;
+    sensorState.vibration.status = 'running';
     updateSensorUI('vibration');
     
     var vals = [];
@@ -700,7 +748,6 @@ document.getElementById('vibStartBtn').onclick = function(){
       var a = e.accelerationIncludingGravity;
       if(a) vals.push(Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z));
     };
-    // Store handler for cleanup
     sensorState.vibration.handler = handler;
     window.addEventListener('devicemotion', handler);
     
@@ -711,41 +758,50 @@ document.getElementById('vibStartBtn').onclick = function(){
         document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ';
       },
       function() {
-        // Clean up event listener
         if(sensorState.vibration.handler) {
           window.removeEventListener('devicemotion', sensorState.vibration.handler);
           sensorState.vibration.handler = null;
         }
         sensorState.vibration.isRunning = false;
         var avg = (vals.length > 0) ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 0;
+        if(vals.length === 0 || avg < 0.5) {
+          sensorState.vibration.status = 'failed';
+          document.getElementById('vibPreview').innerHTML = '❌ لم يتمكن من قياس الاهتزاز';
+          document.getElementById('vibResult').innerHTML = '❌ الاهتزاز غير مدعوم أو معطل';
+          updateSensorUI('vibration');
+          showToast('⚠️ تعذر قياس الاهتزاز');
+          return;
+        }
         var level = 'low';
         if(avg > 12) level = 'very_high';
         else if(avg > 7) level = 'high';
         else if(avg > 3) level = 'medium';
         sensorState.vibration.data = { avg: avg, level: level };
+        sensorState.vibration.isConfirmed = true;
+        sensorState.vibration.status = 'done';
         document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
         document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
         updateSensorUI('vibration');
         showToast('✅ اكتمل قياس الاهتزاز');
+        checkAllDone();
       }
     );
   };
   
-  // Handle iOS permission
   if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission().then(function(state) {
-      if (state === 'granted') {
-        startVib();
-      } else {
-        showToast('❌ رفض الوصول لمستشعر الحركة');
+      if (state === 'granted') { startVib(); } 
+      else { 
+        sensorState.vibration.status = 'failed';
+        updateSensorUI('vibration');
+        showToast('⚠️ تعذر الوصول لمستشعر الحركة');
       }
-    }).catch(function() {
-      startVib();
-    });
+    }).catch(function() { startVib(); });
   } else {
     startVib();
   }
 };
+
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
     if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
@@ -754,6 +810,7 @@ document.getElementById('vibStopBtn').onclick = function(){
       sensorState.vibration.handler = null;
     }
     sensorState.vibration.isRunning = false;
+    sensorState.vibration.status = 'idle';
     updateSensorUI('vibration');
     showToast('⏹ تم إيقاف الاهتزاز');
   }
@@ -761,8 +818,10 @@ document.getElementById('vibStopBtn').onclick = function(){
 document.getElementById('vibConfirmBtn').onclick = function(){
   if(sensorState.vibration.data && !sensorState.vibration.isConfirmed) {
     sensorState.vibration.isConfirmed = true;
+    sensorState.vibration.status = 'done';
     updateSensorUI('vibration');
     showToast('✅ تم تأكيد الاهتزاز');
+    checkAllDone();
   }
 };
 document.getElementById('vibRetakeBtn').onclick = function(){
@@ -774,6 +833,7 @@ document.getElementById('vibRetakeBtn').onclick = function(){
   sensorState.vibration.isConfirmed = false;
   sensorState.vibration.data = null;
   sensorState.vibration.isRunning = false;
+  sensorState.vibration.status = 'idle';
   document.getElementById('vibResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
   updateSensorUI('vibration');
@@ -781,7 +841,7 @@ document.getElementById('vibRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 10. CAMERA – FIXED: now stops automatically after 6 seconds
+// 10. CAMERA (اختياري - منفصل تماماً)
 // ============================================================
 document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
@@ -800,6 +860,7 @@ document.getElementById('camStartBtn').onclick = function(){
       video.style.borderRadius = '8px';
       preview.appendChild(video);
       sensorState.camera.isRunning = true;
+      sensorState.camera.status = 'running';
       updateSensorUI('camera');
       
       var remaining = 6;
@@ -809,7 +870,6 @@ document.getElementById('camStartBtn').onclick = function(){
           document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+sec+' ثوانٍ';
         },
         function() {
-          // Capture frame from video
           var canvas = document.createElement('canvas');
           canvas.width = video.videoWidth || 640;
           canvas.height = video.videoHeight || 480;
@@ -826,6 +886,8 @@ document.getElementById('camStartBtn').onclick = function(){
           else if(r>150 && g>150 && b<100) smoke = 'gray';
           
           sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
+          sensorState.camera.isConfirmed = true;
+          sensorState.camera.status = 'done';
           var img = document.createElement('img');
           img.src = canvas.toDataURL('image/jpeg');
           img.style.width = '100%';
@@ -841,17 +903,22 @@ document.getElementById('camStartBtn').onclick = function(){
           }
           updateSensorUI('camera');
           showToast('✅ اكتمل تصوير الدخان');
+          checkAllDone();
         }
       );
     })
     .catch(function(){
-      showToast('❌ فشل الوصول للكاميرا');
+      sensorState.camera.status = 'failed';
+      updateSensorUI('camera');
+      showToast('⚠️ تعذر الوصول للكاميرا');
     });
 };
+
 document.getElementById('camStopBtn').onclick = function(){
   if(sensorState.camera.isRunning) {
     if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
     sensorState.camera.isRunning = false;
+    sensorState.camera.status = 'idle';
     if(sensorState.camera.stream) {
       sensorState.camera.stream.getTracks().forEach(t=>t.stop());
       sensorState.camera.stream = null;
@@ -863,8 +930,10 @@ document.getElementById('camStopBtn').onclick = function(){
 document.getElementById('camConfirmBtn').onclick = function(){
   if(sensorState.camera.data && !sensorState.camera.isConfirmed) {
     sensorState.camera.isConfirmed = true;
+    sensorState.camera.status = 'done';
     updateSensorUI('camera');
     showToast('✅ تم تأكيد الدخان');
+    checkAllDone();
   }
 };
 document.getElementById('camRetakeBtn').onclick = function(){
@@ -872,6 +941,7 @@ document.getElementById('camRetakeBtn').onclick = function(){
   sensorState.camera.isConfirmed = false;
   sensorState.camera.data = null;
   sensorState.camera.isRunning = false;
+  sensorState.camera.status = 'idle';
   if(sensorState.camera.stream) {
     sensorState.camera.stream.getTracks().forEach(t=>t.stop());
     sensorState.camera.stream = null;
@@ -883,7 +953,45 @@ document.getElementById('camRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 11. FINGERPRINTS (15)
+// 11. التحقق من اكتمال الحساسات (للملخص فقط)
+// ============================================================
+function checkAllDone(){
+  var soundDone = sensorState.sound.isConfirmed;
+  var vibDone = sensorState.vibration.isConfirmed;
+  var camDone = sensorState.camera.isConfirmed;
+  
+  var summary = document.getElementById('sensorsSummary');
+  summary.innerHTML = '';
+  
+  var soundBadge = document.createElement('span');
+  soundBadge.className = 'sensor-badge ' + (soundDone ? 'badge-success' : (sensorState.sound.status === 'failed' ? 'badge-fail' : 'badge-idle'));
+  soundBadge.textContent = '🎤 ' + (soundDone ? '✅ مكتمل' : (sensorState.sound.status === 'failed' ? '❌ فشل' : '⏳ غير نشط'));
+  summary.appendChild(soundBadge);
+  
+  var vibBadge = document.createElement('span');
+  vibBadge.className = 'sensor-badge ' + (vibDone ? 'badge-success' : (sensorState.vibration.status === 'failed' ? 'badge-fail' : 'badge-idle'));
+  vibBadge.textContent = '📳 ' + (vibDone ? '✅ مكتمل' : (sensorState.vibration.status === 'failed' ? '❌ غير متاح' : '⏳ غير نشط'));
+  summary.appendChild(vibBadge);
+  
+  var camBadge = document.createElement('span');
+  camBadge.className = 'sensor-badge ' + (camDone ? 'badge-success' : (sensorState.camera.status === 'failed' ? 'badge-fail' : 'badge-idle'));
+  camBadge.textContent = '📸 ' + (camDone ? '✅ مكتمل' : (sensorState.camera.status === 'failed' ? '❌ غير متاح' : '⏳ غير نشط'));
+  summary.appendChild(camBadge);
+  
+  if(soundDone) {
+    var count = 1;
+    if(vibDone) count++;
+    if(camDone) count++;
+    var msg = '✅ التشخيص جاهز (';
+    msg += count === 1 ? 'حساس واحد' : count === 2 ? 'حساسان' : 'ثلاثة حساسات';
+    msg += ')';
+    showToast(msg);
+    document.getElementById('finalizeBtn').disabled = false;
+  }
+}
+
+// ============================================================
+// 12. FINGERPRINTS (15)
 // ============================================================
 var ENGINE_FINGERPRINTS = [
   { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low',
@@ -919,14 +1027,16 @@ var ENGINE_FINGERPRINTS = [
 ];
 
 // ============================================================
-// 12. FINAL DIAGNOSIS
+// 13. FINAL DIAGNOSIS (مرن - حسب الحساسات المتاحة)
 // ============================================================
 document.getElementById('finalizeBtn').onclick = function(){
   if(!consumeCredit()) return;
   var soundData = sensorState.sound.data;
   var vibData = sensorState.vibration.data;
   var camData = sensorState.camera.data;
-  if(!soundData || !vibData || !camData){ showToast('⚠️ أكمل جميع الحساسات'); return; }
+  
+  if(!soundData){ showToast('⚠️ يجب تأكيد الصوت أولاً'); return; }
+  
   var results = [];
   for(var i=0;i<ENGINE_FINGERPRINTS.length;i++){
     var fp = ENGINE_FINGERPRINTS[i];
@@ -938,26 +1048,45 @@ document.getElementById('finalizeBtn').onclick = function(){
     }
     var patternMatch = (soundData.pattern === fp.pattern)?20:0;
     var vibMatch=0;
-    if(vibData.level==='low' && fp.vib==='low') vibMatch=25;
-    else if(vibData.level==='medium' && fp.vib==='medium') vibMatch=25;
-    else if(vibData.level==='high' && fp.vib==='high') vibMatch=25;
-    else if(vibData.level==='very_high' && fp.vib==='very_high') vibMatch=25;
-    else vibMatch=5;
-    var smokeMatch= (camData.smoke===fp.smoke || (fp.smoke==='none' && camData.smoke==='none'))?15:3;
+    if(vibData){
+      if(vibData.level==='low' && fp.vib==='low') vibMatch=25;
+      else if(vibData.level==='medium' && fp.vib==='medium') vibMatch=25;
+      else if(vibData.level==='high' && fp.vib==='high') vibMatch=25;
+      else if(vibData.level==='very_high' && fp.vib==='very_high') vibMatch=25;
+      else vibMatch=5;
+    } else { vibMatch = 0; }
+    var smokeMatch=0;
+    if(camData){
+      smokeMatch = (camData.smoke===fp.smoke || (fp.smoke==='none' && camData.smoke==='none'))?15:3;
+    } else { smokeMatch = 0; }
+    
+    var totalSensors = 1;
+    if(vibData) totalSensors++;
+    if(camData) totalSensors++;
+    
     var total = freqMatch + patternMatch + vibMatch + smokeMatch;
-    results.push({ fingerprint: fp, score: total, freqMatch:freqMatch, patternMatch:patternMatch, vibMatch:vibMatch, smokeMatch:smokeMatch });
+    results.push({ fingerprint: fp, score: total, freqMatch:freqMatch, patternMatch:patternMatch, vibMatch:vibMatch, smokeMatch:smokeMatch, totalSensors:totalSensors });
   }
   results.sort(function(a,b){ return b.score - a.score; });
   var best = results[0];
   var conf = Math.min(100, Math.round((best.score/100)*100));
+  if(best.totalSensors === 2) conf = Math.min(95, conf + 10);
+  else if(best.totalSensors === 3) conf = Math.min(99, conf + 20);
+  
   var name = t(best.fingerprint.nameKey);
   var sol = t(best.fingerprint.solutionKey);
   var sev = t('severity_'+best.fingerprint.severity);
   var sevClass = best.fingerprint.severity;
   var panel = document.getElementById('resultPanel');
+  
+  var sensorsUsed = '🎤';
+  if(vibData) sensorsUsed += ' + 📳';
+  if(camData) sensorsUsed += ' + 📸';
+  
   panel.innerHTML = `
     <div style="border-right:6px solid ${sevClass==='critical'?'#7f1d1d':sevClass==='high'?'#ef4444':sevClass==='medium'?'#f59e0b':'#10b981'};padding:8px;">
       <div style="font-size:1.2rem;font-weight:bold;color:#f5a623;">${t('diag_title')}</div>
+      <div style="font-size:0.7rem;color:#94a3b8;margin-bottom:4px;">🔬 المستخدمة: ${sensorsUsed}</div>
       <div style="font-size:1.4rem;font-weight:800;margin:6px 0;">${name}</div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0;">
         <span><strong>${t('confidence')}:</strong> ${conf}%</span>
@@ -965,8 +1094,8 @@ document.getElementById('finalizeBtn').onclick = function(){
       </div>
       <div style="background:#0f172a;padding:8px;border-radius:8px;margin:8px 0;font-size:0.9rem;">
         <div><strong>🎤 مساهمة الصوت:</strong> ${best.freqMatch}%</div>
-        <div><strong>📳 مساهمة الاهتزاز:</strong> ${best.vibMatch}%</div>
-        <div><strong>📸 مساهمة الدخان:</strong> ${best.smokeMatch}%</div>
+        ${vibData ? `<div><strong>📳 مساهمة الاهتزاز:</strong> ${best.vibMatch}%</div>` : ''}
+        ${camData ? `<div><strong>📸 مساهمة الدخان:</strong> ${best.smokeMatch}%</div>` : ''}
         <div class="conf-bar"><div class="fill" style="width:${conf}%;background:${conf>70?'#10b981':conf>40?'#f59e0b':'#ef4444'}"></div></div>
       </div>
       <div style="background:#0a1020;padding:10px;border-radius:8px;margin:10px 0;border:1px solid #f5a623;">
@@ -987,7 +1116,7 @@ function copyResult(){ var d=window.diagnosisResult; if(!d) return; var text=d.n
 function shareResult(){ var d=window.diagnosisResult; if(!d) return; var text='AI Mechanic Diagnosis:\n'+d.name+'\n'+d.sol; if(navigator.share) navigator.share({title:'AI Mechanic', text:text, url:window.location.href}); else { navigator.clipboard.writeText(text+' '+window.location.href); showToast(t('shared')); } }
 
 // ============================================================
-// 13. START / RESET
+// 14. START / RESET
 // ============================================================
 var diagnosisActive=false;
 document.getElementById('startDiagnosisBtn').onclick = function(){
@@ -998,28 +1127,27 @@ document.getElementById('startDiagnosisBtn').onclick = function(){
   document.getElementById('sensorsArea').style.display = 'block';
   document.getElementById('startDiagnosisBtn').style.display = 'none';
   resetAllSensors();
-  showToast('🧠 ابدأ بجمع بيانات الحساسات');
+  showToast('🧠 ابدأ بتسجيل الصوت أولاً');
 };
 
 function resetAllSensors(){
-  // Clean up sound
+  // تنظيف الصوت
   if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
   if(sensorState.sound.recorder && sensorState.sound.recorder.state==='recording') sensorState.sound.recorder.stop();
   if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
-  // Clean up vibration
+  // تنظيف الاهتزاز
   if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
   if(sensorState.vibration.handler) {
     window.removeEventListener('devicemotion', sensorState.vibration.handler);
     sensorState.vibration.handler = null;
   }
-  // Clean up camera
+  // تنظيف الكاميرا
   if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
   if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
   
-  // Reset states
-  sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[] };
-  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null, handler:null };
-  sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null };
+  sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[], status:'idle' };
+  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null, handler:null, status:'idle' };
+  sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, status:'idle' };
   
   document.getElementById('soundPreview').innerHTML = t('waiting');
   document.getElementById('soundResult').innerHTML = '';
@@ -1028,10 +1156,17 @@ function resetAllSensors(){
   document.getElementById('camPreview').innerHTML = t('waiting');
   document.getElementById('camResult').innerHTML = '';
   document.getElementById('resultPanel').style.display = 'none';
+  document.getElementById('finalizeBtn').disabled = true;
   updateSensorUI('sound');
   updateSensorUI('vibration');
   updateSensorUI('camera');
-  document.getElementById('finalizeBtn').disabled = true;
+  
+  var summary = document.getElementById('sensorsSummary');
+  summary.innerHTML = `
+    <span class="sensor-badge badge-idle" id="badge-sound">🎤 غير نشط</span>
+    <span class="sensor-badge badge-idle" id="badge-vibration">📳 غير نشط</span>
+    <span class="sensor-badge badge-idle" id="badge-camera">📸 غير نشط</span>
+  `;
 }
 document.getElementById('resetBtn').onclick = function(){
   resetAllSensors();
@@ -1042,14 +1177,14 @@ document.getElementById('resetBtn').onclick = function(){
 };
 
 // ============================================================
-// 14. SHARE
+// 15. SHARE
 // ============================================================
 document.getElementById('shareWhatsApp').onclick=function(){ window.open('https://wa.me/?text='+encodeURIComponent(window.location.href),'_blank'); };
 document.getElementById('shareEmail').onclick=function(){ window.location.href='mailto:?subject=AI%20Mechanic&body='+encodeURIComponent('جرب تطبيق تشخيص السيارة الذكي: '+window.location.href); };
 document.getElementById('shareGeneral').onclick=function(){ if(navigator.share) navigator.share({title:'AI Mechanic', text:'تشخيص أعطال السيارة بالذكاء الاصطناعي', url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); } };
 
 // ============================================================
-// 15. ADMIN (5 clicks on car icon)
+// 16. ADMIN
 // ============================================================
 var clickCount=0, clickTimer=null;
 document.getElementById('secretAdminIcon').onclick=function(){
@@ -1065,11 +1200,12 @@ document.getElementById('secretAdminIcon').onclick=function(){
 };
 
 // ============================================================
-// 16. INIT
+// 17. INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('✅ AI Mechanic – تم إصلاح الاهتزاز (التجميد) والكاميرا (التوقف التلقائي).');
+console.log('✅ AI Mechanic V3 - كل حساس منفصل تماماً، لا تزامن، حرية كاملة للمستخدم.');
 console.log('🔬 15 Fingerprints, 54 Languages.');
+console.log('📍 الصوت: قرب المحرك | الاهتزاز: ملاصق للمحرك | الكاميرا: قرب العادم');
 </script>
 </body>
 </html>
