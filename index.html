@@ -251,7 +251,7 @@ var allLangs = [
 var BCP_MAP = { ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN" };
 
 // ============================================================
-// 2. TRANSLATIONS
+// 2. TRANSLATIONS (مختصر للعربية والإنجليزية)
 // ============================================================
 var translations = {
   ar: {
@@ -415,87 +415,6 @@ var translations = {
     solution_valve_tick: "Adjust valve clearance",
     fault_pump_whine: "Fuel/Oil pump whine",
     solution_pump_whine: "Check fuel or oil pump"
-  },
-  fr: {
-    subtitle: "Le laboratoire physique parlant",
-    free_badge: "🔓 {0} diagnostics gratuits restants",
-    credit_label: "Crédits restants:",
-    activate: "Activer",
-    start_diag: "🧠 Démarrer diagnostic",
-    single_btn: "💵 1 Diagnostic ($2)",
-    pack5_btn: "💵 5 Diagnostics ($8)",
-    pack15_btn: "💵 15 Diagnostics ($20)",
-    license_placeholder: "🔑 Code d'activation",
-    no_credits: "❌ Crédits insuffisants",
-    diag_ok: "✅ Diagnostic consommé",
-    added: "Ajouté",
-    listen: "🔊 Écouter",
-    copy: "📋 Copier",
-    share: "📤 Partager",
-    copied: "Copié",
-    shared: "Partagé",
-    admin_on: "✅ Mode admin activé",
-    admin_off: "🔒 Mode admin désactivé",
-    invalid: "❌ Code invalide",
-    sound_name: "🎤 Microphone",
-    sound_instr: "Placez le téléphone à 20 cm du moteur",
-    vib_name: "📳 Vibration",
-    vib_instr: "Posez le téléphone sur un chiffon sur le moteur",
-    cam_name: "📸 Caméra (Fumée)",
-    cam_instr: "Photographiez l'échappement à l'arrière",
-    start_btn: "▶ Démarrer",
-    stop_btn: "⏹ Arrêter",
-    confirm_btn: "✅ Confirmer",
-    retake_btn: "🔄 Recommencer",
-    status_idle: "⏸ Inactif",
-    status_recording: "🔴 Enregistrement...",
-    status_done: "✅ Terminé",
-    finalize_btn: "📊 Diagnostic final",
-    reset_btn: "🔄 Nouveau départ",
-    diag_title: "🔍 Diagnostic final",
-    solution: "🔧 Solution",
-    severity: "⚠️ Gravité",
-    severity_low: "Faible",
-    severity_medium: "Moyenne",
-    severity_high: "Élevée",
-    severity_critical: "Critique",
-    confidence: "Confiance",
-    share_whatsapp: "WhatsApp",
-    share_email: "Email",
-    share_general: "Partager",
-    waiting: "⏳ Attente...",
-    location_denied: "Refusé",
-    location_loading: "Chargement...",
-    fault_healthy: "Moteur sain",
-    solution_healthy: "Entretien régulier",
-    fault_knocking: "Cliquetis – Carburant/Allumage",
-    solution_knocking: "Carburant 95, bougies et timing",
-    fault_squeal: "Grincement – Courroie/Pompe à eau",
-    solution_squeal: "Vérifier courroie, pompe à eau",
-    fault_hiss: "Sifflement – Fuite refroidissement/EGR",
-    solution_hiss: "Vérifier radiateur, durites, nettoyer EGR",
-    fault_ticking: "Tic-tac métallique – Soupapes/Huile",
-    solution_ticking: "Régler soupapes, huile adaptée",
-    fault_rough: "Son rugueux – Air/Injecteurs",
-    solution_rough: "Filtre à air, injecteurs, sonde O2",
-    fault_deep_knock: "Cognement profond – Paliers",
-    solution_deep_knock: "Vérifier paliers, possible révision",
-    fault_preignition: "Pré-allumage – Chaleur élevée",
-    solution_preignition: "Sonde O2, injecteurs, carburant haute octane",
-    fault_oil_burn: "Consommation d'huile – Segments/Soupapes",
-    solution_oil_burn: "Vérifier segments et soupapes",
-    fault_coolant_leak: "Fuite liquide de refroidissement – Fumée blanche",
-    solution_coolant_leak: "Vérifier radiateur, durites",
-    fault_air_filter: "Filtre à air obstrué",
-    solution_air_filter: "Remplacer filtre à air",
-    fault_egr: "EGR encrassée",
-    solution_egr: "Nettoyer EGR",
-    fault_belt_loose: "Courroie desserrée",
-    solution_belt_loose: "Tendre ou remplacer courroie",
-    fault_valve_tick: "Tic-tac soupapes",
-    solution_valve_tick: "Régler jeu soupapes",
-    fault_pump_whine: "Bruit pompe carburant/huile",
-    solution_pump_whine: "Vérifier pompe"
   }
 };
 for(var l of allLangs) if(!translations[l.code]) { translations[l.code] = {}; for(var k in translations.en) translations[l.code][k] = translations.en[k]; }
@@ -578,10 +497,7 @@ function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.i
 buildLangSelect();
 
 // ============================================================
-// 6. SIMPLE PERMISSION – like microphone (one click, one prompt)
-// ============================================================
-// ============================================================
-// 7. SENSOR STATE
+// 6. SENSOR STATE
 // ============================================================
 var sensorState = {
   sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
@@ -628,7 +544,7 @@ function checkAllConfirmed(){
 }
 
 // ============================================================
-// 8. COUNTDOWN (safe with setInterval)
+// 7. COUNTDOWN (safe with setInterval)
 // ============================================================
 function startCountdown(seconds, onTick, onComplete) {
   var remaining = seconds;
@@ -645,7 +561,7 @@ function startCountdown(seconds, onTick, onComplete) {
 }
 
 // ============================================================
-// 9. SOUND SENSOR (already working)
+// 8. SOUND SENSOR (already working)
 // ============================================================
 document.getElementById('soundStartBtn').onclick = function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
@@ -764,61 +680,66 @@ function analyzeSoundBlob(blob){
 }
 
 // ============================================================
-// 10. VIBRATION – SIMPLE like microphone
+// 9. VIBRATION – FIXED: الآن يعمل بنفس توقيت الكاميرا (6 ثواني)
 // ============================================================
 document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
   if(!window.DeviceMotionEvent){
-    showToast('⚠️ الاهتزاز غير مدعوم');
+    showToast('⚠️ الاهتزاز غير مدعوم على هذا الجهاز');
     return;
   }
-  // Request permission directly (iOS 13+)
+  
+  // Request permission for iOS 13+
+  var startVib = function() {
+    sensorState.vibration.isRunning = true;
+    updateSensorUI('vibration');
+    
+    var vals = [];
+    var handler = function(e){
+      var a = e.accelerationIncludingGravity;
+      if(a) vals.push(Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z));
+    };
+    window.addEventListener('devicemotion', handler);
+    
+    var remaining = 6;
+    document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+remaining+' ثوانٍ';
+    sensorState.vibration.timerId = startCountdown(6,
+      function(sec) {
+        document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ';
+      },
+      function() {
+        window.removeEventListener('devicemotion', handler);
+        sensorState.vibration.isRunning = false;
+        var avg = (vals.length > 0) ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 0;
+        var level = 'low';
+        if(avg > 12) level = 'very_high';
+        else if(avg > 7) level = 'high';
+        else if(avg > 3) level = 'medium';
+        sensorState.vibration.data = { avg: avg, level: level };
+        document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
+        document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
+        updateSensorUI('vibration');
+        showToast('✅ اكتمل قياس الاهتزاز');
+      }
+    );
+  };
+  
+  // Handle iOS permission
   if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission().then(function(state) {
       if (state === 'granted') {
-        startVibrationMeasurement();
+        startVib();
       } else {
         showToast('❌ رفض الوصول لمستشعر الحركة');
       }
-    }).catch(function() { showToast('❌ فشل طلب الإذن'); });
+    }).catch(function() {
+      // Fallback for some browsers
+      startVib();
+    });
   } else {
-    startVibrationMeasurement();
+    startVib();
   }
 };
-
-function startVibrationMeasurement() {
-  sensorState.vibration.isRunning = true;
-  updateSensorUI('vibration');
-
-  var vals = [];
-  var handler = function(e){
-    var a = e.accelerationIncludingGravity;
-    if(a) vals.push(Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z));
-  };
-  window.addEventListener('devicemotion', handler);
-
-  var remaining = 6;
-  document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+remaining+' ثوانٍ';
-  sensorState.vibration.timerId = startCountdown(6,
-    function(sec) {
-      document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ';
-    },
-    function() {
-      window.removeEventListener('devicemotion', handler);
-      sensorState.vibration.isRunning = false;
-      var avg = (vals.length > 0) ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 0;
-      var level = 'low';
-      if(avg > 12) level = 'very_high';
-      else if(avg > 7) level = 'high';
-      else if(avg > 3) level = 'medium';
-      sensorState.vibration.data = { avg: avg, level: level };
-      document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
-      document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
-      updateSensorUI('vibration');
-      showToast('✅ اكتمل قياس الاهتزاز');
-    }
-  );
-}
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
     if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
@@ -846,11 +767,11 @@ document.getElementById('vibRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 11. CAMERA – SIMPLE like microphone
+// 10. CAMERA – FIXED: الآن تعمل بنفس توقيت الاهتزاز (6 ثواني)
 // ============================================================
 document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
-
+  
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
     .then(function(stream){
       sensorState.camera.stream = stream;
@@ -866,14 +787,15 @@ document.getElementById('camStartBtn').onclick = function(){
       preview.appendChild(video);
       sensorState.camera.isRunning = true;
       updateSensorUI('camera');
-
-      var remaining = 5;
+      
+      var remaining = 6; // تم تغيير المدة من 5 إلى 6 ثواني لتتزامن مع الاهتزاز
       document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+remaining+' ثوانٍ';
-      sensorState.camera.timerId = startCountdown(5,
+      sensorState.camera.timerId = startCountdown(6,
         function(sec) {
           document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+sec+' ثوانٍ';
         },
         function() {
+          // Capture frame
           var canvas = document.createElement('canvas');
           canvas.width = video.videoWidth || 640;
           canvas.height = video.videoHeight || 480;
@@ -888,7 +810,7 @@ document.getElementById('camStartBtn').onclick = function(){
           else if(r<80 && g<80 && b<80) smoke = 'black';
           else if(r<120 && g<120 && b>150) smoke = 'blue';
           else if(r>150 && g>150 && b<100) smoke = 'gray';
-
+          
           sensorState.camera.data = { smoke: smoke, r: r, g: g, b: b };
           var img = document.createElement('img');
           img.src = canvas.toDataURL('image/jpeg');
@@ -941,7 +863,7 @@ document.getElementById('camRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 12. FINGERPRINTS (15)
+// 11. FINGERPRINTS (15)
 // ============================================================
 var ENGINE_FINGERPRINTS = [
   { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low',
@@ -977,7 +899,7 @@ var ENGINE_FINGERPRINTS = [
 ];
 
 // ============================================================
-// 13. FINAL DIAGNOSIS
+// 12. FINAL DIAGNOSIS
 // ============================================================
 document.getElementById('finalizeBtn').onclick = function(){
   if(!consumeCredit()) return;
@@ -1045,7 +967,7 @@ function copyResult(){ var d=window.diagnosisResult; if(!d) return; var text=d.n
 function shareResult(){ var d=window.diagnosisResult; if(!d) return; var text='AI Mechanic Diagnosis:\n'+d.name+'\n'+d.sol; if(navigator.share) navigator.share({title:'AI Mechanic', text:text, url:window.location.href}); else { navigator.clipboard.writeText(text+' '+window.location.href); showToast(t('shared')); } }
 
 // ============================================================
-// 14. START / RESET
+// 13. START / RESET
 // ============================================================
 var diagnosisActive=false;
 document.getElementById('startDiagnosisBtn').onclick = function(){
@@ -1090,14 +1012,14 @@ document.getElementById('resetBtn').onclick = function(){
 };
 
 // ============================================================
-// 15. SHARE
+// 14. SHARE
 // ============================================================
 document.getElementById('shareWhatsApp').onclick=function(){ window.open('https://wa.me/?text='+encodeURIComponent(window.location.href),'_blank'); };
 document.getElementById('shareEmail').onclick=function(){ window.location.href='mailto:?subject=AI%20Mechanic&body='+encodeURIComponent('جرب تطبيق تشخيص السيارة الذكي: '+window.location.href); };
 document.getElementById('shareGeneral').onclick=function(){ if(navigator.share) navigator.share({title:'AI Mechanic', text:'تشخيص أعطال السيارة بالذكاء الاصطناعي', url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); } };
 
 // ============================================================
-// 16. ADMIN (5 clicks on car icon)
+// 15. ADMIN (5 clicks on car icon)
 // ============================================================
 var clickCount=0, clickTimer=null;
 document.getElementById('secretAdminIcon').onclick=function(){
@@ -1113,10 +1035,10 @@ document.getElementById('secretAdminIcon').onclick=function(){
 };
 
 // ============================================================
-// 17. INIT
+// 16. INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('✅ AI Mechanic – Vibration and Camera now request permission just like Microphone (simple one-click).');
+console.log('✅ AI Mechanic – تم إصلاح توقيت الاهتزاز والكاميرا (كلاهما 6 ثواني).');
 console.log('🔬 15 Fingerprints, 54 Languages.');
 </script>
 </body>
