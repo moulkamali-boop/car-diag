@@ -1080,28 +1080,48 @@ function stopAllCameras() {
     document.querySelectorAll('video').forEach(function(v){ if (v.id && v.id.startsWith('video_')) v.remove(); });
 }
 
+// ============================================================
+// 11. MEASURE SENSOR – مع إصلاح الكاميرا
+// ============================================================
 function measureSensor(sensorId) {
     if (measuring[sensorId]) return;
     if (sensorResults[sensorId]) { resetSensor(sensorId); return; }
     var sensors = SENSOR_MAP[currentApp] || [];
     var sensor = sensors.find(function(s){ return s.id === sensorId; });
     if (!sensor) return;
-    // permission check
-    if (sensor.permKey) {
-        if (sensor.type === 'camera') {
-            navigator.mediaDevices.getUserMedia({ video: true }).catch(function(){ showToast(t('perm_denied')); return; });
-        }
-        if (sensor.type === 'mic') {
-            navigator.mediaDevices.getUserMedia({ audio: true }).catch(function(){ showToast(t('perm_denied')); return; });
-        }
+    
+    // ==== طلب الإذن للكاميرا ====
+    if (sensor.permKey && sensor.type === 'camera') {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                stream.getTracks().forEach(function(t){ t.stop(); });
+                startMeasurement(sensorId);
+            })
+            .catch(function() {
+                showToast(t('perm_denied'));
+            });
+        return;
     }
+    
+    // ==== طلب الإذن للميكروفون ====
+    if (sensor.permKey && sensor.type === 'mic') {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function() { startMeasurement(sensorId); })
+            .catch(function() { showToast(t('perm_denied')); });
+        return;
+    }
+    
     startMeasurement(sensorId);
 }
 
+// ============================================================
+// 12. START MEASUREMENT – مع معاينة الكاميرا
+// ============================================================
 function startMeasurement(sensorId) {
     var sensors = SENSOR_MAP[currentApp] || [];
     var sensor = sensors.find(function(s){ return s.id === sensorId; });
     if (!sensor) return;
+    
     measuring[sensorId] = true;
     var card = document.getElementById('card_' + sensorId);
     var preview = document.getElementById('preview_' + sensorId);
@@ -1111,7 +1131,30 @@ function startMeasurement(sensorId) {
     if (btn) btn.disabled = true;
     if (retake) retake.disabled = true;
     if (card) card.className = 'sensor-card active';
-    if (preview) preview.innerHTML = '⏳ ' + t('measuring', {s: 5});
+    
+    // ==== تشغيل معاينة الكاميرا أثناء القياس ====
+    if (sensor.type === 'camera' && preview) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function(stream) {
+                var video = document.createElement('video');
+                video.srcObject = stream;
+                video.autoplay = true;
+                video.playsInline = true;
+                video.style.width = '100%';
+                video.style.maxHeight = '150px';
+                video.style.borderRadius = '8px';
+                preview.innerHTML = '';
+                preview.appendChild(video);
+                cameraStreams[sensorId] = stream;
+            })
+            .catch(function() {
+                if (preview) preview.innerHTML = '<span style="color:#ef4444;">' + t('cam_unavailable') + '</span>';
+            });
+    } else if (preview) {
+        preview.innerHTML = '⏳ ' + t('measuring', {s: 5});
+    }
+    // ================================================
+    
     var duration = 5;
     var countdown = duration;
     var timer = setInterval(function() {
@@ -1123,6 +1166,16 @@ function startMeasurement(sensorId) {
         } else {
             clearInterval(timer);
             measuring[sensorId] = false;
+            
+            // ==== إيقاف الكاميرا بعد الانتهاء ====
+            if (sensor.type === 'camera' && cameraStreams[sensorId]) {
+                try {
+                    cameraStreams[sensorId].getTracks().forEach(function(t){ t.stop(); });
+                } catch(e) {}
+                delete cameraStreams[sensorId];
+            }
+            // ========================================
+            
             var reading = Math.random();
             var level = reading < 0.3 ? 'good' : (reading < 0.6 ? 'medium' : 'high');
             var resultText = reading < 0.3 ? '✅ ' + t('done_measure') : (reading < 0.6 ? '⚠️ ' + t('done_measure') : '🔴 ' + t('done_measure'));
@@ -1160,6 +1213,13 @@ function resetSensor(sensorId) {
     var result = document.getElementById('result_' + sensorId);
     var btn = document.getElementById('measure_' + sensorId);
     var retake = document.getElementById('retake_' + sensorId);
+    // إيقاف الكاميرا إذا كانت تعمل
+    if (cameraStreams[sensorId]) {
+        try {
+            cameraStreams[sensorId].getTracks().forEach(function(t){ t.stop(); });
+        } catch(e) {}
+        delete cameraStreams[sensorId];
+    }
     if (card) { card.className = 'sensor-card'; }
     if (preview) {
         if (preview.querySelector('video')) {
@@ -1206,7 +1266,7 @@ function updateAdvisorText() {
 }
 
 // ============================================================
-// 11. DIAGNOSIS
+// 13. DIAGNOSIS
 // ============================================================
 document.getElementById('analyzeBtn').onclick = function() {
     if (!consumeCredit()) return;
@@ -1295,7 +1355,7 @@ function diagnoseOil() {
 }
 
 // ============================================================
-// 12. ACTIONS
+// 14. ACTIONS
 // ============================================================
 function speakResult() {
     if (!diagnosisResult) return;
@@ -1323,12 +1383,12 @@ function shareResult() {
 }
 
 // ============================================================
-// 13. BACK
+// 15. BACK
 // ============================================================
 document.getElementById('backBtn').onclick = closeLab;
 
 // ============================================================
-// 14. ADMIN (5 clicks)
+// 16. ADMIN (5 clicks)
 // ============================================================
 var adminClicks = 0;
 var adminTimer = null;
@@ -1345,7 +1405,7 @@ document.getElementById('secretAdminIcon').onclick = function() {
 };
 
 // ============================================================
-// 15. SHARE BUTTONS
+// 17. SHARE BUTTONS
 // ============================================================
 document.getElementById('shareWhatsApp').onclick = function() {
     window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank');
@@ -1363,14 +1423,14 @@ document.getElementById('shareGeneral').onclick = function() {
 };
 
 // ============================================================
-// 16. PAYMENT BUTTONS
+// 18. PAYMENT BUTTONS
 // ============================================================
 document.getElementById('singlePayBtn').onclick = function(){ buyPlan(1); };
 document.getElementById('pack5PayBtn').onclick = function(){ buyPlan(5); };
 document.getElementById('pack15PayBtn').onclick = function(){ buyPlan(15); };
 
 // ============================================================
-// 17. ACTIVATE LICENSE
+// 19. ACTIVATE LICENSE
 // ============================================================
 document.getElementById('activateLicenseBtn').onclick = function(){
     var code = document.getElementById('licenseCode').value.trim();
@@ -1390,7 +1450,7 @@ document.getElementById('activateLicenseBtn').onclick = function(){
 };
 
 // ============================================================
-// 18. INIT
+// 20. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async function() {
     // Set RTL/LTR
@@ -1408,12 +1468,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Update credits
     updateCreditsUI();
 
-    console.log('🧠 المخبر الفيزيائي الناطق – الإصدار النهائي');
+    console.log('🧠 المخبر الفيزيائي الناطق – الإصدار النهائي مع إصلاح الكاميرا');
     console.log('📱 3 تطبيقات: محرك، زيوت، معدات البيت');
     console.log('📊 40 بصمة تشخيصية (15+10+15)');
     console.log('🔬 9 حساسات فيزيائية');
     console.log('🌐 54 لغة (3 مترجمة + 51 تلقائية)');
-    console.log('✅ جاهز للتشغيل');
+    console.log('✅ الكاميرا تعمل مع طلب الإذن والمعاينة');
 });
 </script>
 </body>
