@@ -64,6 +64,8 @@
     .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
     .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
     #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
+    .sensor-preview .recording-indicator{color:#ef4444;font-weight:bold;animation:blink 0.8s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
   </style>
 </head>
 <body>
@@ -162,7 +164,7 @@
       <div class="sensor-preview" id="camPreview">⏳ انتظر...</div>
       <div class="sensor-result" id="camResult"></div>
       <div class="btn-group">
-        <button id="camStartBtn" class="start-btn">▶ تشغيل (5s)</button>
+        <button id="camStartBtn" class="start-btn">▶ تشغيل (6s)</button>
         <button id="camStopBtn" class="stop-btn" disabled>⏹ إيقاف</button>
         <button id="camConfirmBtn" class="confirm-btn" disabled>✅ تأكيد</button>
         <button id="camRetakeBtn" class="retake-btn" disabled>🔄 إعادة</button>
@@ -501,7 +503,7 @@ buildLangSelect();
 // ============================================================
 var sensorState = {
   sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
-  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null },
+  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null, handler: null },
   camera: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null }
 };
 
@@ -561,7 +563,7 @@ function startCountdown(seconds, onTick, onComplete) {
 }
 
 // ============================================================
-// 8. SOUND SENSOR (already working)
+// 8. SOUND SENSOR
 // ============================================================
 document.getElementById('soundStartBtn').onclick = function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
@@ -680,7 +682,7 @@ function analyzeSoundBlob(blob){
 }
 
 // ============================================================
-// 9. VIBRATION – FIXED: الآن يعمل بنفس توقيت الكاميرا (6 ثواني)
+// 9. VIBRATION – FIXED: now works reliably with proper cleanup
 // ============================================================
 document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
@@ -689,7 +691,6 @@ document.getElementById('vibStartBtn').onclick = function(){
     return;
   }
   
-  // Request permission for iOS 13+
   var startVib = function() {
     sensorState.vibration.isRunning = true;
     updateSensorUI('vibration');
@@ -699,6 +700,8 @@ document.getElementById('vibStartBtn').onclick = function(){
       var a = e.accelerationIncludingGravity;
       if(a) vals.push(Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z));
     };
+    // Store handler for cleanup
+    sensorState.vibration.handler = handler;
     window.addEventListener('devicemotion', handler);
     
     var remaining = 6;
@@ -708,7 +711,11 @@ document.getElementById('vibStartBtn').onclick = function(){
         document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ';
       },
       function() {
-        window.removeEventListener('devicemotion', handler);
+        // Clean up event listener
+        if(sensorState.vibration.handler) {
+          window.removeEventListener('devicemotion', sensorState.vibration.handler);
+          sensorState.vibration.handler = null;
+        }
         sensorState.vibration.isRunning = false;
         var avg = (vals.length > 0) ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 0;
         var level = 'low';
@@ -733,7 +740,6 @@ document.getElementById('vibStartBtn').onclick = function(){
         showToast('❌ رفض الوصول لمستشعر الحركة');
       }
     }).catch(function() {
-      // Fallback for some browsers
       startVib();
     });
   } else {
@@ -743,6 +749,10 @@ document.getElementById('vibStartBtn').onclick = function(){
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
     if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+    if(sensorState.vibration.handler) {
+      window.removeEventListener('devicemotion', sensorState.vibration.handler);
+      sensorState.vibration.handler = null;
+    }
     sensorState.vibration.isRunning = false;
     updateSensorUI('vibration');
     showToast('⏹ تم إيقاف الاهتزاز');
@@ -757,6 +767,10 @@ document.getElementById('vibConfirmBtn').onclick = function(){
 };
 document.getElementById('vibRetakeBtn').onclick = function(){
   if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+  if(sensorState.vibration.handler) {
+    window.removeEventListener('devicemotion', sensorState.vibration.handler);
+    sensorState.vibration.handler = null;
+  }
   sensorState.vibration.isConfirmed = false;
   sensorState.vibration.data = null;
   sensorState.vibration.isRunning = false;
@@ -767,7 +781,7 @@ document.getElementById('vibRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 10. CAMERA – FIXED: الآن تعمل بنفس توقيت الاهتزاز (6 ثواني)
+// 10. CAMERA – FIXED: now stops automatically after 6 seconds
 // ============================================================
 document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
@@ -788,14 +802,14 @@ document.getElementById('camStartBtn').onclick = function(){
       sensorState.camera.isRunning = true;
       updateSensorUI('camera');
       
-      var remaining = 6; // تم تغيير المدة من 5 إلى 6 ثواني لتتزامن مع الاهتزاز
+      var remaining = 6;
       document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+remaining+' ثوانٍ';
       sensorState.camera.timerId = startCountdown(6,
         function(sec) {
           document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+sec+' ثوانٍ';
         },
         function() {
-          // Capture frame
+          // Capture frame from video
           var canvas = document.createElement('canvas');
           canvas.width = video.videoWidth || 640;
           canvas.height = video.videoHeight || 480;
@@ -821,8 +835,10 @@ document.getElementById('camStartBtn').onclick = function(){
           preview.appendChild(img);
           document.getElementById('camResult').innerHTML = '📸 لون الدخان: '+smoke;
           sensorState.camera.isRunning = false;
-          if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-          sensorState.camera.stream = null;
+          if(sensorState.camera.stream) {
+            sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+            sensorState.camera.stream = null;
+          }
           updateSensorUI('camera');
           showToast('✅ اكتمل تصوير الدخان');
         }
@@ -836,8 +852,10 @@ document.getElementById('camStopBtn').onclick = function(){
   if(sensorState.camera.isRunning) {
     if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
     sensorState.camera.isRunning = false;
-    if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-    sensorState.camera.stream = null;
+    if(sensorState.camera.stream) {
+      sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+      sensorState.camera.stream = null;
+    }
     updateSensorUI('camera');
     showToast('⏹ تم إيقاف الكاميرا');
   }
@@ -854,8 +872,10 @@ document.getElementById('camRetakeBtn').onclick = function(){
   sensorState.camera.isConfirmed = false;
   sensorState.camera.data = null;
   sensorState.camera.isRunning = false;
-  if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-  sensorState.camera.stream = null;
+  if(sensorState.camera.stream) {
+    sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+    sensorState.camera.stream = null;
+  }
   document.getElementById('camResult').innerHTML = '';
   document.getElementById('camPreview').innerHTML = t('waiting');
   updateSensorUI('camera');
@@ -982,15 +1002,25 @@ document.getElementById('startDiagnosisBtn').onclick = function(){
 };
 
 function resetAllSensors(){
+  // Clean up sound
   if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
-  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
-  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
   if(sensorState.sound.recorder && sensorState.sound.recorder.state==='recording') sensorState.sound.recorder.stop();
   if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
+  // Clean up vibration
+  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+  if(sensorState.vibration.handler) {
+    window.removeEventListener('devicemotion', sensorState.vibration.handler);
+    sensorState.vibration.handler = null;
+  }
+  // Clean up camera
+  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
   if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+  
+  // Reset states
   sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[] };
-  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null };
+  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null, handler:null };
   sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null };
+  
   document.getElementById('soundPreview').innerHTML = t('waiting');
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
@@ -1038,7 +1068,7 @@ document.getElementById('secretAdminIcon').onclick=function(){
 // 16. INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('✅ AI Mechanic – تم إصلاح توقيت الاهتزاز والكاميرا (كلاهما 6 ثواني).');
+console.log('✅ AI Mechanic – تم إصلاح الاهتزاز (التجميد) والكاميرا (التوقف التلقائي).');
 console.log('🔬 15 Fingerprints, 54 Languages.');
 </script>
 </body>
