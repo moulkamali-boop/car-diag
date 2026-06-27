@@ -64,6 +64,8 @@
     .conf-bar{height:5px;background:#1e293b;border-radius:4px;margin:4px 0;overflow:hidden}
     .conf-bar .fill{height:100%;border-radius:4px;transition:width 0.5s}
     #adminHint{font-size:0.6rem;color:#f5a623;min-height:1.2rem}
+    .vibration-gauge{width:100%;height:20px;background:#1a1a2e;border-radius:10px;overflow:hidden;margin:4px 0;border:1px solid #f5a623}
+    .vibration-gauge .fill{height:100%;border-radius:10px;transition:width 0.3s;background:linear-gradient(90deg,#10b981,#f59e0b,#ef4444)}
   </style>
 </head>
 <body>
@@ -149,6 +151,7 @@
       <div class="sensor-instr" id="vibInstr">ضع الهاتف على خرقة فوق المحرك</div>
       <div class="sensor-preview" id="vibPreview">⏳ انتظر...</div>
       <div class="sensor-result" id="vibResult"></div>
+      <div class="vibration-gauge" id="vibGauge"><div class="fill" id="vibFill" style="width:0%"></div></div>
       <div class="btn-group">
         <button id="vibStartBtn" class="start-btn">▶ تشغيل (6s)</button>
         <button id="vibStopBtn" class="stop-btn" disabled>⏹ إيقاف</button>
@@ -199,7 +202,7 @@
 
 <script>
 // ============================================================
-// 1. LANGUAGES (54)
+// 1. LANGUAGES (54 لغة)
 // ============================================================
 var allLangs = [
   { code:"ar", name:"العربية", flag:"🇸🇦", dir:"rtl" },
@@ -260,7 +263,7 @@ var allLangs = [
 var BCP_MAP = { ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"it-IT", pt:"pt-BR", ru:"ru-RU", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", tr:"tr-TR", fa:"fa-IR", ur:"ur-PK", sw:"sw-KE", vi:"vi-VN" };
 
 // ============================================================
-// 2. TRANSLATIONS
+// 2. TRANSLATIONS (الترجمات الأساسية)
 // ============================================================
 var translations = {
   ar: {
@@ -627,6 +630,7 @@ var translations = {
     solution_rod: "Vérifier la bielle"
   }
 };
+// تعبئة اللغات المتبقية بالترجمة الإنجليزية
 for(var l of allLangs) if(!translations[l.code]) { translations[l.code] = {}; for(var k in translations.en) translations[l.code][k] = translations.en[k]; }
 
 // ============================================================
@@ -680,7 +684,7 @@ async function applyTranslations(){
 function showToast(msg){ var el=document.getElementById('toast'); el.innerText=msg; el.classList.add('show'); clearTimeout(el._h); el._h=setTimeout(function(){el.classList.remove('show');},2500); }
 
 // ============================================================
-// 4. CREDITS & ADMIN (من تطبيق السيارة)
+// 4. CREDITS & ADMIN
 // ============================================================
 var freeUsed=parseInt(localStorage.getItem('cdFree')||'0'), paid=parseInt(localStorage.getItem('cdPaid')||'0'), admin=false;
 function totalCredits(){ return admin?9999:Math.max(0,3-freeUsed)+paid; }
@@ -707,11 +711,11 @@ function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.i
 buildLangSelect();
 
 // ============================================================
-// 6. SENSOR STATE (من المحركات – يعمل)
+// 6. SENSOR STATE
 // ============================================================
 var sensorState = {
   sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
-  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null },
+  vibration: { isRunning: false, isConfirmed: false, data: null, timerId: null, handler: null },
   camera: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null }
 };
 
@@ -754,12 +758,11 @@ function checkAllConfirmed(){
 }
 
 // ============================================================
-// 7. COUNTDOWN – VERSION QUI MARCHE (setTimeout)
+// 7. COUNTDOWN
 // ============================================================
 function startCountdown(seconds, onTick, onComplete) {
   var remaining = seconds;
   var timerId = null;
-  
   function tick() {
     if (remaining <= 0) {
       if (timerId) clearTimeout(timerId);
@@ -770,23 +773,16 @@ function startCountdown(seconds, onTick, onComplete) {
     remaining--;
     timerId = setTimeout(tick, 1000);
   }
-  
   tick();
-  
-  return {
-    clear: function() {
-      if (timerId) clearTimeout(timerId);
-      timerId = null;
-    }
-  };
+  return { clear: function() { if (timerId) clearTimeout(timerId); timerId = null; } };
 }
 
 // ============================================================
-// 8. SOUND (يعمل)
+// 8. SOUND
 // ============================================================
 document.getElementById('soundStartBtn').onclick = function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
-  navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+  navigator.mediaDevices.getUserMedia({ audio: true })
     .then(function(stream){
       sensorState.sound.stream = stream;
       var recorder = new MediaRecorder(stream);
@@ -810,12 +806,8 @@ document.getElementById('soundStartBtn').onclick = function(){
       recorder.start();
       sensorState.sound.isRunning = true;
       updateSensorUI('sound');
-      var remaining = 8;
-      document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+remaining+' ثوانٍ';
       var timerObj = startCountdown(8,
-        function(sec) {
-          document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+sec+' ثوانٍ';
-        },
+        function(sec) { document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+sec+' ثوانٍ'; },
         function() {
           if(recorder.state === 'recording') recorder.stop();
           sensorState.sound.isRunning = false;
@@ -902,7 +894,7 @@ function analyzeSoundBlob(blob){
 }
 
 // ============================================================
-// 9. VIBRATION – VERSION QUI MARCHE (setTimeout)
+// 9. VIBRATION - VERSION FINALE QUI MARCHE
 // ============================================================
 document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
@@ -910,26 +902,38 @@ document.getElementById('vibStartBtn').onclick = function(){
     showToast('⚠️ الاهتزاز غير مدعوم على هذا الجهاز');
     return;
   }
-  
-  var startVib = function() {
+
+  function startVib() {
     sensorState.vibration.isRunning = true;
     updateSensorUI('vibration');
     
     var vals = [];
+    var fill = document.getElementById('vibFill');
+    
     var handler = function(e){
+      if(!sensorState.vibration.isRunning) return;
       var a = e.accelerationIncludingGravity;
-      if(a) vals.push(Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z));
+      if(a) {
+        var mag = Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z);
+        vals.push(mag);
+        // تحديث المقياس
+        var pct = Math.min(100, (mag / 20) * 100);
+        fill.style.width = pct + '%';
+        document.getElementById('vibPreview').innerHTML = '📳 القياس: '+mag.toFixed(2)+' م/ث²';
+      }
     };
     window.addEventListener('devicemotion', handler);
+    sensorState.vibration.handler = handler;
     
-    var remaining = 6;
-    document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+remaining+' ثوانٍ';
     var timerObj = startCountdown(6,
       function(sec) {
-        document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ';
+        document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ - '+ (vals.length>0?vals[vals.length-1].toFixed(2):'0') +' م/ث²';
       },
       function() {
-        window.removeEventListener('devicemotion', handler);
+        if(sensorState.vibration.handler) {
+          window.removeEventListener('devicemotion', sensorState.vibration.handler);
+          sensorState.vibration.handler = null;
+        }
         sensorState.vibration.isRunning = false;
         var avg = (vals.length > 0) ? vals.reduce(function(a,b){ return a+b; }, 0) / vals.length : 0;
         var level = 'low';
@@ -939,13 +943,15 @@ document.getElementById('vibStartBtn').onclick = function(){
         sensorState.vibration.data = { avg: avg, level: level };
         document.getElementById('vibPreview').innerHTML = '📳 شدة الاهتزاز: '+avg.toFixed(2)+' م/ث²';
         document.getElementById('vibResult').innerHTML = '📊 '+avg.toFixed(2)+' م/ث² (المستوى: '+level+')';
+        fill.style.width = Math.min(100, (avg / 20) * 100) + '%';
         updateSensorUI('vibration');
         showToast('✅ اكتمل قياس الاهتزاز');
       }
     );
     sensorState.vibration.timerId = timerObj;
-  };
-  
+  }
+
+  // طلب الإذن لـ iOS 13+
   if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission().then(function(state) {
       if (state === 'granted') {
@@ -954,20 +960,27 @@ document.getElementById('vibStartBtn').onclick = function(){
         showToast('❌ رفض الوصول لمستشعر الحركة');
       }
     }).catch(function() {
-      startVib();
+      startVib(); // محاولة البدء مباشرة
     });
   } else {
-    startVib();
+    startVib(); // Android / المتصفحات القديمة
   }
 };
+
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
     if(sensorState.vibration.timerId) { sensorState.vibration.timerId.clear(); sensorState.vibration.timerId=null; }
+    if(sensorState.vibration.handler) {
+      window.removeEventListener('devicemotion', sensorState.vibration.handler);
+      sensorState.vibration.handler = null;
+    }
     sensorState.vibration.isRunning = false;
+    document.getElementById('vibFill').style.width = '0%';
     updateSensorUI('vibration');
     showToast('⏹ تم إيقاف الاهتزاز');
   }
 };
+
 document.getElementById('vibConfirmBtn').onclick = function(){
   if(sensorState.vibration.data && !sensorState.vibration.isConfirmed) {
     sensorState.vibration.isConfirmed = true;
@@ -975,19 +988,25 @@ document.getElementById('vibConfirmBtn').onclick = function(){
     showToast('✅ تم تأكيد الاهتزاز');
   }
 };
+
 document.getElementById('vibRetakeBtn').onclick = function(){
   if(sensorState.vibration.timerId) { sensorState.vibration.timerId.clear(); sensorState.vibration.timerId=null; }
+  if(sensorState.vibration.handler) {
+    window.removeEventListener('devicemotion', sensorState.vibration.handler);
+    sensorState.vibration.handler = null;
+  }
   sensorState.vibration.isConfirmed = false;
   sensorState.vibration.data = null;
   sensorState.vibration.isRunning = false;
   document.getElementById('vibResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
+  document.getElementById('vibFill').style.width = '0%';
   updateSensorUI('vibration');
   showToast('🔄 إعادة قياس الاهتزاز');
 };
 
 // ============================================================
-// 10. CAMERA – VERSION QUI MARCHE (setTimeout)
+// 10. CAMERA - VERSION FINALE QUI MARCHE
 // ============================================================
 document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
@@ -1008,8 +1027,6 @@ document.getElementById('camStartBtn').onclick = function(){
       sensorState.camera.isRunning = true;
       updateSensorUI('camera');
       
-      var remaining = 5;
-      document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+remaining+' ثوانٍ';
       var timerObj = startCountdown(5,
         function(sec) {
           document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+sec+' ثوانٍ';
@@ -1040,8 +1057,10 @@ document.getElementById('camStartBtn').onclick = function(){
           preview.appendChild(img);
           document.getElementById('camResult').innerHTML = '📸 لون الدخان: '+smoke;
           sensorState.camera.isRunning = false;
-          if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-          sensorState.camera.stream = null;
+          if(sensorState.camera.stream) {
+            sensorState.camera.stream.getTracks().forEach(t => t.stop());
+            sensorState.camera.stream = null;
+          }
           updateSensorUI('camera');
           showToast('✅ اكتمل تصوير الدخان');
         }
@@ -1052,16 +1071,21 @@ document.getElementById('camStartBtn').onclick = function(){
       showToast('❌ فشل الوصول للكاميرا');
     });
 };
+
 document.getElementById('camStopBtn').onclick = function(){
   if(sensorState.camera.isRunning) {
     if(sensorState.camera.timerId) { sensorState.camera.timerId.clear(); sensorState.camera.timerId=null; }
     sensorState.camera.isRunning = false;
-    if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-    sensorState.camera.stream = null;
+    if(sensorState.camera.stream) {
+      sensorState.camera.stream.getTracks().forEach(t => t.stop());
+      sensorState.camera.stream = null;
+    }
+    document.getElementById('camPreview').innerHTML = '⏹ تم الإيقاف';
     updateSensorUI('camera');
     showToast('⏹ تم إيقاف الكاميرا');
   }
 };
+
 document.getElementById('camConfirmBtn').onclick = function(){
   if(sensorState.camera.data && !sensorState.camera.isConfirmed) {
     sensorState.camera.isConfirmed = true;
@@ -1069,13 +1093,16 @@ document.getElementById('camConfirmBtn').onclick = function(){
     showToast('✅ تم تأكيد الدخان');
   }
 };
+
 document.getElementById('camRetakeBtn').onclick = function(){
   if(sensorState.camera.timerId) { sensorState.camera.timerId.clear(); sensorState.camera.timerId=null; }
   sensorState.camera.isConfirmed = false;
   sensorState.camera.data = null;
   sensorState.camera.isRunning = false;
-  if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
-  sensorState.camera.stream = null;
+  if(sensorState.camera.stream) {
+    sensorState.camera.stream.getTracks().forEach(t => t.stop());
+    sensorState.camera.stream = null;
+  }
   document.getElementById('camResult').innerHTML = '';
   document.getElementById('camPreview').innerHTML = t('waiting');
   updateSensorUI('camera');
@@ -1083,7 +1110,7 @@ document.getElementById('camRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 11. 35 FAULTS (من المحركات)
+// 11. 35 FAULTS
 // ============================================================
 var ENGINE_FINGERPRINTS = [
   { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low',
@@ -1242,15 +1269,32 @@ document.getElementById('startDiagnosisBtn').onclick = function(){
 };
 
 function resetAllSensors(){
+  // إيقاف الصوت
   if(sensorState.sound.timerId) { sensorState.sound.timerId.clear(); sensorState.sound.timerId=null; }
-  if(sensorState.vibration.timerId) { sensorState.vibration.timerId.clear(); sensorState.vibration.timerId=null; }
-  if(sensorState.camera.timerId) { sensorState.camera.timerId.clear(); sensorState.camera.timerId=null; }
   if(sensorState.sound.recorder && sensorState.sound.recorder.state==='recording') sensorState.sound.recorder.stop();
   if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
-  if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
+  
+  // إيقاف الاهتزاز
+  if(sensorState.vibration.timerId) { sensorState.vibration.timerId.clear(); sensorState.vibration.timerId=null; }
+  if(sensorState.vibration.handler) {
+    window.removeEventListener('devicemotion', sensorState.vibration.handler);
+    sensorState.vibration.handler = null;
+  }
+  document.getElementById('vibFill').style.width = '0%';
+  
+  // إيقاف الكاميرا
+  if(sensorState.camera.timerId) { sensorState.camera.timerId.clear(); sensorState.camera.timerId=null; }
+  if(sensorState.camera.stream) {
+    sensorState.camera.stream.getTracks().forEach(t => t.stop());
+    sensorState.camera.stream = null;
+  }
+  
+  // إعادة تعيين الحالة
   sensorState.sound = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null, recorder:null, chunks:[] };
-  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null };
+  sensorState.vibration = { isRunning:false, isConfirmed:false, data:null, timerId:null, handler:null };
   sensorState.camera = { isRunning:false, isConfirmed:false, data:null, timerId:null, stream:null };
+  
+  // تحديث الواجهة
   document.getElementById('soundPreview').innerHTML = t('waiting');
   document.getElementById('soundResult').innerHTML = '';
   document.getElementById('vibPreview').innerHTML = t('waiting');
@@ -1298,7 +1342,7 @@ document.getElementById('secretAdminIcon').onclick=function(){
 // 16. INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('✅ AI Mechanic – FINAL VERSION (Working sensors + 35 faults + payment)');
+console.log('✅ AI Mechanic – FINAL VERSION (كل شيء يعمل)');
 console.log('🔬 35 Faults, Vibration & Camera Working, 54 Languages, Payment System.');
 </script>
 </body>
