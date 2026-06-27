@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>AI Car Diagnostics – تشخيص السيارة الذكي</title>
+  <title>AI Mechanic – التشخيص الذكي للمحركات</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -69,17 +69,19 @@
 <body>
 <div class="container">
 
+  <!-- HEADER -->
   <div class="header">
     <div class="qr-code" id="qrContainer"><img id="qrImage" alt="QR"></div>
     <div class="title-section">
       <div class="title-fixed">⚡ AI Mechanic</div>
-      <div class="title-translated" id="dynamicSubtitle">تشخيص السيارة الذكي</div>
+      <div class="title-translated" id="dynamicSubtitle">التشخيص الذكي للمحركات</div>
     </div>
     <div class="car-icon" id="secretAdminIcon"><i class="fas fa-car-side"></i></div>
   </div>
 
   <hr class="gold-line">
 
+  <!-- INFO -->
   <div class="info-strip">
     <span>📍 <span id="currentLocation">جاري...</span></span>
     <span>🕐 <span id="currentTime">--:--:--</span></span>
@@ -92,8 +94,10 @@
 
   <hr class="gold-line">
 
+  <!-- FREE BADGE -->
   <div class="free-badge" id="freeBadge">🔓 3 تشخيصات مجانية متبقية</div>
 
+  <!-- CREDIT CARD -->
   <div class="credit-card">
     <div><i class="fas fa-coins"></i> <span id="creditLabel">الرصيد المتبقي:</span> <span class="credit-amount" id="creditValue">0</span></div>
     <div class="pay-buttons">
@@ -111,11 +115,13 @@
 
   <hr class="gold-line">
 
+  <!-- START -->
   <button id="startDiagnosisBtn" class="btn-primary">🧠 ابدأ التشخيص الذكي</button>
 
+  <!-- SENSORS -->
   <div id="sensorsArea" style="display:none;">
 
-    <!-- ===== SOUND ===== -->
+    <!-- SOUND -->
     <div class="sensor-card" id="sensor-sound">
       <div class="sensor-header">
         <i class="fas fa-microphone sensor-icon"></i>
@@ -133,7 +139,7 @@
       </div>
     </div>
 
-    <!-- ===== VIBRATION ===== -->
+    <!-- VIBRATION -->
     <div class="sensor-card" id="sensor-vibration">
       <div class="sensor-header">
         <i class="fas fa-vibrate sensor-icon"></i>
@@ -151,7 +157,7 @@
       </div>
     </div>
 
-    <!-- ===== CAMERA ===== -->
+    <!-- CAMERA -->
     <div class="sensor-card" id="sensor-camera">
       <div class="sensor-header">
         <i class="fas fa-camera sensor-icon"></i>
@@ -169,17 +175,17 @@
       </div>
     </div>
 
-    <!-- ===== FINALIZE ===== -->
+    <!-- FINALIZE -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">
       <button id="finalizeBtn" class="btn-primary" disabled style="flex:2;">📊 الخلاصة النهائية</button>
       <button id="resetBtn" class="btn-primary" style="background:#555;flex:1;">🔄 بداية جديدة</button>
     </div>
   </div>
 
-  <!-- ===== RESULT ===== -->
+  <!-- RESULT -->
   <div id="resultPanel" class="result-area"></div>
 
-  <!-- ===== SHARE ===== -->
+  <!-- SHARE -->
   <div class="share-buttons">
     <button class="share-btn" id="shareWhatsApp"><i class="fab fa-whatsapp"></i> <span id="shareWhatsAppText">واتساب</span></button>
     <button class="share-btn" id="shareEmail"><i class="fas fa-envelope"></i> <span id="shareEmailText">إيميل</span></button>
@@ -258,7 +264,7 @@ var BCP_MAP = { ar:"ar-SA", en:"en-US", fr:"fr-FR", es:"es-ES", de:"de-DE", it:"
 // ============================================================
 var translations = {
   ar: {
-    subtitle: "تشخيص السيارة الذكي",
+    subtitle: "التشخيص الذكي للمحركات",
     free_badge: "🔓 {0} تشخيصات مجانية متبقية",
     credit_label: "الرصيد المتبقي:",
     activate: "تفعيل",
@@ -337,20 +343,18 @@ var translations = {
     solution_valve_tick: "اضبط خلوص الصمامات",
     fault_pump_whine: "أزيز مضخة وقود/زيت",
     solution_pump_whine: "افحص مضخة الوقود أو الزيت",
-    fault_starter: "مشكلة في بداية المحرك (ستارتر)",
-    solution_starter: "افحص البطارية وأسلاك البدء، قد تحتاج استبدال الستارتر",
-    fault_alternator: "مشكلة في الدينمو (المولد)",
-    solution_alternator: "افحص حساس الشحن والبطارية، قد تحتاج استبدال الدينمو",
+    fault_starter: "مشكلة في بداية المحرك",
+    solution_starter: "افحص البطارية وأسلاك البدء",
+    fault_alternator: "مشكلة في الدينمو",
+    solution_alternator: "افحص حساس الشحن والبطارية",
     fault_catalyst: "انسداد في الكاتم الحفاز",
     solution_catalyst: "نظف أو استبدل الكاتم الحفاز",
-    fault_o2sensor: "عطل في حساس الأكسجين (O2)",
+    fault_o2sensor: "عطل في حساس الأكسجين",
     solution_o2sensor: "استبدل حساس الأكسجين",
-    fault_misfire: "احتراق غير منتظم (Misfire)",
-    solution_misfire: "افحص البوجيهات والبواجي وكويلات الإشعال",
-    fault_vvt: "عطل في نظام التوقيت المتغير (VVT)",
+    fault_misfire: "احتراق غير منتظم",
+    solution_misfire: "افحص البوجيهات وكويلات الإشعال",
+    fault_vvt: "عطل في نظام التوقيت المتغير",
     solution_vvt: "افحص صمام VVT وزيت المحرك",
-    fault_egr: "صمام EGR متسخ",
-    solution_egr: "نظف صمام EGR",
     fault_throttle: "صمام الخانق متسخ",
     solution_throttle: "نظف صمام الخانق",
     fault_injector: "انسداد في البخاخات",
@@ -360,7 +364,7 @@ var translations = {
     fault_ignition_coil: "عطل في كويل الإشعال",
     solution_ignition_coil: "استبدل كويل الإشعال التالف",
     fault_camshaft: "مشكلة في عمود الكامات",
-    solution_camshaft: "افحص توقيت عمود الكامات والصمامات",
+    solution_camshaft: "افحص توقيت عمود الكامات",
     fault_crankshaft: "مشكلة في عمود المرفق",
     solution_crankshaft: "افحص حساس عمود المرفق",
     fault_timing: "انحراف في توقيت المحرك",
@@ -376,12 +380,12 @@ var translations = {
     fault_head_gasket: "تلف في حشية الرأس",
     solution_head_gasket: "استبدل حشية الرأس",
     fault_piston: "تآكل حلقات المكبس",
-    solution_piston: "عمرة محرك (تغيير الحلقات)",
+    solution_piston: "عمرة محرك",
     fault_rod: "مشكلة في قضيب التوصيل",
-    solution_rod: "فحص قضيب التوصيل، قد تحتاج عمرة"
+    solution_rod: "فحص قضيب التوصيل"
   },
   en: {
-    subtitle: "Smart Car Diagnosis",
+    subtitle: "Smart Engine Diagnosis",
     free_badge: "🔓 {0} free diagnoses left",
     credit_label: "Remaining credits:",
     activate: "Activate",
@@ -461,17 +465,17 @@ var translations = {
     fault_pump_whine: "Fuel/Oil pump whine",
     solution_pump_whine: "Check fuel or oil pump",
     fault_starter: "Starter motor issue",
-    solution_starter: "Check battery and wiring, may need starter replacement",
+    solution_starter: "Check battery and wiring",
     fault_alternator: "Alternator issue",
-    solution_alternator: "Check charging system and battery, may need alternator replacement",
+    solution_alternator: "Check charging system",
     fault_catalyst: "Clogged catalytic converter",
     solution_catalyst: "Clean or replace catalytic converter",
     fault_o2sensor: "O2 sensor failure",
     solution_o2sensor: "Replace oxygen sensor",
     fault_misfire: "Engine misfire",
-    solution_misfire: "Check spark plugs, coils and ignition system",
+    solution_misfire: "Check spark plugs and coils",
     fault_vvt: "VVT system issue",
-    solution_vvt: "Check VVT solenoid and engine oil",
+    solution_vvt: "Check VVT solenoid and oil",
     fault_throttle: "Dirty throttle body",
     solution_throttle: "Clean throttle body",
     fault_injector: "Clogged fuel injector",
@@ -481,13 +485,13 @@ var translations = {
     fault_ignition_coil: "Ignition coil failure",
     solution_ignition_coil: "Replace faulty ignition coil",
     fault_camshaft: "Camshaft position issue",
-    solution_camshaft: "Check camshaft timing and sensors",
+    solution_camshaft: "Check camshaft timing",
     fault_crankshaft: "Crankshaft position issue",
-    solution_crankshaft: "Check crankshaft position sensor",
+    solution_crankshaft: "Check crankshaft sensor",
     fault_timing: "Engine timing off",
     solution_timing: "Adjust ignition timing",
     fault_vacuum: "Vacuum leak",
-    solution_vacuum: "Check vacuum hoses and connections",
+    solution_vacuum: "Check vacuum hoses",
     fault_radiator: "Radiator clogged",
     solution_radiator: "Flush or replace radiator",
     fault_thermostat: "Thermostat stuck",
@@ -497,12 +501,12 @@ var translations = {
     fault_head_gasket: "Blown head gasket",
     solution_head_gasket: "Replace head gasket",
     fault_piston: "Worn piston rings",
-    solution_piston: "Engine overhaul (replace rings)",
+    solution_piston: "Engine overhaul",
     fault_rod: "Connecting rod issue",
-    solution_rod: "Check connecting rod, may need overhaul"
+    solution_rod: "Check connecting rod"
   },
   fr: {
-    subtitle: "Diagnostic intelligent de la voiture",
+    subtitle: "Diagnostic intelligent des moteurs",
     free_badge: "🔓 {0} diagnostics gratuits restants",
     credit_label: "Crédits restants:",
     activate: "Activer",
@@ -582,45 +586,45 @@ var translations = {
     fault_pump_whine: "Bruit pompe carburant/huile",
     solution_pump_whine: "Vérifier pompe",
     fault_starter: "Problème de démarreur",
-    solution_starter: "Vérifier batterie et câblage, remplacer le démarreur",
+    solution_starter: "Vérifier batterie et câblage",
     fault_alternator: "Problème d'alternateur",
-    solution_alternator: "Vérifier système de charge et batterie",
+    solution_alternator: "Vérifier système de charge",
     fault_catalyst: "Catalyseur obstrué",
-    solution_catalyst: "Nettoyer ou remplacer le catalyseur",
+    solution_catalyst: "Nettoyer ou remplacer",
     fault_o2sensor: "Capteur O2 défectueux",
-    solution_o2sensor: "Remplacer le capteur d'oxygène",
+    solution_o2sensor: "Remplacer le capteur",
     fault_misfire: "Raté d'allumage",
-    solution_misfire: "Vérifier bougies, bobines et allumage",
+    solution_misfire: "Vérifier bougies et bobines",
     fault_vvt: "Problème de distribution variable",
-    solution_vvt: "Vérifier solénoïde VVT et huile moteur",
+    solution_vvt: "Vérifier solénoïde VVT",
     fault_throttle: "Corps de papillon encrassé",
     solution_throttle: "Nettoyer le corps de papillon",
     fault_injector: "Injecteur obstrué",
-    solution_injector: "Nettoyer ou remplacer les injecteurs",
+    solution_injector: "Nettoyer ou remplacer",
     fault_fuel_pump: "Pompe à carburant faible",
-    solution_fuel_pump: "Vérifier pompe et filtre à carburant",
-    fault_ignition_coil: "Bobine d'allumage défectueuse",
-    solution_ignition_coil: "Remplacer la bobine défectueuse",
-    fault_camshaft: "Problème de position d'arbre à cames",
-    solution_camshaft: "Vérifier timing et capteurs d'arbre à cames",
-    fault_crankshaft: "Problème de position de vilebrequin",
-    solution_crankshaft: "Vérifier capteur de vilebrequin",
+    solution_fuel_pump: "Vérifier pompe et filtre",
+    fault_ignition_coil: "Bobine défectueuse",
+    solution_ignition_coil: "Remplacer la bobine",
+    fault_camshaft: "Problème d'arbre à cames",
+    solution_camshaft: "Vérifier le timing",
+    fault_crankshaft: "Problème de vilebrequin",
+    solution_crankshaft: "Vérifier le capteur",
     fault_timing: "Calage moteur incorrect",
-    solution_timing: "Ajuster le calage de l'allumage",
+    solution_timing: "Ajuster le calage",
     fault_vacuum: "Fuite de dépression",
-    solution_vacuum: "Vérifier les durites de dépression",
+    solution_vacuum: "Vérifier les durites",
     fault_radiator: "Radiateur obstrué",
-    solution_radiator: "Nettoyer ou remplacer le radiateur",
+    solution_radiator: "Nettoyer ou remplacer",
     fault_thermostat: "Thermostat bloqué",
     solution_thermostat: "Remplacer le thermostat",
     fault_water_pump: "Pompe à eau défectueuse",
-    solution_water_pump: "Remplacer la pompe à eau",
+    solution_water_pump: "Remplacer la pompe",
     fault_head_gasket: "Joint de culasse endommagé",
-    solution_head_gasket: "Remplacer le joint de culasse",
-    fault_piston: "Segments de piston usés",
-    solution_piston: "Révision moteur (remplacer les segments)",
+    solution_head_gasket: "Remplacer le joint",
+    fault_piston: "Segments usés",
+    solution_piston: "Révision moteur",
     fault_rod: "Problème de bielle",
-    solution_rod: "Vérifier la bielle, possible révision"
+    solution_rod: "Vérifier la bielle"
   }
 };
 for(var l of allLangs) if(!translations[l.code]) { translations[l.code] = {}; for(var k in translations.en) translations[l.code][k] = translations.en[k]; }
@@ -676,7 +680,7 @@ async function applyTranslations(){
 function showToast(msg){ var el=document.getElementById('toast'); el.innerText=msg; el.classList.add('show'); clearTimeout(el._h); el._h=setTimeout(function(){el.classList.remove('show');},2500); }
 
 // ============================================================
-// 4. CREDITS & ADMIN
+// 4. CREDITS & ADMIN (من تطبيق السيارة)
 // ============================================================
 var freeUsed=parseInt(localStorage.getItem('cdFree')||'0'), paid=parseInt(localStorage.getItem('cdPaid')||'0'), admin=false;
 function totalCredits(){ return admin?9999:Math.max(0,3-freeUsed)+paid; }
@@ -703,7 +707,7 @@ function buildLangSelect(){ var sel=document.getElementById('langSelect'); sel.i
 buildLangSelect();
 
 // ============================================================
-// 6. SENSOR STATE (from working Engine Diagnostics)
+// 6. SENSOR STATE (من المحركات – يعمل)
 // ============================================================
 var sensorState = {
   sound: { isRunning: false, isConfirmed: false, data: null, timerId: null, stream: null, recorder: null, chunks: [] },
@@ -750,24 +754,35 @@ function checkAllConfirmed(){
 }
 
 // ============================================================
-// 7. COUNTDOWN (safe with setInterval)
+// 7. COUNTDOWN – VERSION QUI MARCHE (setTimeout)
 // ============================================================
 function startCountdown(seconds, onTick, onComplete) {
   var remaining = seconds;
-  var timerId = setInterval(function() {
+  var timerId = null;
+  
+  function tick() {
     if (remaining <= 0) {
-      clearInterval(timerId);
+      if (timerId) clearTimeout(timerId);
       onComplete();
       return;
     }
     onTick(remaining);
     remaining--;
-  }, 1000);
-  return timerId;
+    timerId = setTimeout(tick, 1000);
+  }
+  
+  tick();
+  
+  return {
+    clear: function() {
+      if (timerId) clearTimeout(timerId);
+      timerId = null;
+    }
+  };
 }
 
 // ============================================================
-// 8. SOUND SENSOR (working)
+// 8. SOUND (يعمل)
 // ============================================================
 document.getElementById('soundStartBtn').onclick = function(){
   if(sensorState.sound.isRunning || sensorState.sound.isConfirmed) return;
@@ -797,7 +812,7 @@ document.getElementById('soundStartBtn').onclick = function(){
       updateSensorUI('sound');
       var remaining = 8;
       document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+remaining+' ثوانٍ';
-      sensorState.sound.timerId = startCountdown(8,
+      var timerObj = startCountdown(8,
         function(sec) {
           document.getElementById('soundPreview').innerHTML = '🔴 جاري التسجيل... '+sec+' ثوانٍ';
         },
@@ -806,13 +821,14 @@ document.getElementById('soundStartBtn').onclick = function(){
           sensorState.sound.isRunning = false;
         }
       );
+      sensorState.sound.timerId = timerObj;
     })
     .catch(function(){ showToast('❌ فشل الوصول للميكروفون'); });
 };
 document.getElementById('soundStopBtn').onclick = function(){
   if(sensorState.sound.recorder && sensorState.sound.recorder.state === 'recording') {
     sensorState.sound.recorder.stop();
-    if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
+    if(sensorState.sound.timerId) { sensorState.sound.timerId.clear(); sensorState.sound.timerId=null; }
     sensorState.sound.isRunning = false;
     updateSensorUI('sound');
     showToast('⏹ تم إيقاف التسجيل');
@@ -826,7 +842,7 @@ document.getElementById('soundConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('soundRetakeBtn').onclick = function(){
-  if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
+  if(sensorState.sound.timerId) { sensorState.sound.timerId.clear(); sensorState.sound.timerId=null; }
   sensorState.sound.isConfirmed = false;
   sensorState.sound.data = null;
   sensorState.sound.isRunning = false;
@@ -886,7 +902,7 @@ function analyzeSoundBlob(blob){
 }
 
 // ============================================================
-// 9. VIBRATION – FIXED (from working Engine Diagnostics)
+// 9. VIBRATION – VERSION QUI MARCHE (setTimeout)
 // ============================================================
 document.getElementById('vibStartBtn').onclick = function(){
   if(sensorState.vibration.isRunning || sensorState.vibration.isConfirmed) return;
@@ -895,7 +911,6 @@ document.getElementById('vibStartBtn').onclick = function(){
     return;
   }
   
-  // Request permission for iOS 13+
   var startVib = function() {
     sensorState.vibration.isRunning = true;
     updateSensorUI('vibration');
@@ -909,7 +924,7 @@ document.getElementById('vibStartBtn').onclick = function(){
     
     var remaining = 6;
     document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+remaining+' ثوانٍ';
-    sensorState.vibration.timerId = startCountdown(6,
+    var timerObj = startCountdown(6,
       function(sec) {
         document.getElementById('vibPreview').innerHTML = '📳 جاري القياس... '+sec+' ثوانٍ';
       },
@@ -928,9 +943,9 @@ document.getElementById('vibStartBtn').onclick = function(){
         showToast('✅ اكتمل قياس الاهتزاز');
       }
     );
+    sensorState.vibration.timerId = timerObj;
   };
   
-  // Handle iOS permission
   if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission().then(function(state) {
       if (state === 'granted') {
@@ -939,7 +954,6 @@ document.getElementById('vibStartBtn').onclick = function(){
         showToast('❌ رفض الوصول لمستشعر الحركة');
       }
     }).catch(function() {
-      // Fallback for some browsers
       startVib();
     });
   } else {
@@ -948,7 +962,7 @@ document.getElementById('vibStartBtn').onclick = function(){
 };
 document.getElementById('vibStopBtn').onclick = function(){
   if(sensorState.vibration.isRunning) {
-    if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+    if(sensorState.vibration.timerId) { sensorState.vibration.timerId.clear(); sensorState.vibration.timerId=null; }
     sensorState.vibration.isRunning = false;
     updateSensorUI('vibration');
     showToast('⏹ تم إيقاف الاهتزاز');
@@ -962,7 +976,7 @@ document.getElementById('vibConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('vibRetakeBtn').onclick = function(){
-  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
+  if(sensorState.vibration.timerId) { sensorState.vibration.timerId.clear(); sensorState.vibration.timerId=null; }
   sensorState.vibration.isConfirmed = false;
   sensorState.vibration.data = null;
   sensorState.vibration.isRunning = false;
@@ -973,7 +987,7 @@ document.getElementById('vibRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 10. CAMERA – FIXED (from working Engine Diagnostics)
+// 10. CAMERA – VERSION QUI MARCHE (setTimeout)
 // ============================================================
 document.getElementById('camStartBtn').onclick = function(){
   if(sensorState.camera.isRunning || sensorState.camera.isConfirmed) return;
@@ -996,12 +1010,11 @@ document.getElementById('camStartBtn').onclick = function(){
       
       var remaining = 5;
       document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+remaining+' ثوانٍ';
-      sensorState.camera.timerId = startCountdown(5,
+      var timerObj = startCountdown(5,
         function(sec) {
           document.getElementById('camPreview').innerHTML = '📸 جاري التصوير... '+sec+' ثوانٍ';
         },
         function() {
-          // Capture frame
           var canvas = document.createElement('canvas');
           canvas.width = video.videoWidth || 640;
           canvas.height = video.videoHeight || 480;
@@ -1033,6 +1046,7 @@ document.getElementById('camStartBtn').onclick = function(){
           showToast('✅ اكتمل تصوير الدخان');
         }
       );
+      sensorState.camera.timerId = timerObj;
     })
     .catch(function(){
       showToast('❌ فشل الوصول للكاميرا');
@@ -1040,7 +1054,7 @@ document.getElementById('camStartBtn').onclick = function(){
 };
 document.getElementById('camStopBtn').onclick = function(){
   if(sensorState.camera.isRunning) {
-    if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
+    if(sensorState.camera.timerId) { sensorState.camera.timerId.clear(); sensorState.camera.timerId=null; }
     sensorState.camera.isRunning = false;
     if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
     sensorState.camera.stream = null;
@@ -1056,7 +1070,7 @@ document.getElementById('camConfirmBtn').onclick = function(){
   }
 };
 document.getElementById('camRetakeBtn').onclick = function(){
-  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
+  if(sensorState.camera.timerId) { sensorState.camera.timerId.clear(); sensorState.camera.timerId=null; }
   sensorState.camera.isConfirmed = false;
   sensorState.camera.data = null;
   sensorState.camera.isRunning = false;
@@ -1069,7 +1083,7 @@ document.getElementById('camRetakeBtn').onclick = function(){
 };
 
 // ============================================================
-// 11. FINGERPRINTS – 35 FAULTS (expanded)
+// 11. 35 FAULTS (من المحركات)
 // ============================================================
 var ENGINE_FINGERPRINTS = [
   { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low',
@@ -1102,7 +1116,6 @@ var ENGINE_FINGERPRINTS = [
     freq:[220,330,440,550], pattern:'regular', amp:'medium', smoke:'none', vib:'medium', heat:'moderate' },
   { id:'pump_whine', nameKey:'fault_pump_whine', solutionKey:'solution_pump_whine', severity:'medium',
     freq:[300,450,600,750], pattern:'regular', amp:'medium', smoke:'none', vib:'medium', heat:'high' },
-  // NEW FAULTS (20 more)
   { id:'starter', nameKey:'fault_starter', solutionKey:'solution_starter', severity:'high',
     freq:[40,80,120,160], pattern:'irregular', amp:'high', smoke:'none', vib:'high', heat:'moderate' },
   { id:'alternator', nameKey:'fault_alternator', solutionKey:'solution_alternator', severity:'medium',
@@ -1229,9 +1242,9 @@ document.getElementById('startDiagnosisBtn').onclick = function(){
 };
 
 function resetAllSensors(){
-  if(sensorState.sound.timerId) { clearInterval(sensorState.sound.timerId); sensorState.sound.timerId=null; }
-  if(sensorState.vibration.timerId) { clearInterval(sensorState.vibration.timerId); sensorState.vibration.timerId=null; }
-  if(sensorState.camera.timerId) { clearInterval(sensorState.camera.timerId); sensorState.camera.timerId=null; }
+  if(sensorState.sound.timerId) { sensorState.sound.timerId.clear(); sensorState.sound.timerId=null; }
+  if(sensorState.vibration.timerId) { sensorState.vibration.timerId.clear(); sensorState.vibration.timerId=null; }
+  if(sensorState.camera.timerId) { sensorState.camera.timerId.clear(); sensorState.camera.timerId=null; }
   if(sensorState.sound.recorder && sensorState.sound.recorder.state==='recording') sensorState.sound.recorder.stop();
   if(sensorState.sound.stream) sensorState.sound.stream.getTracks().forEach(t=>t.stop());
   if(sensorState.camera.stream) sensorState.camera.stream.getTracks().forEach(t=>t.stop());
@@ -1262,8 +1275,8 @@ document.getElementById('resetBtn').onclick = function(){
 // 14. SHARE
 // ============================================================
 document.getElementById('shareWhatsApp').onclick=function(){ window.open('https://wa.me/?text='+encodeURIComponent(window.location.href),'_blank'); };
-document.getElementById('shareEmail').onclick=function(){ window.location.href='mailto:?subject=AI%20Mechanic&body='+encodeURIComponent('جرب تطبيق تشخيص السيارة الذكي: '+window.location.href); };
-document.getElementById('shareGeneral').onclick=function(){ if(navigator.share) navigator.share({title:'AI Mechanic', text:'تشخيص أعطال السيارة بالذكاء الاصطناعي', url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); } };
+document.getElementById('shareEmail').onclick=function(){ window.location.href='mailto:?subject=AI%20Mechanic&body='+encodeURIComponent('جرب تطبيق تشخيص المحرك الذكي: '+window.location.href); };
+document.getElementById('shareGeneral').onclick=function(){ if(navigator.share) navigator.share({title:'AI Mechanic', text:'تشخيص أعطال المحرك بالذكاء الاصطناعي', url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط'); } };
 
 // ============================================================
 // 15. ADMIN (5 clicks on car icon)
@@ -1285,8 +1298,8 @@ document.getElementById('secretAdminIcon').onclick=function(){
 // 16. INIT
 // ============================================================
 applyTranslations().then(function(){ getLocation(); });
-console.log('✅ AI Car Diagnostics – FINAL VERSION');
-console.log('🔬 35 Faults, Vibration & Camera Fixed, 54 Languages.');
+console.log('✅ AI Mechanic – FINAL VERSION (Working sensors + 35 faults + payment)');
+console.log('🔬 35 Faults, Vibration & Camera Working, 54 Languages, Payment System.');
 </script>
 </body>
 </html>
