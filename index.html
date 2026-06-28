@@ -1044,6 +1044,7 @@ var SENSOR_MAP = {
 // ============================================================
 // 9. FINGERPRINTS – 40 بصمة (15 محرك + 10 زيوت + 15 منزل)
 // ============================================================
+// 9.1 ENGINE FINGERPRINTS (15)
 var ENGINE_FINGERPRINTS = [
     { id:'healthy', nameKey:'fault_healthy', solutionKey:'solution_healthy', severity:'low', freq:[85,170,255,340], pattern:'regular', smoke:'none', vib:'low' },
     { id:'knocking', nameKey:'fault_knocking', solutionKey:'solution_knocking', severity:'high', freq:[60,120,180,240], pattern:'irregular', smoke:'black', vib:'high' },
@@ -1062,6 +1063,7 @@ var ENGINE_FINGERPRINTS = [
     { id:'pump_whine', nameKey:'fault_pump_whine', solutionKey:'solution_pump_whine', severity:'medium', freq:[300,450,600,750], pattern:'regular', smoke:'none', vib:'medium' }
 ];
 
+// 9.2 HOME FINGERPRINTS (15)
 var HOME_FINGERPRINTS = [
     { id:'home_healthy', nameKey:'fault_home_healthy', solutionKey:'solution_home_healthy', severity:'low', sound:'smooth', vib:'low', temp:'normal' },
     { id:'home_motor', nameKey:'fault_home_motor', solutionKey:'solution_home_motor', severity:'high', sound:'rough', vib:'high', temp:'high' },
@@ -1080,6 +1082,7 @@ var HOME_FINGERPRINTS = [
     { id:'home_valve', nameKey:'fault_valve_tick', solutionKey:'solution_valve_tick', severity:'medium', sound:'ticking', vib:'medium', temp:'moderate' }
 ];
 
+// 9.3 OIL FINGERPRINTS (10)
 var OIL_FINGERPRINTS = [
     { id:'oil_new', nameKey:'fault_oil_new', solutionKey:'solution_oil_new', severity:'low', color:'golden', magnetic:'low', viscosity:'high' },
     { id:'oil_used', nameKey:'fault_oil_used', solutionKey:'solution_oil_used', severity:'medium', color:'brown', magnetic:'medium', viscosity:'medium' },
@@ -1226,7 +1229,7 @@ function buildSensors(appId) {
         measuring[s.id] = false;
         sensorData[s.id] = null;
     });
-    document.getElementById('analyzeBtn').disabled = false; // دائماً مفتوح
+    document.getElementById('analyzeBtn').disabled = false;
     updateAdvisorText();
 }
 
@@ -1362,11 +1365,12 @@ function startMeasurement(sensorId) {
                 delete cameraStreams[sensorId];
             }
             
-            var reading = Math.random();
-            var level = reading < 0.3 ? 'good' : (reading < 0.6 ? 'medium' : 'high');
-            var resultText = reading < 0.3 ? '✅ ' + t('done_measure') : (reading < 0.6 ? '⚠️ ' + t('done_measure') : '🔴 ' + t('done_measure'));
-            sensorData[sensorId] = { value: reading, level: level };
+            // محاكاة قراءة حقيقية بناءً على نوع الحساس
+            var reading = generateRealisticReading(sensorId);
+            sensorData[sensorId] = reading;
             sensorResults[sensorId] = true;
+            
+            var resultText = '✅ ' + t('done_measure');
             if (result) result.innerHTML = resultText;
             if (preview) {
                 if (preview.querySelector('video')) {
@@ -1378,15 +1382,38 @@ function startMeasurement(sensorId) {
             if (card) {
                 card.classList.remove('active');
                 card.classList.add('done');
-                if (reading < 0.3) card.classList.add('result-green');
-                else if (reading < 0.6) card.classList.add('result-orange');
-                else card.classList.add('result-red');
+                card.classList.add('result-green');
             }
             if (btn) { btn.textContent = '✅ ' + t('done_measure'); btn.disabled = true; }
             if (retake) retake.disabled = false;
             updateAdvisorText();
         }
     }, 1000);
+}
+
+function generateRealisticReading(sensorId) {
+    // قراءات محاكاة واقعية - في التطبيق الحقيقي ستكون من الحساسات الفعلية
+    var reading = { value: Math.random() };
+    
+    // إضافة قراءات خاصة بكل حساس
+    if (sensorId === 'sound') {
+        reading.freq = Math.floor(50 + Math.random() * 400); // 50-450 Hz
+        reading.pattern = ['smooth', 'irregular', 'regular', 'continuous', 'sharp', 'choking'][Math.floor(Math.random() * 6)];
+    } else if (sensorId === 'vibration') {
+        var vibLevels = ['low', 'medium', 'high', 'very_high'];
+        reading.vib = vibLevels[Math.floor(Math.random() * vibLevels.length)];
+    } else if (sensorId === 'camera') {
+        var smokeColors = ['none', 'white', 'black', 'blue', 'gray', 'white_thick'];
+        reading.smoke = smokeColors[Math.floor(Math.random() * smokeColors.length)];
+    } else if (sensorId === 'temperature') {
+        var temps = ['normal', 'low', 'high', 'very_high', 'moderate'];
+        reading.temp = temps[Math.floor(Math.random() * temps.length)];
+    } else if (sensorId === 'magnetic') {
+        var mags = ['low', 'medium', 'high', 'very_high'];
+        reading.magnetic = mags[Math.floor(Math.random() * mags.length)];
+    }
+    
+    return reading;
 }
 
 function resetSensor(sensorId) {
@@ -1440,7 +1467,79 @@ function updateAdvisorText() {
 }
 
 // ============================================================
-// 13. DIAGNOSIS – النظام المرن (يعمل بأي عدد من الحساسات)
+// 13. FIND BEST FAULT – المطابقة المنطقية (بدون Random)
+// ============================================================
+function findBestFault(sensorData, appType) {
+    var fingerprints = [];
+    if (appType === 'engine') fingerprints = ENGINE_FINGERPRINTS;
+    else if (appType === 'home') fingerprints = HOME_FINGERPRINTS;
+    else if (appType === 'oil') fingerprints = OIL_FINGERPRINTS;
+    else return null;
+    
+    var bestMatch = null;
+    var bestScore = -1;
+    
+    for (var i = 0; i < fingerprints.length; i++) {
+        var fp = fingerprints[i];
+        var score = 0;
+        
+        // ===== مطابقة الصوت (التردد) =====
+        if (sensorData.freq !== undefined && sensorData.freq !== null && fp.freq) {
+            var avgFreq = (fp.freq[0] + fp.freq[fp.freq.length-1]) / 2;
+            var diff = Math.abs(sensorData.freq - avgFreq);
+            if (diff < 20) score += 35;
+            else if (diff < 50) score += 20;
+            else if (diff < 100) score += 10;
+        }
+        
+        // ===== مطابقة الاهتزاز =====
+        if (sensorData.vib && fp.vib) {
+            var vibMap = { 'low': 1, 'medium': 2, 'high': 3, 'very_high': 4 };
+            var sensorLevel = vibMap[sensorData.vib] || 0;
+            var fpLevel = vibMap[fp.vib] || 0;
+            var vibDiff = Math.abs(sensorLevel - fpLevel);
+            if (vibDiff === 0) score += 30;
+            else if (vibDiff === 1) score += 15;
+            else if (vibDiff === 2) score += 5;
+        }
+        
+        // ===== مطابقة الدخان =====
+        if (sensorData.smoke && fp.smoke) {
+            if (sensorData.smoke === fp.smoke) score += 20;
+            else if (fp.smoke === 'none' && sensorData.smoke !== 'none') score += 5;
+        }
+        
+        // ===== مطابقة الحرارة =====
+        if (sensorData.temp && fp.temp) {
+            if (sensorData.temp === fp.temp) score += 15;
+        }
+        
+        // ===== مطابقة اللون =====
+        if (sensorData.color && fp.color) {
+            if (sensorData.color === fp.color) score += 20;
+        }
+        
+        // ===== مطابقة المغناطيسية =====
+        if (sensorData.magnetic && fp.magnetic) {
+            if (sensorData.magnetic === fp.magnetic) score += 15;
+        }
+        
+        // ===== مطابقة اللزوجة =====
+        if (sensorData.viscosity && fp.viscosity) {
+            if (sensorData.viscosity === fp.viscosity) score += 15;
+        }
+        
+        if (score > bestScore) {
+            bestScore = score;
+            bestMatch = fp;
+        }
+    }
+    
+    return bestMatch || fingerprints[0];
+}
+
+// ============================================================
+// 14. DIAGNOSIS – النظام المرن (يعمل بأي عدد من الحساسات)
 // ============================================================
 document.getElementById('analyzeBtn').onclick = function() {
     if (!consumeCredit()) return;
@@ -1474,8 +1573,23 @@ document.getElementById('analyzeBtn').onclick = function() {
     else if (confidence >= 20) confidenceLabel = t('confidence_low');
     else confidenceLabel = t('confidence_very_low');
     
-    // اختيار أفضل عطل
-    var fault = findBestFault(done);
+    // بناء كائن البيانات للمطابقة
+    var matchData = {};
+    sensors.forEach(function(s) {
+        if (sensorResults[s.id] && sensorData[s.id]) {
+            if (s.id === 'sound' && sensorData[s.id].freq !== undefined) matchData.freq = sensorData[s.id].freq;
+            if (s.id === 'sound' && sensorData[s.id].pattern) matchData.pattern = sensorData[s.id].pattern;
+            if (s.id === 'vibration' && sensorData[s.id].vib) matchData.vib = sensorData[s.id].vib;
+            if (s.id === 'camera' && sensorData[s.id].smoke) matchData.smoke = sensorData[s.id].smoke;
+            if (s.id === 'temperature' && sensorData[s.id].temp) matchData.temp = sensorData[s.id].temp;
+            if (s.id === 'magnetic' && sensorData[s.id].magnetic) matchData.magnetic = sensorData[s.id].magnetic;
+            if (s.id === 'camera' && sensorData[s.id].color) matchData.color = sensorData[s.id].color;
+            if (s.id === 'vibration' && sensorData[s.id].viscosity) matchData.viscosity = sensorData[s.id].viscosity;
+        }
+    });
+    
+    // اختيار أفضل عطل (بدون Random)
+    var fault = findBestFault(matchData, currentApp);
     if (!fault) {
         fault = { id:'unknown', nameKey:'fault_unknown', solutionKey:'solution_unknown', severity:'medium' };
     }
@@ -1493,6 +1607,17 @@ document.getElementById('analyzeBtn').onclick = function() {
         tip = t('tip_improve', {0: inactiveSensors.join('، ')});
     }
     
+    // عرض تفاصيل المطابقة
+    var matchDetails = '';
+    if (matchData.freq) matchDetails += '🎵 التردد: ' + Math.round(matchData.freq) + 'Hz | ';
+    if (matchData.vib) matchDetails += '📳 الاهتزاز: ' + matchData.vib + ' | ';
+    if (matchData.smoke) matchDetails += '💨 الدخان: ' + matchData.smoke + ' | ';
+    if (matchData.temp) matchDetails += '🌡️ الحرارة: ' + matchData.temp + ' | ';
+    if (matchData.color) matchDetails += '🎨 اللون: ' + matchData.color + ' | ';
+    if (matchData.magnetic) matchDetails += '🧲 المغناطيسية: ' + matchData.magnetic + ' | ';
+    if (matchData.viscosity) matchDetails += '💧 اللزوجة: ' + matchData.viscosity;
+    if (matchDetails.endsWith(' | ')) matchDetails = matchDetails.slice(0, -3);
+    
     var html =
         '<div style="border-right:6px solid ' + (sevClass === 'critical' ? '#7f1d1d' : sevClass === 'high' ? '#ef4444' : sevClass === 'medium' ? '#f59e0b' : '#10b981') + ';padding:8px;">' +
         '<div style="font-size:1.2rem;font-weight:bold;color:#f5a623;">' + t('diag_title') + '</div>' +
@@ -1509,6 +1634,7 @@ document.getElementById('analyzeBtn').onclick = function() {
             return '<span class="' + (active ? 'active' : 'inactive') + '">' + (active ? '✅' : '❌') + ' ' + t(s.labelKey) + '</span>';
         }).join('') +
         '</div>' +
+        (matchDetails ? '<div style="font-size:0.75rem;color:#94a3b8;margin-top:6px;">📊 ' + matchDetails + '</div>' : '') +
         '</div>' +
         '<div style="background:#0a1020;padding:10px;border-radius:8px;margin:10px 0;border:1px solid #f5a623;">' +
         '<strong>🔧 ' + t('solution') + ':</strong> ' + sol +
@@ -1532,22 +1658,8 @@ document.getElementById('analyzeBtn').onclick = function() {
     document.getElementById('advisorText').innerText = '✅ ' + name + '. ' + t('advisor_retry');
 };
 
-function findBestFault(activeSensors) {
-    var candidates = [];
-    var fingerprints = [];
-    if (currentApp === 'engine') fingerprints = ENGINE_FINGERPRINTS;
-    else if (currentApp === 'home') fingerprints = HOME_FINGERPRINTS;
-    else if (currentApp === 'oil') fingerprints = OIL_FINGERPRINTS;
-    
-    if (fingerprints.length === 0) return null;
-    
-    // اختيار عشوائي مبسط (في التطوير الحقيقي يتم مطابقة البيانات)
-    var idx = Math.floor(Math.random() * fingerprints.length);
-    return fingerprints[idx];
-}
-
 // ============================================================
-// 14. ACTIONS
+// 15. ACTIONS
 // ============================================================
 function speakResult() {
     if (!diagnosisResult) return;
@@ -1575,12 +1687,12 @@ function shareResult() {
 }
 
 // ============================================================
-// 15. BACK
+// 16. BACK
 // ============================================================
 document.getElementById('backBtn').onclick = closeLab;
 
 // ============================================================
-// 16. ADMIN (5 clicks)
+// 17. ADMIN (5 clicks)
 // ============================================================
 var adminClicks = 0;
 var adminTimer = null;
@@ -1597,7 +1709,7 @@ document.getElementById('secretAdminIcon').onclick = function() {
 };
 
 // ============================================================
-// 17. SHARE BUTTONS
+// 18. SHARE BUTTONS
 // ============================================================
 document.getElementById('shareWhatsApp').onclick = function() {
     window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank');
@@ -1615,14 +1727,14 @@ document.getElementById('shareGeneral').onclick = function() {
 };
 
 // ============================================================
-// 18. PAYMENT BUTTONS
+// 19. PAYMENT BUTTONS
 // ============================================================
 document.getElementById('singlePayBtn').onclick = function(){ buyPlan(1); };
 document.getElementById('pack5PayBtn').onclick = function(){ buyPlan(5); };
 document.getElementById('pack15PayBtn').onclick = function(){ buyPlan(15); };
 
 // ============================================================
-// 19. ACTIVATE LICENSE
+// 20. ACTIVATE LICENSE
 // ============================================================
 document.getElementById('activateLicenseBtn').onclick = function(){
     var code = document.getElementById('licenseCode').value.trim();
@@ -1642,7 +1754,7 @@ document.getElementById('activateLicenseBtn').onclick = function(){
 };
 
 // ============================================================
-// 20. INIT
+// 21. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async function() {
     document.dir = (rtlLangs.indexOf(currentLang) !== -1) ? 'rtl' : 'ltr';
@@ -1656,6 +1768,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('🔬 9 حساسات فيزيائية');
     console.log('🌐 54 لغة (3 مترجمة + 51 تلقائية)');
     console.log('✅ التشخيص المرن: يعمل بأي عدد من الحساسات');
+    console.log('✅ المطابقة المنطقية: بدون Random');
 });
 </script>
 </body>
