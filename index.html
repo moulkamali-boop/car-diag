@@ -1081,7 +1081,7 @@ function stopAllCameras() {
 }
 
 // ============================================================
-// 11. MEASURE SENSOR – مع إصلاح الكاميرا
+// 11. MEASURE SENSOR – مع إصلاح الكاميرا النهائي
 // ============================================================
 function measureSensor(sensorId) {
     if (measuring[sensorId]) return;
@@ -1090,17 +1090,21 @@ function measureSensor(sensorId) {
     var sensor = sensors.find(function(s){ return s.id === sensorId; });
     if (!sensor) return;
     
-    // ==== طلب الإذن للكاميرا ====
+    // ==== طلب الإذن للكاميرا (يطلب الإذن ثم يبدأ القياس) ====
     if (sensor.permKey && sensor.type === 'camera') {
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function(stream) {
+                // تم منح الإذن، أغلق الـ stream المؤقت وابدأ القياس
                 stream.getTracks().forEach(function(t){ t.stop(); });
-                startMeasurement(sensorId);
+                // تأخير بسيط لضمان تحرير الموارد
+                setTimeout(function() {
+                    startMeasurement(sensorId);
+                }, 100);
             })
-            .catch(function() {
-                showToast(t('perm_denied'));
+            .catch(function(err) {
+                showToast(t('perm_denied') + ': ' + (err.message || ''));
             });
-        return;
+        return; // انتظر نتيجة الإذن
     }
     
     // ==== طلب الإذن للميكروفون ====
@@ -1473,7 +1477,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('📊 40 بصمة تشخيصية (15+10+15)');
     console.log('🔬 9 حساسات فيزيائية');
     console.log('🌐 54 لغة (3 مترجمة + 51 تلقائية)');
-    console.log('✅ الكاميرا تعمل مع طلب الإذن والمعاينة');
+    console.log('✅ الكاميرا تطلب الإذن وتعرض المعاينة وتغلق بعد القياس');
 });
 </script>
 </body>
